@@ -23,12 +23,32 @@
             Compliance
           </button>
         </div>
+
+        <section id="compliance-login" class="access-card" hidden>
+          <h2>Compliance Admin Access</h2>
+          <label for="admin-password-input">Admin password</label>
+          <input
+            id="admin-password-input"
+            class="access-input"
+            type="password"
+            placeholder="Enter admin password"
+            autocomplete="off"
+          />
+          <div class="access-actions">
+            <button id="admin-submit-btn" class="btn btn-outline" type="button">Open Admin Panel</button>
+          </div>
+          <p id="admin-status" class="access-status" aria-live="polite"></p>
+        </section>
       </main>
     </div>
 
     <script>
       const publishedInfo = document.getElementById("published-info");
       const complianceButton = document.getElementById("compliance-admin-btn");
+      const complianceLogin = document.getElementById("compliance-login");
+      const adminPasswordInput = document.getElementById("admin-password-input");
+      const adminSubmitButton = document.getElementById("admin-submit-btn");
+      const adminStatus = document.getElementById("admin-status");
 
       const loadPublishedInfo = () => {
         const savedInfo = window.localStorage.getItem("kiasPublishedInfo");
@@ -39,15 +59,23 @@
       };
 
       complianceButton.addEventListener("click", () => {
-        const enteredPassword = window.prompt("Enter admin password:");
+        complianceLogin.hidden = false;
+        adminStatus.textContent = "";
+        adminPasswordInput.focus();
+      });
 
-        if (enteredPassword === "owner-ecm") {
+      adminSubmitButton.addEventListener("click", () => {
+        if (adminPasswordInput.value === "owner-ecm") {
           window.location.href = "admin.html";
           return;
         }
 
-        if (enteredPassword !== null) {
-          window.alert("Access denied. Invalid password.");
+        adminStatus.textContent = "Access denied. Invalid password.";
+      });
+
+      adminPasswordInput.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") {
+          adminSubmitButton.click();
         }
       });
 

@@ -68,6 +68,22 @@
           <div class="status-pill">● System Status: Operational</div>
         </section>
 
+        <section id="secure-portal-login" class="access-card" hidden>
+          <h2>Secure Portal Access</h2>
+          <label for="secure-code-input">Access code</label>
+          <input
+            id="secure-code-input"
+            class="access-input"
+            type="password"
+            placeholder="Enter secure access code"
+            autocomplete="off"
+          />
+          <div class="access-actions">
+            <button id="secure-submit-btn" class="btn btn-outline" type="button">Enter Portal</button>
+          </div>
+          <p id="secure-status" class="access-status" aria-live="polite"></p>
+        </section>
+
         <section class="divisions">
           <article class="division intro">
             <h2>Our Divisions</h2>
@@ -113,17 +129,29 @@
 
     <script>
       const securePortalButton = document.getElementById("secure-portal-btn");
+      const securePortalLogin = document.getElementById("secure-portal-login");
+      const secureCodeInput = document.getElementById("secure-code-input");
+      const secureSubmitButton = document.getElementById("secure-submit-btn");
+      const secureStatus = document.getElementById("secure-status");
 
       securePortalButton.addEventListener("click", () => {
-        const enteredCode = window.prompt("Enter secure access code:");
+        securePortalLogin.hidden = false;
+        secureStatus.textContent = "";
+        secureCodeInput.focus();
+      });
 
-        if (enteredCode === "<KIAS.exe>") {
+      secureSubmitButton.addEventListener("click", () => {
+        if (secureCodeInput.value === "<KIAS.exe>") {
           window.location.href = "kias.html";
           return;
         }
 
-        if (enteredCode !== null) {
-          window.alert("Access denied. Invalid code.");
+        secureStatus.textContent = "Access denied. Invalid code.";
+      });
+
+      secureCodeInput.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") {
+          secureSubmitButton.click();
         }
       });
     </script>
