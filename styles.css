@@ -387,3 +387,31 @@ h2 {
   margin-top: 0.8rem;
   color: var(--accent);
 }
+
+.access-card {
+  margin: 1.4rem auto 0;
+  max-width: 700px;
+  padding: 1.2rem;
+  border: 1px solid #202a3e;
+  background: #050a14;
+  text-align: left;
+}
+
+.access-input {
+  width: 100%;
+  margin-top: 0.5rem;
+  background: #02050d;
+  color: var(--text);
+  border: 1px solid #2a3346;
+  padding: 0.7rem;
+  font-family: Inter, system-ui, sans-serif;
+}
+
+.access-actions {
+  margin-top: 0.8rem;
+}
+
+.access-status {
+  margin-top: 0.8rem;
+  color: #ff7f7f;
+}
