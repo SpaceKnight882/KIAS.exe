@@ -28,7 +28,17 @@
           <a href="#">Newsroom</a>
           <a href="#">Contact</a>
         </nav>
-        <button class="btn btn-outline">Secure Portal</button>
+        <div class="admin-access">
+          <input
+            class="admin-password"
+            type="password"
+            placeholder="Admin password"
+            data-admin-password
+            aria-label="Admin password"
+          />
+          <button class="btn btn-outline" data-admin-portal>Secure Portal</button>
+          <p class="admin-message" data-admin-message aria-live="polite"></p>
+        </div>
       </header>
 
       <main>
@@ -110,6 +120,6 @@
         </nav>
       </footer>
     </div>
+    <script src="auth.js"></script>
   </body>
 </html>
-
