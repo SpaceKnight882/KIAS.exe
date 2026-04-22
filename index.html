@@ -28,7 +28,7 @@
           <a href="#">Newsroom</a>
           <a href="#">Contact</a>
         </nav>
-        <button class="btn btn-outline">Secure Portal</button>
+        <button id="secure-portal-btn" class="btn btn-outline" type="button">Secure Portal</button>
       </header>
 
       <main>
@@ -110,6 +110,22 @@
         </nav>
       </footer>
     </div>
+
+    <script>
+      const securePortalButton = document.getElementById("secure-portal-btn");
+
+      securePortalButton.addEventListener("click", () => {
+        const enteredCode = window.prompt("Enter secure access code:");
+
+        if (enteredCode === "<KIAS.exe>") {
+          window.location.href = "kias.html";
+          return;
+        }
+
+        if (enteredCode !== null) {
+          window.alert("Access denied. Invalid code.");
+        }
+      });
+    </script>
   </body>
 </html>
-
