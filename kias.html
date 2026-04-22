@@ -7,12 +7,52 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <div class="page-shell" style="min-height: 100vh; display: grid; place-items: center">
-      <main style="padding: 3rem; text-align: center">
+    <div class="page-shell kias-shell">
+      <main class="kias-main">
         <h1>Welcome to the KIAS Secure Portal</h1>
         <p class="lead">Authorized access confirmed.</p>
-        <a class="btn btn-outline" href="index.html">Return to Main Site</a>
+
+        <section class="kias-info" aria-live="polite">
+          <h2>Published Information</h2>
+          <p id="published-info">No information has been published yet.</p>
+        </section>
+
+        <div class="kias-actions">
+          <a class="btn btn-outline" href="index.html">Return to Main Site</a>
+          <button id="compliance-admin-btn" class="btn btn-outline" type="button">
+            Compliance
+          </button>
+        </div>
       </main>
     </div>
+
+    <script>
+      const publishedInfo = document.getElementById("published-info");
+      const complianceButton = document.getElementById("compliance-admin-btn");
+
+      const loadPublishedInfo = () => {
+        const savedInfo = window.localStorage.getItem("kiasPublishedInfo");
+        publishedInfo.textContent =
+          savedInfo && savedInfo.trim().length > 0
+            ? savedInfo
+            : "No information has been published yet.";
+      };
+
+      complianceButton.addEventListener("click", () => {
+        const enteredPassword = window.prompt("Enter admin password:");
+
+        if (enteredPassword === "owner-ecm") {
+          window.location.href = "admin.html";
+          return;
+        }
+
+        if (enteredPassword !== null) {
+          window.alert("Access denied. Invalid password.");
+        }
+      });
+
+      window.addEventListener("storage", loadPublishedInfo);
+      loadPublishedInfo();
+    </script>
   </body>
 </html>

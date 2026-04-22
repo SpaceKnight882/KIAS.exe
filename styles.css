@@ -306,3 +306,84 @@ h2 {
     font-size: clamp(2.2rem, 16vw, 3.8rem);
   }
 }
+
+.kias-shell,
+.admin-shell {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+}
+
+.kias-main,
+.admin-main {
+  width: min(100%, 1000px);
+  padding: 3rem;
+}
+
+.kias-main {
+  text-align: center;
+}
+
+.kias-actions {
+  margin-top: 2rem;
+  display: flex;
+  gap: 0.8rem;
+  justify-content: center;
+}
+
+.kias-info {
+  margin: 2rem auto 0;
+  max-width: 700px;
+  padding: 1.2rem;
+  border: 1px solid #202a3e;
+  background: #050a14;
+  text-align: left;
+}
+
+.admin-grid {
+  margin: 2rem 0;
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+
+.admin-card {
+  border: 1px solid #202a3e;
+  background: #050a14;
+  padding: 1.2rem;
+}
+
+.drop-zone {
+  margin-top: 0.7rem;
+  min-height: 120px;
+  border: 2px dashed #4b556d;
+  display: grid;
+  place-items: center;
+  color: var(--muted);
+}
+
+.drop-zone.drag-active {
+  border-color: var(--accent);
+  color: var(--text);
+}
+
+.drop-log {
+  margin: 1rem 0 0;
+  padding-left: 1.2rem;
+  color: var(--muted);
+}
+
+#publisher-text {
+  width: 100%;
+  margin: 0.5rem 0 0.8rem;
+  background: #02050d;
+  color: var(--text);
+  border: 1px solid #2a3346;
+  padding: 0.7rem;
+  font-family: Inter, system-ui, sans-serif;
+}
+
+.publish-status {
+  margin-top: 0.8rem;
+  color: var(--accent);
+}

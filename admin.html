@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>KIAS Admin Panel</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="page-shell admin-shell">
+      <main class="admin-main">
+        <h1>KIAS Admin Panel</h1>
+        <p class="lead">Drag and drop logs and publish information to kias.html.</p>
+
+        <section class="admin-grid">
+          <article class="admin-card">
+            <h2>Drag & Drop Log</h2>
+            <div id="drop-zone" class="drop-zone" tabindex="0" role="button" aria-label="Drop log files here">
+              Drop files here
+            </div>
+            <ul id="drop-log" class="drop-log"></ul>
+          </article>
+
+          <article class="admin-card">
+            <h2>Information Publisher</h2>
+            <label for="publisher-text">Content shown on kias.html</label>
+            <textarea id="publisher-text" rows="8" placeholder="Type the information you want to publish"></textarea>
+            <button id="publish-btn" class="btn btn-outline" type="button">Publish</button>
+            <p id="publish-status" class="publish-status" aria-live="polite"></p>
+          </article>
+        </section>
+
+        <a class="btn btn-outline" href="kias.html">Back to KIAS Portal</a>
+      </main>
+    </div>
+
+    <script>
+      const dropZone = document.getElementById("drop-zone");
+      const dropLog = document.getElementById("drop-log");
+      const publisherText = document.getElementById("publisher-text");
+      const publishButton = document.getElementById("publish-btn");
+      const publishStatus = document.getElementById("publish-status");
+
+      const logDroppedFile = (fileName) => {
+        const timestamp = new Date().toLocaleString();
+        const listItem = document.createElement("li");
+        listItem.textContent = `${timestamp} — ${fileName}`;
+        dropLog.prepend(listItem);
+      };
+
+      const handleFiles = (files) => {
+        Array.from(files).forEach((file) => logDroppedFile(file.name));
+      };
+
+      ["dragenter", "dragover"].forEach((eventName) => {
+        dropZone.addEventListener(eventName, (event) => {
+          event.preventDefault();
+          dropZone.classList.add("drag-active");
+        });
+      });
+
+      ["dragleave", "drop"].forEach((eventName) => {
+        dropZone.addEventListener(eventName, (event) => {
+          event.preventDefault();
+          dropZone.classList.remove("drag-active");
+        });
+      });
+
+      dropZone.addEventListener("drop", (event) => {
+        if (event.dataTransfer && event.dataTransfer.files.length > 0) {
+          handleFiles(event.dataTransfer.files);
+        }
+      });
+
+      publishButton.addEventListener("click", () => {
+        window.localStorage.setItem("kiasPublishedInfo", publisherText.value.trim());
+        publishStatus.textContent = "Published to kias.html successfully.";
+      });
+
+      const savedInfo = window.localStorage.getItem("kiasPublishedInfo");
+      if (savedInfo) {
+        publisherText.value = savedInfo;
+      }
+    </script>
+  </body>
+</html>
