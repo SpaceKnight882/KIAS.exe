@@ -13,11 +13,13 @@
     * { box-sizing: border-box; }
 
     :root {
-      --bg: #0a0a0a;
-      --surface: #1a0d0d;
-      --text: #d4a843;
-      --primary: #e02c3c;
-      --secondary: #c41e2e;
+      --bg: #060b17;
+      --surface: #0f1a2f;
+      --surface-soft: #12203a;
+      --text: #d9ecff;
+      --primary: #4cc9f0;
+      --secondary: #7aa7ff;
+      --accent: #72efdd;
     }
 
     @keyframes scanline {
@@ -26,8 +28,8 @@
     }
 
     @keyframes pulse-glow {
-      0%, 100% { box-shadow: 0 0 5px rgba(196, 30, 46, 0.3); }
-      50% { box-shadow: 0 0 20px rgba(196, 30, 46, 0.6), 0 0 40px rgba(196, 30, 46, 0.2); }
+      0%, 100% { box-shadow: 0 0 5px rgba(76, 201, 240, 0.35); }
+      50% { box-shadow: 0 0 20px rgba(76, 201, 240, 0.6), 0 0 40px rgba(114, 239, 221, 0.25); }
     }
 
     @keyframes flicker {
@@ -72,8 +74,8 @@
     }
 
     @keyframes pulse-border {
-      0%, 100% { border-color: rgba(196, 30, 46, 0.3); }
-      50% { border-color: rgba(196, 30, 46, 0.8); }
+      0%, 100% { border-color: rgba(76, 201, 240, 0.35); }
+      50% { border-color: rgba(114, 239, 221, 0.85); }
     }
 
     @keyframes rotate-slow {
@@ -82,9 +84,9 @@
     }
 
     @keyframes neon-flare {
-      0% { text-shadow: 0 0 10px rgba(224, 44, 60, 0.5); }
-      50% { text-shadow: 0 0 20px rgba(224, 44, 60, 1), 0 0 40px rgba(224, 44, 60, 0.5); }
-      100% { text-shadow: 0 0 10px rgba(224, 44, 60, 0.5); }
+      0% { text-shadow: 0 0 10px rgba(76, 201, 240, 0.55); }
+      50% { text-shadow: 0 0 20px rgba(76, 201, 240, 1), 0 0 40px rgba(114, 239, 221, 0.45); }
+      100% { text-shadow: 0 0 10px rgba(76, 201, 240, 0.55); }
     }
 
     .scanline-overlay {
@@ -95,8 +97,8 @@
         0deg,
         transparent,
         transparent 2px,
-        rgba(212, 168, 67, 0.015) 2px,
-        rgba(212, 168, 67, 0.015) 4px
+        rgba(76, 201, 240, 0.018) 2px,
+        rgba(76, 201, 240, 0.018) 4px
       );
       z-index: 999;
     }
@@ -107,28 +109,28 @@
           0deg,
           transparent,
           transparent 30px,
-          rgba(196, 30, 46, 0.03) 30px,
-          rgba(196, 30, 46, 0.03) 31px
+          rgba(76, 201, 240, 0.035) 30px,
+          rgba(76, 201, 240, 0.035) 31px
         ),
         repeating-linear-gradient(
           90deg,
           transparent,
           transparent 30px,
-          rgba(212, 168, 67, 0.03) 30px,
-          rgba(212, 168, 67, 0.03) 31px
+          rgba(122, 167, 255, 0.035) 30px,
+          rgba(122, 167, 255, 0.035) 31px
         );
     }
 
     .file-card {
       animation: fadeSlideIn 0.3s ease forwards;
       transition: all 0.2s ease;
-      border-left: 3px solid rgba(224, 44, 60, 0);
+      border-left: 3px solid rgba(76, 201, 240, 0);
     }
 
     .file-card:hover {
       transform: translateY(-2px);
-      box-shadow: 0 0 15px rgba(196, 30, 46, 0.4), inset 0 0 10px rgba(224, 44, 60, 0.05);
-      border-left-color: rgba(224, 44, 60, 0.8);
+      box-shadow: 0 0 15px rgba(76, 201, 240, 0.35), inset 0 0 10px rgba(114, 239, 221, 0.07);
+      border-left-color: rgba(76, 201, 240, 0.9);
       animation: pulse-glow 1.5s ease infinite;
     }
 
@@ -160,11 +162,12 @@
     .flicker { animation: flicker 4s infinite; }
 
     .stat-card {
-      border: 1px solid rgba(212, 168, 67, 0.15);
-      background: linear-gradient(135deg, #141414 0%, #1a1208 100%);
+      border: 1px solid rgba(122, 167, 255, 0.2);
+      background: linear-gradient(135deg, #101a31 0%, #0e1730 100%);
       transition: all 0.3s ease;
       position: relative;
       overflow: hidden;
+      border-radius: 12px;
     }
 
     .stat-card::after {
@@ -174,13 +177,13 @@
       left: -100%;
       width: 100%;
       height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(224, 44, 60, 0.1), transparent);
+      background: linear-gradient(90deg, transparent, rgba(76, 201, 240, 0.12), transparent);
       animation: float-up 2s ease-in-out infinite;
     }
 
     .stat-card:hover {
-      border-color: rgba(224, 44, 60, 0.4);
-      box-shadow: 0 0 15px rgba(224, 44, 60, 0.1), inset 0 0 15px rgba(224, 44, 60, 0.03);
+      border-color: rgba(76, 201, 240, 0.5);
+      box-shadow: 0 0 15px rgba(76, 201, 240, 0.2), inset 0 0 15px rgba(114, 239, 221, 0.06);
       transform: translateY(-2px);
     }
 
@@ -230,20 +233,20 @@
   </style>
   <style>body { box-sizing: border-box; }</style>
  </head>
- <body class="h-full" style="background: var(--bg); color: var(--text); font-family: 'Rajdhani', sans-serif; margin: 0;">
+  <body class="h-full" style="background: var(--bg); color: var(--text); font-family: 'Rajdhani', sans-serif; margin: 0;">
   <div class="scanline-overlay"></div>
   <div id="toast-container" class="toast-container"></div>
   <div id="app" class="h-full w-full overflow-auto data-bg" style="display: flex; flex-direction: column;">
-   <header style="background: linear-gradient(180deg, #141414 0%, #0e0e0e 100%); border-bottom: 1px solid rgba(196, 30, 46, 0.3);" class="px-4 sm:px-6 py-4 flex items-center justify-between flex-shrink-0 relative">
-    <div style="position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(224, 44, 60, 0.5), transparent); animation: scan-down 4s linear infinite;"></div>
+   <header style="background: linear-gradient(180deg, #0e1930 0%, #0a1223 100%); border-bottom: 1px solid rgba(76, 201, 240, 0.35); box-shadow: 0 8px 24px rgba(8, 16, 32, 0.5);" class="px-4 sm:px-6 py-4 flex items-center justify-between flex-shrink-0 relative">
+    <div style="position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(76, 201, 240, 0.7), transparent); animation: scan-down 4s linear infinite;"></div>
     <div class="flex items-center gap-3">
-     <div style="background: var(--primary); width: 36px; height: 36px;" class="rounded flex items-center justify-center flicker"><i data-lucide="terminal" style="color: #0a0a0a; width: 20px; height: 20px;"></i></div>
+     <div style="background: linear-gradient(135deg, var(--primary), var(--accent)); width: 40px; height: 40px; border-radius: 10px;" class="flex items-center justify-center flicker"><i data-lucide="shield-check" style="color: #08101f; width: 22px; height: 22px;"></i></div>
      <div>
-      <h1 id="panel-title" style="font-family: 'Share Tech Mono', monospace; color: var(--text); font-size: 18px; line-height: 1.2; margin: 0; animation: neon-flare 3s ease infinite;">ADMIN://FILE_PANEL</h1>
-      <p id="welcome-msg" style="font-family: 'Share Tech Mono', monospace; color: var(--secondary); font-size: 11px; margin: 0;">SYSTEM ONLINE — FILE MANAGEMENT ACTIVE</p>
+      <h1 id="panel-title" style="font-family: 'Share Tech Mono', monospace; color: var(--text); font-size: 18px; line-height: 1.2; margin: 0; animation: neon-flare 3s ease infinite;">ADMIN://CONTENT_CONTROL</h1>
+      <p id="welcome-msg" style="font-family: 'Share Tech Mono', monospace; color: var(--secondary); font-size: 11px; margin: 0;">SECURE DASHBOARD — ASSET DEPLOYMENT ACTIVE</p>
      </div>
     </div>
-    <div class="flex items-center gap-2"><span style="width: 8px; height: 8px; background: #c41e2e; border-radius: 50; animation: pulse-glow 2s infinite;" class="rounded-full inline-block"></span> <span style="font-family: 'Share Tech Mono', monospace; font-size: 11px; color: var(--secondary);">LIVE</span></div>
+    <div class="flex items-center gap-2"><span style="width: 8px; height: 8px; background: var(--accent); border-radius: 50; animation: pulse-glow 2s infinite;" class="rounded-full inline-block"></span> <span style="font-family: 'Share Tech Mono', monospace; font-size: 11px; color: var(--secondary);">LIVE</span></div>
    </header>
    <main class="flex-1 p-4 sm:p-6 flex flex-col gap-5">
     <div class="grid grid-cols-2 sm:grid-cols-4 gap-3" style="animation: fadeSlideIn 0.6s ease;">
@@ -264,7 +267,7 @@
         <option value="contact">Contact</option>
       </select>
     </div>
-    <div id="drop-zone" class="drop-zone rounded-lg p-8 flex flex-col items-center justify-center gap-3 cursor-pointer relative" style="border: 2px dashed rgba(212, 168, 67, 0.25); background: rgba(20, 20, 20, 0.6); min-height: 160px;" onclick="document.getElementById('file-input').click()">
+    <div id="drop-zone" class="drop-zone rounded-lg p-8 flex flex-col items-center justify-center gap-3 cursor-pointer relative" style="border: 2px dashed rgba(122, 167, 255, 0.45); background: linear-gradient(180deg, rgba(15, 26, 47, 0.92), rgba(11, 21, 39, 0.9)); min-height: 160px; border-radius: 14px;" onclick="document.getElementById('file-input').click()">
      <div class="corner-accent corner-tl"></div><div class="corner-accent corner-tr"></div><div class="corner-accent corner-bl"></div><div class="corner-accent corner-br"></div><i data-lucide="upload-cloud" style="width: 40px; height: 40px; color: var(--secondary);"></i>
      <div style="font-family: 'Share Tech Mono', monospace; font-size: 14px; color: var(--text);">DROP FILES HERE OR CLICK TO UPLOAD</div>
      <div style="font-family: 'Share Tech Mono', monospace; font-size: 11px; color: var(--secondary);">Files will be stored and published to selected website sections</div><input type="file" id="file-input" multiple style="display: none;">
@@ -274,7 +277,7 @@
    </main>
   </div>
   <script>
-    const defaultConfig = { panel_title: 'ADMIN://FILE_PANEL', welcome_message: 'SYSTEM ONLINE — FILE MANAGEMENT ACTIVE', background_color: '#0a0a0a', surface_color: '#141414', text_color: '#d4a843', primary_color: '#c41e2e', secondary_color: '#8b7332', font_family: 'Rajdhani', font_size: 14 };
+    const defaultConfig = { panel_title: 'ADMIN://CONTENT_CONTROL', welcome_message: 'SECURE DASHBOARD — ASSET DEPLOYMENT ACTIVE', background_color: '#060b17', surface_color: '#0f1a2f', text_color: '#d9ecff', primary_color: '#4cc9f0', secondary_color: '#7aa7ff', font_family: 'Rajdhani', font_size: 14 };
     let allFiles = [];
     let pendingDeletes = new Set();
     const localUploadsKey = 'kiasUploadedAssets';
