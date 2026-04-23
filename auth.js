@@ -24,20 +24,22 @@
     sessionStorage.setItem(AUTH_KEY, 'true');
   };
 
+  const lockAdmin = () => {
+    sessionStorage.removeItem(AUTH_KEY);
+  };
+
   const enforcePageProtection = () => {
-    if (!ADMIN_PAGES.has(currentPath) || isAuthed()) {
+    if (!ADMIN_PAGES.has(currentPath)) {
+      if (currentPath === '/index.html') {
+        lockAdmin();
+      }
+
       return;
     }
 
-    const supplied = window.prompt('Enter admin password to continue:');
-
-    if (supplied === ADMIN_PASSWORD) {
-      unlockAdmin();
-      return;
+    if (!isAuthed()) {
+      window.location.replace('/index.html');
     }
-
-    window.alert('Wrong password. Returning to homepage.');
-    window.location.replace('/index.html');
   };
 
   const wirePortalButton = () => {
@@ -59,7 +61,7 @@
 
       unlockAdmin();
       showMessage(message, 'Access granted. Redirecting...', true);
-      window.location.assign('/adim.html');
+      window.location.assign('/admin.html');
     };
 
     button.addEventListener('click', attemptAccess);
