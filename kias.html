@@ -5,234 +5,225 @@
 <title>KREED INDUSTRIES // K.I.A.S NODE</title>
 
 <style>
-body {
-    margin: 0;
-    background: #000;
-    color: #e6e6e6;
-    font-family: monospace;
-}
-
-/* CRT EFFECT */
-body::after {
-    content:"";
-    position:fixed;
-    top:0; left:0;
-    width:100%; height:100%;
-    pointer-events:none;
-    background: repeating-linear-gradient(
-        0deg,
-        rgba(255,255,255,0.02),
-        rgba(255,255,255,0.02) 1px,
-        transparent 1px,
-        transparent 3px
-    );
-}
-
-/* HEADER */
-header {
-    padding: 12px 20px;
-    border-bottom: 1px solid #222;
-    display: flex;
-    justify-content: space-between;
-}
-
+body { margin: 0; background: #000; color: #e6e6e6; font-family: monospace; }
+body::after { content:""; position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; background: repeating-linear-gradient(0deg, rgba(255,255,255,0.02), rgba(255,255,255,0.02) 1px, transparent 1px, transparent 3px); }
+header { padding: 12px 20px; border-bottom: 1px solid #222; display: flex; justify-content: space-between; }
 .title { font-size: 12px; letter-spacing: 2px; }
 .status { font-size: 10px; color: #777; }
-
-/* GRID SYSTEM */
-.layout {
-    display: grid;
-    grid-template-columns: 220px 1fr 260px;
-    height: calc(100vh - 40px);
-}
-
-/* SIDEBAR */
-.sidebar {
-    border-right: 1px solid #111;
-    padding: 15px;
-}
-
-.nav {
-    font-size: 11px;
-    padding: 6px 0;
-    color: #888;
-    cursor: pointer;
-}
-
-.nav:hover { color: #fff; }
-
-/* MAIN PANEL */
-.main {
-    padding: 15px;
-    overflow-y: auto;
-}
-
-.section-title {
-    font-size: 11px;
-    border-bottom: 1px solid #222;
-    padding-bottom: 5px;
-    margin-bottom: 10px;
-}
-
-/* FILE TABLE */
-.file {
-    padding: 8px;
-    border-bottom: 1px solid #111;
-    font-size: 11px;
-    cursor: pointer;
-}
-
-.file:hover {
-    background: #050505;
-}
-
-/* RIGHT PANEL */
-.sidepanel {
-    border-left: 1px solid #111;
-    padding: 15px;
-    font-size: 10px;
-    color: #777;
-}
-
-/* LOG STREAM */
-.log {
-    margin-bottom: 6px;
-}
-
-/* CLASS TAGS */
-.tag {
-    display: inline-block;
-    border: 1px solid #444;
-    padding: 2px 4px;
-    margin-right: 5px;
-    font-size: 9px;
-}
-
-/* FILE VIEW */
-.viewer {
-    margin-top: 10px;
-    border-top: 1px solid #222;
-    padding-top: 10px;
-    font-size: 11px;
-}
-
-/* BLINK */
-.blink::after {
-    content: "_";
-    animation: blink 1s infinite;
-}
-
-@keyframes blink {
-    50% { opacity: 0; }
-}
+.layout { display: grid; grid-template-columns: 220px 1fr 300px; height: calc(100vh - 40px); }
+.sidebar { border-right: 1px solid #111; padding: 15px; overflow-y: auto; }
+.nav { font-size: 11px; padding: 6px 0; color: #888; cursor: pointer; }
+.nav:hover, .nav.active { color: #fff; }
+.main { padding: 15px; overflow-y: auto; }
+.section-title { font-size: 11px; border-bottom: 1px solid #222; padding-bottom: 5px; margin-bottom: 10px; }
+.file { padding: 8px; border-bottom: 1px solid #111; font-size: 11px; cursor: pointer; }
+.file:hover { background: #050505; }
+.sidepanel { border-left: 1px solid #111; padding: 15px; font-size: 10px; color: #777; overflow-y: auto; }
+.log { margin-bottom: 6px; }
+.tag { display: inline-block; border: 1px solid #444; padding: 2px 4px; margin-right: 5px; font-size: 9px; }
+.viewer { margin-top: 10px; border-top: 1px solid #222; padding-top: 10px; font-size: 11px; }
+.blink::after { content: "_"; animation: blink 1s infinite; }
+.uploader { margin-top: 12px; border: 1px solid #222; padding: 10px; background: #060606; }
+.uploader h3 { margin: 0 0 8px; font-size: 11px; letter-spacing: 1px; color: #c8ffc8; }
+.uploader label { display: block; margin: 6px 0 2px; color: #a8a8a8; }
+.uploader input, .uploader select, .uploader textarea, .uploader button { width: 100%; background: #000; color: #ddd; border: 1px solid #333; font-family: monospace; font-size: 10px; padding: 6px; }
+.uploader textarea { min-height: 60px; resize: vertical; }
+.uploader button { margin-top: 8px; cursor: pointer; text-transform: uppercase; }
+.uploader button:hover { border-color: #5d5; color: #cfc; }
+.asset-preview { margin-top: 6px; border: 1px solid #1f1f1f; padding: 8px; background: #090909; }
+.asset-preview img, .asset-preview video, .asset-preview audio { width: 100%; max-height: 180px; object-fit: cover; }
+.asset-preview pre { white-space: pre-wrap; max-height: 180px; overflow: auto; margin: 0; color: #d0d0d0; }
+.meta { color: #989898; font-size: 10px; }
+@keyframes blink { 50% { opacity: 0; } }
 </style>
 </head>
 
 <body>
-
 <header>
 <div class="title">KREED INDUSTRIES // K.I.A.S ARCHIVE NODE</div>
-<div class="status blink">ADMIN: &lt;KIAS.exe&gt; // STATUS: ACTIVE</div>
+<div class="status blink">USER SESSION: &lt;KIAS.exe&gt; // STATUS: ACTIVE</div>
 </header>
 
 <div class="layout">
-
-<!-- SIDEBAR -->
-<div class="sidebar">
-<div class="nav" onclick="load('company')">MAIN COMPANY INFO</div>
-<div class="nav" onclick="load('lab')">LAB REPORTS</div>
-<div class="nav" onclick="load('testing')">CURRENTLY TESTING</div>
-<div class="nav" onclick="load('containment')">IN CONTAINMENT</div>
-<div class="nav" onclick="load('watchlist')">WATCHLIST</div>
-<div class="nav" onclick="load('journal')">RESEARCH JOURNAL</div>
-<div class="nav" onclick="window.location.href='index.html'">RETURN TO MAIN SITE</div>
-</div>
-
-<!-- MAIN -->
-<div class="main" id="main">
-<div class="section-title">SYSTEM INITIALIZED</div>
-<div class="file">SELECT A CATEGORY</div>
-</div>
-
-<!-- SIDE PANEL -->
+<div class="sidebar" id="sidebar"></div>
+<div class="main" id="main"><div class="section-title">SYSTEM INITIALIZED</div><div class="file">SELECT A CATEGORY</div></div>
 <div class="sidepanel" id="sidepanel">
-<div>K.I.A.S SYSTEM LOG</div>
-<div id="logs"></div>
-</div>
+  <div>K.I.A.S SYSTEM LOG</div>
+  <div id="logs"></div>
 
+  <div class="uploader">
+    <h3>Upload Asset</h3>
+    <label for="upload-section">Target KIAS Section</label>
+    <select id="upload-section"></select>
+
+    <label for="upload-file">Select file (all types)</label>
+    <input id="upload-file" type="file" />
+
+    <label for="upload-title">Title / Essential Name</label>
+    <input id="upload-title" type="text" placeholder="Optional custom title" />
+
+    <label for="upload-desc">Description</label>
+    <textarea id="upload-desc" placeholder="Add description and essentials"></textarea>
+
+    <label for="upload-essentials">Essentials (comma-separated tags)</label>
+    <input id="upload-essentials" type="text" placeholder="urgent, lab, briefing" />
+
+    <button id="publish-btn" type="button">Publish To Section</button>
+    <div id="upload-status" class="meta"></div>
+  </div>
+</div>
 </div>
 
 <script>
-
-// CATEGORY DATA STRUCTURE
-const data = {
-    company: ["Corporate Structure File", "Executive Records", "Internal Policies"],
-    lab: ["Experiment 01", "Crystal Study A", "Subject Report 12"],
-    testing: ["Subject A (Active)", "Subject B (Unstable)"],
-    containment: ["Entity 03 (Sealed)", "Specimen 09"],
-    watchlist: ["Unknown Subject", "External Observer"],
-    journal: ["Entry 001", "Entry 002", "Entry 003"]
+const storageKey = "kiasContentAssets";
+const sectionLabels = {
+  company: "Main Company Info",
+  lab: "Lab Reports",
+  testing: "Currently Testing",
+  containment: "In Containment",
+  watchlist: "Watchlist",
+  journal: "Research Journal",
+  newkias: "New KIAS Section"
 };
 
-// LOAD SECTION
-function load(type) {
-    const main = document.getElementById("main");
-    main.innerHTML = `<div class="section-title">${type.toUpperCase()}</div>`;
+const defaultData = {
+  company: ["Corporate Structure File", "Executive Records", "Internal Policies"],
+  lab: ["Experiment 01", "Crystal Study A", "Subject Report 12"],
+  testing: ["Subject A (Active)", "Subject B (Unstable)"],
+  containment: ["Entity 03 (Sealed)", "Specimen 09"],
+  watchlist: ["Unknown Subject", "External Observer"],
+  journal: ["Entry 001", "Entry 002", "Entry 003"],
+  newkias: []
+};
 
-    data[type].forEach(item => {
-        const div = document.createElement("div");
-        div.className = "file";
-        div.innerHTML = `
-            ${item}
-            <div>
-                <span class="tag">CLASSIFIED</span>
-                <span class="tag">1980</span>
-            </div>
-        `;
-        div.onclick = () => openFile(item);
-        main.appendChild(div);
-    });
-}
+const sidebar = document.getElementById("sidebar");
+const main = document.getElementById("main");
+const logs = document.getElementById("logs");
+const uploadSection = document.getElementById("upload-section");
+const uploadFile = document.getElementById("upload-file");
+const uploadTitle = document.getElementById("upload-title");
+const uploadDesc = document.getElementById("upload-desc");
+const uploadEssentials = document.getElementById("upload-essentials");
+const uploadStatus = document.getElementById("upload-status");
+let activeSection = "company";
 
-// OPEN FILE VIEW
-function openFile(name) {
-    const main = document.getElementById("main");
+const getAssets = () => {
+  try { return JSON.parse(localStorage.getItem(storageKey) || "[]"); }
+  catch { return []; }
+};
+const saveAssets = (assets) => localStorage.setItem(storageKey, JSON.stringify(assets));
+const readFileAsDataUrl = (file) => new Promise((resolve, reject) => {
+  const reader = new FileReader();
+  reader.onload = () => resolve(reader.result);
+  reader.onerror = () => reject(reader.error);
+  reader.readAsDataURL(file);
+});
 
-    main.innerHTML += `
-    <div class="viewer">
-        <div>[FILE OPENED]</div>
-        <div>NAME: ${name}</div>
-        <div>STATUS: INCOMPLETE DATA</div>
-        <div>ACCESS LEVEL: RESTRICTED</div>
-        <br>
-        <div>CONTENT: [DATA NOT FOUND]</div>
-    </div>
-    `;
-}
-
-// SYSTEM LOG FEED
-function addLog() {
-    const logs = document.getElementById("logs");
-
-    const messages = [
-        "Data integrity check running...",
-        "New archive node connected.",
-        "Memory inconsistency detected.",
-        "Unauthorized access logged.",
-        "Subject data mismatch."
-    ];
-
+function renderSidebar() {
+  sidebar.innerHTML = "";
+  uploadSection.innerHTML = "";
+  Object.entries(sectionLabels).forEach(([key, label]) => {
     const div = document.createElement("div");
-    div.className = "log";
-    div.textContent = "> " + messages[Math.floor(Math.random()*messages.length)];
+    div.className = `nav${activeSection === key ? " active" : ""}`;
+    div.textContent = label.toUpperCase();
+    div.onclick = () => load(key);
+    sidebar.appendChild(div);
 
-    logs.prepend(div);
+    const opt = document.createElement("option");
+    opt.value = key;
+    opt.textContent = label;
+    uploadSection.appendChild(opt);
+  });
+
+  const back = document.createElement("div");
+  back.className = "nav";
+  back.textContent = "RETURN TO MAIN SITE";
+  back.onclick = () => window.location.href = "index.html";
+  sidebar.appendChild(back);
 }
 
-// periodic logs
+function renderPreview(asset) {
+  if (asset.type.startsWith("image/")) return `<img src="${asset.dataUrl}" alt="${asset.name}">`;
+  if (asset.type.startsWith("audio/")) return `<audio controls src="${asset.dataUrl}"></audio>`;
+  if (asset.type.startsWith("video/")) return `<video controls src="${asset.dataUrl}"></video>`;
+  if (asset.type.startsWith("text/") || /json|xml|javascript/.test(asset.type)) {
+    const raw = atob(asset.dataUrl.split(",")[1] || "").slice(0, 1200);
+    return `<pre>${raw.replace(/[<>&]/g, "")}</pre>`;
+  }
+  return `<div class="tag">${asset.type || "FILE"}</div>`;
+}
+
+function load(type) {
+  activeSection = type;
+  uploadSection.value = type;
+  renderSidebar();
+  main.innerHTML = `<div class="section-title">${sectionLabels[type].toUpperCase()}</div>`;
+
+  defaultData[type].forEach(item => {
+    const div = document.createElement("div");
+    div.className = "file";
+    div.innerHTML = `${item}<div><span class="tag">CLASSIFIED</span><span class="tag">1980</span></div>`;
+    div.onclick = () => openFile({ name: item, description: "Legacy archive record.", essentials: "classified" });
+    main.appendChild(div);
+  });
+
+  const uploaded = getAssets().filter(a => a.targetPage === "kias" && a.targetSection === type);
+  uploaded.forEach(asset => {
+    const div = document.createElement("div");
+    div.className = "file";
+    div.innerHTML = `<strong>${asset.title || asset.name}</strong><div class="meta">${new Date(asset.uploadedAt).toLocaleString()} • ${(asset.size/1024).toFixed(1)} KB</div><div>${(asset.description || "No description").slice(0, 120)}</div>`;
+    div.onclick = () => openFile(asset);
+    main.appendChild(div);
+  });
+}
+
+function openFile(record) {
+  main.innerHTML += `<div class="viewer"><div>[FILE OPENED]</div><div>NAME: ${record.title || record.name}</div><div>STATUS: ARCHIVED</div><div>ACCESS LEVEL: KIAS NODE</div><br><div>DESCRIPTION: ${record.description || "N/A"}</div><div>ESSENTIALS: ${record.essentials || "N/A"}</div><div class="asset-preview">${record.dataUrl ? renderPreview(record) : "<div>CONTENT: [DATA NOT FOUND]</div>"}</div></div>`;
+}
+
+function addLog() {
+  const messages = ["Data integrity check running...", "New archive node connected.", "Memory inconsistency detected.", "Node access logged.", "Subject data mismatch."];
+  const div = document.createElement("div");
+  div.className = "log";
+  div.textContent = "> " + messages[Math.floor(Math.random() * messages.length)];
+  logs.prepend(div);
+}
+
+document.getElementById("publish-btn").addEventListener("click", async () => {
+  const file = uploadFile.files[0];
+  if (!file) {
+    uploadStatus.textContent = "Select a file first.";
+    return;
+  }
+
+  const dataUrl = await readFileAsDataUrl(file);
+  const assets = getAssets();
+  assets.push({
+    id: crypto.randomUUID(),
+    name: file.name,
+    title: uploadTitle.value.trim(),
+    description: uploadDesc.value.trim(),
+    essentials: uploadEssentials.value.trim(),
+    type: file.type || "application/octet-stream",
+    size: file.size,
+    dataUrl,
+    targetPage: "kias",
+    targetSection: uploadSection.value,
+    uploadedAt: new Date().toISOString()
+  });
+
+  saveAssets(assets);
+  uploadStatus.textContent = `Published ${file.name} to ${sectionLabels[uploadSection.value]}.`;
+  uploadFile.value = "";
+  uploadTitle.value = "";
+  uploadDesc.value = "";
+  uploadEssentials.value = "";
+  load(uploadSection.value);
+});
+
 setInterval(addLog, 3000);
-
+renderSidebar();
+load("company");
 </script>
-
 </body>
 </html>
