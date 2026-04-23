@@ -1,511 +1,189 @@
-<!doctype html>
-<html lang="en" class="h-full">
- <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin File Panel</title>
-  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
-  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
-  <script src="/_sdk/element_sdk.js"></script>
-  <script src="/_sdk/data_sdk.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&amp;family=Rajdhani:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
-  <style>
-    * { box-sizing: border-box; }
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>KIAS Admin Panel</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="page-shell admin-shell-layout">
+      <header class="topbar">
+        <div class="brand">
+          <div class="logo">K</div>
+          <span>Kreed Admin Console</span>
+        </div>
+        <nav class="main-nav">
+          <a href="index.html">Main Site</a>
+          <a href="kias.html">KIAS Portal</a>
+        </nav>
+      </header>
 
-    :root {
-      --bg: #060b17;
-      --surface: #0f1a2f;
-      --surface-soft: #12203a;
-      --text: #d9ecff;
-      --primary: #4cc9f0;
-      --secondary: #7aa7ff;
-      --accent: #72efdd;
-    }
+      <main class="admin-main-layout">
+        <section class="admin-panel-card">
+          <h1>Content Distribution Panel</h1>
+          <p class="lead">Upload files and publish them directly to any section on <strong>index.html</strong> or <strong>kias.html</strong>.</p>
 
-    @keyframes scanline {
-      0% { transform: translateY(-100%); }
-      100% { transform: translateY(100%); }
-    }
+          <div class="admin-controls-grid">
+            <label>
+              Target page
+              <select id="target-page">
+                <option value="index">index.html</option>
+                <option value="kias">kias.html</option>
+              </select>
+            </label>
+            <label>
+              Target section
+              <select id="target-section">
+                <option value="about">About Us</option>
+                <option value="divisions">Divisions</option>
+                <option value="innovation">Innovation</option>
+                <option value="careers">Careers</option>
+                <option value="investors">Investors</option>
+                <option value="newsroom">Newsroom</option>
+                <option value="contact">Contact</option>
+              </select>
+            </label>
+          </div>
 
-    @keyframes pulse-glow {
-      0%, 100% { box-shadow: 0 0 5px rgba(76, 201, 240, 0.35); }
-      50% { box-shadow: 0 0 20px rgba(76, 201, 240, 0.6), 0 0 40px rgba(114, 239, 221, 0.25); }
-    }
+          <div id="drop-zone" class="drop-zone">
+            <p>Drop files here or click to select files</p>
+            <input id="file-input" type="file" multiple />
+          </div>
 
-    @keyframes flicker {
-      0%, 100% { opacity: 1; }
-      92% { opacity: 1; }
-      93% { opacity: 0.8; }
-      94% { opacity: 1; }
-      96% { opacity: 0.9; }
-      97% { opacity: 1; }
-    }
+          <p id="admin-message" class="publish-status" aria-live="polite"></p>
+        </section>
 
-    @keyframes data-stream {
-      0% { background-position: 0 0; }
-      100% { background-position: 0 200px; }
-    }
-
-    @keyframes fadeSlideIn {
-      from { opacity: 0; transform: translateY(8px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    @keyframes glitch {
-      0% { transform: translate(0); }
-      20% { transform: translate(-2px, 2px); }
-      40% { transform: translate(-2px, -2px); }
-      60% { transform: translate(2px, 2px); }
-      80% { transform: translate(2px, -2px); }
-      100% { transform: translate(0); }
-    }
-
-    @keyframes scan-down {
-      0% { transform: translateY(-100%); opacity: 0; }
-      10% { opacity: 1; }
-      90% { opacity: 1; }
-      100% { transform: translateY(100%); opacity: 0; }
-    }
-
-    @keyframes float-up {
-      0% { transform: translateY(0); opacity: 0; }
-      50% { opacity: 1; }
-      100% { transform: translateY(-30px); opacity: 0; }
-    }
-
-    @keyframes pulse-border {
-      0%, 100% { border-color: rgba(76, 201, 240, 0.35); }
-      50% { border-color: rgba(114, 239, 221, 0.85); }
-    }
-
-    @keyframes rotate-slow {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-
-    @keyframes neon-flare {
-      0% { text-shadow: 0 0 10px rgba(76, 201, 240, 0.55); }
-      50% { text-shadow: 0 0 20px rgba(76, 201, 240, 1), 0 0 40px rgba(114, 239, 221, 0.45); }
-      100% { text-shadow: 0 0 10px rgba(76, 201, 240, 0.55); }
-    }
-
-    .scanline-overlay {
-      pointer-events: none;
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: repeating-linear-gradient(
-        0deg,
-        transparent,
-        transparent 2px,
-        rgba(76, 201, 240, 0.018) 2px,
-        rgba(76, 201, 240, 0.018) 4px
-      );
-      z-index: 999;
-    }
-
-    .data-bg {
-      background-image: 
-        repeating-linear-gradient(
-          0deg,
-          transparent,
-          transparent 30px,
-          rgba(76, 201, 240, 0.035) 30px,
-          rgba(76, 201, 240, 0.035) 31px
-        ),
-        repeating-linear-gradient(
-          90deg,
-          transparent,
-          transparent 30px,
-          rgba(122, 167, 255, 0.035) 30px,
-          rgba(122, 167, 255, 0.035) 31px
-        );
-    }
-
-    .file-card {
-      animation: fadeSlideIn 0.3s ease forwards;
-      transition: all 0.2s ease;
-      border-left: 3px solid rgba(76, 201, 240, 0);
-    }
-
-    .file-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 0 15px rgba(76, 201, 240, 0.35), inset 0 0 10px rgba(114, 239, 221, 0.07);
-      border-left-color: rgba(76, 201, 240, 0.9);
-      animation: pulse-glow 1.5s ease infinite;
-    }
-
-    .drop-zone {
-      transition: all 0.3s ease;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .drop-zone::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(224, 44, 60, 0.03) 2px, rgba(224, 44, 60, 0.03) 4px);
-      animation: scan-down 3s linear infinite;
-      pointer-events: none;
-    }
-
-    .drop-zone.drag-over {
-      border-color: var(--primary) !important;
-      background: rgba(196, 30, 46, 0.12) !important;
-      animation: pulse-glow 0.8s ease infinite, pulse-border 1s ease infinite;
-      transform: scale(1.02);
-    }
-
-    .flicker { animation: flicker 4s infinite; }
-
-    .stat-card {
-      border: 1px solid rgba(122, 167, 255, 0.2);
-      background: linear-gradient(135deg, #101a31 0%, #0e1730 100%);
-      transition: all 0.3s ease;
-      position: relative;
-      overflow: hidden;
-      border-radius: 12px;
-    }
-
-    .stat-card::after {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(76, 201, 240, 0.12), transparent);
-      animation: float-up 2s ease-in-out infinite;
-    }
-
-    .stat-card:hover {
-      border-color: rgba(76, 201, 240, 0.5);
-      box-shadow: 0 0 15px rgba(76, 201, 240, 0.2), inset 0 0 15px rgba(114, 239, 221, 0.06);
-      transform: translateY(-2px);
-    }
-
-    .toast-container {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      z-index: 1000;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .toast {
-      padding: 10px 16px;
-      border-radius: 4px;
-      font-family: 'Share Tech Mono', monospace;
-      font-size: 13px;
-      animation: fadeSlideIn 0.3s ease;
-      border-left: 3px solid;
-    }
-
-    .toast-success { background: #141414; color: #d4a843; border-color: #d4a843; }
-    .toast-error { background: #141414; color: #c41e2e; border-color: #c41e2e; }
-
-    .delete-confirm {
-      display: flex;
-      gap: 6px;
-      align-items: center;
-    }
-
-    .corner-accent {
-      position: absolute;
-      width: 12px;
-      height: 12px;
-      border-color: var(--primary);
-    }
-
-    .corner-tl { top: -1px; left: -1px; border-top: 2px solid; border-left: 2px solid; }
-    .corner-tr { top: -1px; right: -1px; border-top: 2px solid; border-right: 2px solid; }
-    .corner-bl { bottom: -1px; left: -1px; border-bottom: 2px solid; border-left: 2px solid; }
-    .corner-br { bottom: -1px; right: -1px; border-bottom: 2px solid; border-right: 2px solid; }
-
-    ::-webkit-scrollbar { width: 6px; }
-    ::-webkit-scrollbar-track { background: #0a0a0a; }
-    ::-webkit-scrollbar-thumb { background: #8b7332; border-radius: 3px; }
-  </style>
-  <style>body { box-sizing: border-box; }</style>
- </head>
-  <body class="h-full" style="background: var(--bg); color: var(--text); font-family: 'Rajdhani', sans-serif; margin: 0;">
-  <div class="scanline-overlay"></div>
-  <div id="toast-container" class="toast-container"></div>
-  <div id="app" class="h-full w-full overflow-auto data-bg" style="display: flex; flex-direction: column;">
-   <header style="background: linear-gradient(180deg, #0e1930 0%, #0a1223 100%); border-bottom: 1px solid rgba(76, 201, 240, 0.35); box-shadow: 0 8px 24px rgba(8, 16, 32, 0.5);" class="px-4 sm:px-6 py-4 flex items-center justify-between flex-shrink-0 relative">
-    <div style="position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(76, 201, 240, 0.7), transparent); animation: scan-down 4s linear infinite;"></div>
-    <div class="flex items-center gap-3">
-     <div style="background: linear-gradient(135deg, var(--primary), var(--accent)); width: 40px; height: 40px; border-radius: 10px;" class="flex items-center justify-center flicker"><i data-lucide="shield-check" style="color: #08101f; width: 22px; height: 22px;"></i></div>
-     <div>
-      <h1 id="panel-title" style="font-family: 'Share Tech Mono', monospace; color: var(--text); font-size: 18px; line-height: 1.2; margin: 0; animation: neon-flare 3s ease infinite;">ADMIN://CONTENT_CONTROL</h1>
-      <p id="welcome-msg" style="font-family: 'Share Tech Mono', monospace; color: var(--secondary); font-size: 11px; margin: 0;">SECURE DASHBOARD — ASSET DEPLOYMENT ACTIVE</p>
-     </div>
+        <section class="admin-panel-card">
+          <div class="admin-list-header">
+            <h2>Published Files</h2>
+            <button id="clear-all" class="btn btn-outline" type="button">Clear All</button>
+          </div>
+          <div id="asset-list" class="admin-asset-list"></div>
+        </section>
+      </main>
     </div>
-    <div class="flex items-center gap-2"><span style="width: 8px; height: 8px; background: var(--accent); border-radius: 50; animation: pulse-glow 2s infinite;" class="rounded-full inline-block"></span> <span style="font-family: 'Share Tech Mono', monospace; font-size: 11px; color: var(--secondary);">LIVE</span></div>
-   </header>
-   <main class="flex-1 p-4 sm:p-6 flex flex-col gap-5">
-    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3" style="animation: fadeSlideIn 0.6s ease;">
-     <div class="stat-card rounded px-3 py-3 relative" style="animation-delay: 0.1s;"><div class="corner-accent corner-tl"></div><div class="corner-accent corner-br"></div><div style="font-family: 'Share Tech Mono', monospace; font-size: 10px; color: var(--secondary); text-transform: uppercase;">Total Files</div><div id="stat-total" style="font-family: 'Share Tech Mono', monospace; font-size: 24px; color: var(--text); line-height: 1.3;">0</div></div>
-     <div class="stat-card rounded px-3 py-3 relative" style="animation-delay: 0.2s;"><div class="corner-accent corner-tl"></div><div class="corner-accent corner-br"></div><div style="font-family: 'Share Tech Mono', monospace; font-size: 10px; color: var(--secondary); text-transform: uppercase;">Images</div><div id="stat-images" style="font-family: 'Share Tech Mono', monospace; font-size: 24px; color: var(--primary); line-height: 1.3;">0</div></div>
-     <div class="stat-card rounded px-3 py-3 relative" style="animation-delay: 0.3s;"><div class="corner-accent corner-tl"></div><div class="corner-accent corner-br"></div><div style="font-family: 'Share Tech Mono', monospace; font-size: 10px; color: var(--secondary); text-transform: uppercase;">Documents</div><div id="stat-docs" style="font-family: 'Share Tech Mono', monospace; font-size: 24px; color: var(--text); line-height: 1.3;">0</div></div>
-     <div class="stat-card rounded px-3 py-3 relative" style="animation-delay: 0.4s;"><div class="corner-accent corner-tl"></div><div class="corner-accent corner-br"></div><div style="font-family: 'Share Tech Mono', monospace; font-size: 10px; color: var(--secondary); text-transform: uppercase;">Storage</div><div id="stat-storage" style="font-family: 'Share Tech Mono', monospace; font-size: 24px; color: var(--primary); line-height: 1.3;">0 B</div></div>
-    </div>
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3" style="font-family: 'Share Tech Mono', monospace; font-size: 12px;">
-      <label for="destination-select" style="color: var(--secondary);">TARGET WEBSITE SECTION</label>
-      <select id="destination-select" style="background: #111; color: var(--text); border: 1px solid rgba(212, 168, 67, 0.25); border-radius: 4px; padding: 6px 10px;">
-        <option value="about">About Us</option>
-        <option value="divisions">Divisions</option>
-        <option value="innovation">Innovation</option>
-        <option value="careers">Careers</option>
-        <option value="investors">Investors</option>
-        <option value="newsroom">Newsroom</option>
-        <option value="contact">Contact</option>
-      </select>
-    </div>
-    <div id="drop-zone" class="drop-zone rounded-lg p-8 flex flex-col items-center justify-center gap-3 cursor-pointer relative" style="border: 2px dashed rgba(122, 167, 255, 0.45); background: linear-gradient(180deg, rgba(15, 26, 47, 0.92), rgba(11, 21, 39, 0.9)); min-height: 160px; border-radius: 14px;" onclick="document.getElementById('file-input').click()">
-     <div class="corner-accent corner-tl"></div><div class="corner-accent corner-tr"></div><div class="corner-accent corner-bl"></div><div class="corner-accent corner-br"></div><i data-lucide="upload-cloud" style="width: 40px; height: 40px; color: var(--secondary);"></i>
-     <div style="font-family: 'Share Tech Mono', monospace; font-size: 14px; color: var(--text);">DROP FILES HERE OR CLICK TO UPLOAD</div>
-     <div style="font-family: 'Share Tech Mono', monospace; font-size: 11px; color: var(--secondary);">Files will be stored and published to selected website sections</div><input type="file" id="file-input" multiple style="display: none;">
-    </div>
-    <div class="flex items-center justify-between"><h2 style="font-family: 'Share Tech Mono', monospace; font-size: 14px; color: var(--secondary); margin: 0;"><span style="color: var(--primary);">▶</span> FILE_REGISTRY</h2><span id="file-count" style="font-family: 'Share Tech Mono', monospace; font-size: 11px; color: var(--secondary);">0 entries</span></div>
-    <div id="file-list" class="flex flex-col gap-2 pb-4"><div id="empty-state" class="flex flex-col items-center justify-center py-10 gap-2" style="border: 1px solid rgba(212, 168, 67, 0.08); border-radius: 8px; background: rgba(20,20,20,0.4);"><i data-lucide="folder-open" style="width: 32px; height: 32px; color: var(--secondary); opacity: 0.4;"></i> <span style="font-family: 'Share Tech Mono', monospace; font-size: 12px; color: var(--secondary); opacity: 0.5;">NO FILES IN REGISTRY</span></div></div>
-   </main>
-  </div>
-  <script>
-    const defaultConfig = { panel_title: 'ADMIN://CONTENT_CONTROL', welcome_message: 'SECURE DASHBOARD — ASSET DEPLOYMENT ACTIVE', background_color: '#060b17', surface_color: '#0f1a2f', text_color: '#d9ecff', primary_color: '#4cc9f0', secondary_color: '#7aa7ff', font_family: 'Rajdhani', font_size: 14 };
-    let allFiles = [];
-    let pendingDeletes = new Set();
-    const localUploadsKey = 'kiasUploadedAssets';
-    const destinationLabels = {
-      about: 'About Us',
-      divisions: 'Divisions',
-      innovation: 'Innovation',
-      careers: 'Careers',
-      investors: 'Investors',
-      newsroom: 'Newsroom',
-      contact: 'Contact'
-    };
-    function showToast(msg, type = 'success') {
-      const c = document.getElementById('toast-container');
-      const t = document.createElement('div');
-      t.className = `toast toast-${type}`;
-      t.textContent = msg;
-      c.appendChild(t);
-      setTimeout(() => { t.style.opacity = '0'; t.style.transition = 'opacity 0.3s'; setTimeout(() => t.remove(), 300); }, 2500);
-    }
-    function getFileCategory(type) {
-      if (!type) return 'other';
-      if (type.startsWith('image/')) return 'image';
-      if (type.includes('pdf') || type.includes('document') || type.includes('text')) return 'document';
-      if (type.includes('video')) return 'video';
-      if (type.includes('audio')) return 'audio';
-      return 'other';
-    }
-    function getFileIcon(type) {
-      const cat = getFileCategory(type);
-      const map = { image: 'image', document: 'file-text', video: 'video', audio: 'volume-2', other: 'file' };
-      return map[cat] || 'file';
-    }
-    function formatSize(bytes) {
-      const n = parseFloat(bytes) || 0;
-      if (n === 0) return '0 B';
-      const k = 1024;
-      const sizes = ['B', 'KB', 'MB', 'GB'];
-      const i = Math.floor(Math.log(n) / Math.log(k));
-      return parseFloat((n / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
-    }
-    function updateStats(data) {
-      document.getElementById('stat-total').textContent = data.length;
-      document.getElementById('stat-images').textContent = data.filter(f => getFileCategory(f.type) === 'image').length;
-      document.getElementById('stat-docs').textContent = data.filter(f => getFileCategory(f.type) === 'document').length;
-      const totalBytes = data.reduce((s, f) => s + (parseFloat(f.size) || 0), 0);
-      document.getElementById('stat-storage').textContent = formatSize(totalBytes);
-      document.getElementById('file-count').textContent = data.length + ' entries';
-    }
-    function renderFiles(data) {
-      const container = document.getElementById('file-list');
-      const emptyState = document.getElementById('empty-state');
-      if (data.length === 0) {
-        [...container.children].forEach(el => { if (el.id !== 'empty-state') el.remove(); });
-        if (!emptyState) {
-          const es = document.createElement('div');
-          es.id = 'empty-state';
-          es.className = 'flex flex-col items-center justify-center py-10 gap-2';
-          es.style.cssText = 'border: 1px solid rgba(212, 168, 67, 0.08); border-radius: 8px; background: rgba(20,20,20,0.4);';
-          es.innerHTML = `<i data-lucide="folder-open" style="width: 32px; height: 32px; color: var(--secondary); opacity: 0.4;"></i><span style="font-family: 'Share Tech Mono', monospace; font-size: 12px; color: var(--secondary); opacity: 0.5;">NO FILES IN REGISTRY</span>`;
-          container.appendChild(es);
-          lucide.createIcons();
-        }
-        emptyState && (emptyState.style.display = 'flex');
-        return;
-      }
-      emptyState && (emptyState.style.display = 'none');
-      const existingMap = new Map();
-      [...container.children].forEach(el => { if (el.dataset.fileId) existingMap.set(el.dataset.fileId, el); });
-      const dataIds = new Set(data.map(f => f.__backendId));
-      existingMap.forEach((el, id) => { if (!dataIds.has(id)) el.remove(); });
-      data.forEach((file, idx) => {
-        const id = file.__backendId;
-        if (existingMap.has(id)) {
-          const el = existingMap.get(id);
-          el.querySelector('.file-name').textContent = file.name;
-          const destLabel = destinationLabels[file.destination] || 'Unassigned';
-          el.querySelector('.file-meta').textContent = `${formatSize(file.size)} · ${file.type || 'unknown'} · ${destLabel} · ${new Date(file.uploaded_at).toLocaleString()}`;
-          const statusEl = el.querySelector('.file-status');
-          statusEl.textContent = file.status;
-          statusEl.style.color = file.status === 'UPLOADED' ? 'var(--text)' : 'var(--primary)';
-        } else {
-          const card = document.createElement('div');
-          card.className = 'file-card flex items-center gap-3 px-4 py-3 rounded';
-          card.style.cssText = 'background: var(--surface); border: 1px solid rgba(212, 168, 67, 0.1);';
-          card.dataset.fileId = id;
-          card.style.animationDelay = (idx * 0.05) + 's';
-          const destLabel = destinationLabels[file.destination] || 'Unassigned';
-          card.innerHTML = `<div style="width: 36px; height: 36px; background: rgba(196, 30, 46, 0.1); border: 1px solid rgba(196, 30, 46, 0.2);" class="rounded flex items-center justify-center flex-shrink-0"><i data-lucide="${getFileIcon(file.type)}" style="width: 18px; height: 18px; color: var(--primary);"></i></div><div class="flex-1 min-w-0"><div class="file-name" style="font-family: 'Share Tech Mono', monospace; font-size: 13px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${file.name}</div><div class="file-meta" style="font-family: 'Share Tech Mono', monospace; font-size: 10px; color: var(--secondary);">${formatSize(file.size)} · ${file.type || 'unknown'} · ${destLabel} · ${new Date(file.uploaded_at).toLocaleString()}</div></div><span class="file-status flex-shrink-0" style="font-family: 'Share Tech Mono', monospace; font-size: 10px; color: ${file.status === 'UPLOADED' ? 'var(--text)' : 'var(--primary)'};">${file.status}</span><div class="delete-area flex-shrink-0"></div>`;
-          const deleteArea = card.querySelector('.delete-area');
-          renderDeleteButton(deleteArea, file);
-          container.appendChild(card);
-          lucide.createIcons();
-        }
-      });
-    }
-    function renderDeleteButton(container, file) {
-      if (pendingDeletes.has(file.__backendId)) {
-        container.innerHTML = `<div class="delete-confirm"><button class="confirm-del-btn" style="font-family: 'Share Tech Mono', monospace; font-size: 10px; background: var(--primary); color: #0a0a0a; border: none; padding: 3px 8px; border-radius: 3px; cursor: pointer;">DEL</button><button class="cancel-del-btn" style="font-family: 'Share Tech Mono', monospace; font-size: 10px; background: transparent; color: var(--secondary); border: 1px solid var(--secondary); padding: 3px 8px; border-radius: 3px; cursor: pointer;">X</button></div>`;
-        container.querySelector('.confirm-del-btn').onclick = (e) => { e.stopPropagation(); confirmDelete(file); };
-        container.querySelector('.cancel-del-btn').onclick = (e) => { e.stopPropagation(); pendingDeletes.delete(file.__backendId); renderFiles(allFiles); };
-      } else {
-        container.innerHTML = `<button class="del-btn" style="background: none; border: none; cursor: pointer; padding: 4px; opacity: 0.5; transition: opacity 0.2s;"><i data-lucide="trash-2" style="width: 15px; height: 15px; color: var(--primary);"></i></button>`;
-        container.querySelector('.del-btn').onmouseenter = function() { this.style.opacity = '1'; };
-        container.querySelector('.del-btn').onmouseleave = function() { this.style.opacity = '0.5'; };
-        container.querySelector('.del-btn').onclick = (e) => { e.stopPropagation(); pendingDeletes.add(file.__backendId); renderFiles(allFiles); };
-        lucide.createIcons();
-      }
-    }
-    async function confirmDelete(file) {
-      const btn = document.querySelector(`[data-file-id="${file.__backendId}"] .confirm-del-btn`);
-      if (btn) { btn.textContent = '...'; btn.disabled = true; }
-      const localUploads = getLocalUploads().filter((item) => item.__backendId !== file.__backendId);
-      setLocalUploads(localUploads);
-      const result = await window.dataSdk.delete(file);
-      pendingDeletes.delete(file.__backendId);
-      if (result.isOk) { showToast('FILE REMOVED: ' + file.name); } else { showToast('DELETE FAILED', 'error'); }
-    }
-    const dataHandler = { onDataChanged(data) { allFiles = data; updateStats(data); renderFiles(data); } };
-    function getLocalUploads() {
-      try {
-        return JSON.parse(window.localStorage.getItem(localUploadsKey) || '[]');
-      } catch (error) {
-        return [];
-      }
-    }
-    function setLocalUploads(data) {
-      window.localStorage.setItem(localUploadsKey, JSON.stringify(data));
-      window.dispatchEvent(new Event('storage'));
-    }
-    function readFileAsDataUrl(file) {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = () => reject(reader.error);
-        reader.readAsDataURL(file);
-      });
-    }
-    async function handleFiles(fileList) {
-      const destination = document.getElementById('destination-select').value;
-      const localUploads = getLocalUploads();
-      for (const file of fileList) {
-        if (allFiles.length >= 999) { showToast('LIMIT REACHED: Max 999 files', 'error'); return; }
-        const uploadedAt = new Date().toISOString();
+
+    <script>
+      const storageKey = "kiasContentAssets";
+      const sectionLabels = {
+        about: "About Us",
+        divisions: "Divisions",
+        innovation: "Innovation",
+        careers: "Careers",
+        investors: "Investors",
+        newsroom: "Newsroom",
+        contact: "Contact",
+      };
+
+      const dropZone = document.getElementById("drop-zone");
+      const fileInput = document.getElementById("file-input");
+      const targetPage = document.getElementById("target-page");
+      const targetSection = document.getElementById("target-section");
+      const assetList = document.getElementById("asset-list");
+      const adminMessage = document.getElementById("admin-message");
+      const clearAllButton = document.getElementById("clear-all");
+
+      const getAssets = () => {
         try {
-          const dataUrl = await readFileAsDataUrl(file);
-          const savedFile = {
-            __backendId: `local-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-            name: file.name,
-            size: String(file.size),
-            type: file.type || 'unknown',
-            uploaded_at: uploadedAt,
-            status: 'UPLOADED',
-            destination,
-            dataUrl
-          };
-          localUploads.unshift(savedFile);
-          const result = await window.dataSdk.create({ name: file.name, size: String(file.size), type: file.type || 'unknown', destination, uploaded_at: uploadedAt, status: 'UPLOADED' });
-          if (!result.isOk) showToast('REMOTE LOG FAILED, LOCAL SAVE OK: ' + file.name, 'error');
-          showToast(`UPLOADED: ${file.name} → ${destinationLabels[destination]}`);
-        } catch (error) {
-          showToast('UPLOAD FAILED: ' + file.name, 'error');
+          return JSON.parse(localStorage.getItem(storageKey) || "[]");
+        } catch {
+          return [];
         }
-      }
-      setLocalUploads(localUploads);
-      allFiles = localUploads;
-      updateStats(allFiles);
-      renderFiles(allFiles);
-    }
-    const dropZone = document.getElementById('drop-zone');
-    const fileInput = document.getElementById('file-input');
-    dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('drag-over'); });
-    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
-    dropZone.addEventListener('drop', (e) => { e.preventDefault(); dropZone.classList.remove('drag-over'); handleFiles(e.dataTransfer.files); });
-    fileInput.addEventListener('change', (e) => { handleFiles(e.target.files); e.target.value = ''; });
-    function applyConfig(config) {
-      const title = config.panel_title || defaultConfig.panel_title;
-      const welcome = config.welcome_message || defaultConfig.welcome_message;
-      const bg = config.background_color || defaultConfig.background_color;
-      const surface = config.surface_color || defaultConfig.surface_color;
-      const text = config.text_color || defaultConfig.text_color;
-      const primary = config.primary_color || defaultConfig.primary_color;
-      const secondary = config.secondary_color || defaultConfig.secondary_color;
-      const font = config.font_family || defaultConfig.font_family;
-      const fontSize = config.font_size || defaultConfig.font_size;
-      document.getElementById('panel-title').textContent = title;
-      document.getElementById('welcome-msg').textContent = welcome;
-      document.documentElement.style.setProperty('--bg', bg);
-      document.documentElement.style.setProperty('--surface', surface);
-      document.documentElement.style.setProperty('--text', text);
-      document.documentElement.style.setProperty('--primary', primary);
-      document.documentElement.style.setProperty('--secondary', secondary);
-      document.body.style.background = bg;
-      document.body.style.color = text;
-      document.body.style.fontFamily = `${font}, Rajdhani, sans-serif`;
-      document.body.style.fontSize = `${fontSize}px`;
-    }
-    window.elementSdk.init({
-      defaultConfig,
-      onConfigChange: async (config) => { applyConfig(config); },
-      mapToCapabilities: (config) => ({
-        recolorables: [
-          { get: () => config.background_color || defaultConfig.background_color, set: (v) => { config.background_color = v; window.elementSdk.setConfig({ background_color: v }); } },
-          { get: () => config.surface_color || defaultConfig.surface_color, set: (v) => { config.surface_color = v; window.elementSdk.setConfig({ surface_color: v }); } },
-          { get: () => config.text_color || defaultConfig.text_color, set: (v) => { config.text_color = v; window.elementSdk.setConfig({ text_color: v }); } },
-          { get: () => config.primary_color || defaultConfig.primary_color, set: (v) => { config.primary_color = v; window.elementSdk.setConfig({ primary_color: v }); } },
-          { get: () => config.secondary_color || defaultConfig.secondary_color, set: (v) => { config.secondary_color = v; window.elementSdk.setConfig({ secondary_color: v }); } }
-        ],
-        borderables: [],
-        fontEditable: { get: () => config.font_family || defaultConfig.font_family, set: (v) => { config.font_family = v; window.elementSdk.setConfig({ font_family: v }); } },
-        fontSizeable: { get: () => config.font_size || defaultConfig.font_size, set: (v) => { config.font_size = v; window.elementSdk.setConfig({ font_size: v }); } }
-      }),
-      mapToEditPanelValues: (config) => new Map([
-        ['panel_title', config.panel_title || defaultConfig.panel_title],
-        ['welcome_message', config.welcome_message || defaultConfig.welcome_message]
-      ])
-    });
-    (async () => {
-      const result = await window.dataSdk.init(dataHandler);
-      if (!result.isOk) showToast('DATA LINK FAILED', 'error');
-      const localUploads = getLocalUploads();
-      if (localUploads.length > 0) {
-        allFiles = localUploads;
-        updateStats(allFiles);
-        renderFiles(allFiles);
-      }
-    })();
-    lucide.createIcons();
-  </script>
- </body>
+      };
+
+      const saveAssets = (assets) => {
+        localStorage.setItem(storageKey, JSON.stringify(assets));
+      };
+
+      const readFileAsDataUrl = (file) =>
+        new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result);
+          reader.onerror = () => reject(reader.error);
+          reader.readAsDataURL(file);
+        });
+
+      const renderList = () => {
+        const assets = getAssets().sort((a, b) => new Date(b.uploadedAt) - new Date(a.uploadedAt));
+        if (!assets.length) {
+          assetList.innerHTML = '<p class="asset-empty">No files published yet.</p>';
+          return;
+        }
+
+        assetList.innerHTML = assets
+          .map(
+            (asset) => `
+              <article class="asset-row">
+                ${asset.type.startsWith("image/") ? `<img src="${asset.dataUrl}" alt="${asset.name}" />` : `<div class="asset-icon">FILE</div>`}
+                <div>
+                  <p class="asset-name">${asset.name}</p>
+                  <p class="asset-meta">${asset.targetPage}.html → ${sectionLabels[asset.targetSection]} • ${new Date(asset.uploadedAt).toLocaleString()}</p>
+                </div>
+                <button class="btn btn-outline" data-id="${asset.id}" type="button">Delete</button>
+              </article>
+            `
+          )
+          .join("");
+
+        assetList.querySelectorAll("button[data-id]").forEach((button) => {
+          button.addEventListener("click", () => {
+            const assetsNow = getAssets().filter((asset) => asset.id !== button.dataset.id);
+            saveAssets(assetsNow);
+            renderList();
+            adminMessage.textContent = "Asset deleted.";
+          });
+        });
+      };
+
+      const handleFiles = async (files) => {
+        const selectedFiles = Array.from(files || []);
+        if (!selectedFiles.length) return;
+
+        const assets = getAssets();
+        for (const file of selectedFiles) {
+          const dataUrl = await readFileAsDataUrl(file);
+          assets.push({
+            id: crypto.randomUUID(),
+            name: file.name,
+            type: file.type || "application/octet-stream",
+            size: file.size,
+            dataUrl,
+            targetPage: targetPage.value,
+            targetSection: targetSection.value,
+            uploadedAt: new Date().toISOString(),
+          });
+        }
+
+        saveAssets(assets);
+        renderList();
+        adminMessage.textContent = `Published ${selectedFiles.length} file(s) to ${targetPage.value}.html / ${sectionLabels[targetSection.value]}.`;
+      };
+
+      dropZone.addEventListener("click", () => fileInput.click());
+      dropZone.addEventListener("dragover", (event) => {
+        event.preventDefault();
+        dropZone.classList.add("drag-active");
+      });
+      dropZone.addEventListener("dragleave", () => dropZone.classList.remove("drag-active"));
+      dropZone.addEventListener("drop", (event) => {
+        event.preventDefault();
+        dropZone.classList.remove("drag-active");
+        handleFiles(event.dataTransfer.files);
+      });
+
+      fileInput.addEventListener("change", (event) => {
+        handleFiles(event.target.files);
+        event.target.value = "";
+      });
+
+      clearAllButton.addEventListener("click", () => {
+        saveAssets([]);
+        renderList();
+        adminMessage.textContent = "All published files removed.";
+      });
+
+      renderList();
+    </script>
+  </body>
 </html>
