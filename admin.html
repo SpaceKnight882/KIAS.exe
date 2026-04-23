@@ -13,11 +13,13 @@
     * { box-sizing: border-box; }
 
     :root {
-      --bg: #0a0a0a;
-      --surface: #1a0d0d;
-      --text: #d4a843;
-      --primary: #e02c3c;
-      --secondary: #c41e2e;
+      --bg: #060b17;
+      --surface: #0f1a2f;
+      --surface-soft: #12203a;
+      --text: #d9ecff;
+      --primary: #4cc9f0;
+      --secondary: #7aa7ff;
+      --accent: #72efdd;
     }
 
     @keyframes scanline {
@@ -26,8 +28,8 @@
     }
 
     @keyframes pulse-glow {
-      0%, 100% { box-shadow: 0 0 5px rgba(196, 30, 46, 0.3); }
-      50% { box-shadow: 0 0 20px rgba(196, 30, 46, 0.6), 0 0 40px rgba(196, 30, 46, 0.2); }
+      0%, 100% { box-shadow: 0 0 5px rgba(76, 201, 240, 0.35); }
+      50% { box-shadow: 0 0 20px rgba(76, 201, 240, 0.6), 0 0 40px rgba(114, 239, 221, 0.25); }
     }
 
     @keyframes flicker {
@@ -72,8 +74,8 @@
     }
 
     @keyframes pulse-border {
-      0%, 100% { border-color: rgba(196, 30, 46, 0.3); }
-      50% { border-color: rgba(196, 30, 46, 0.8); }
+      0%, 100% { border-color: rgba(76, 201, 240, 0.35); }
+      50% { border-color: rgba(114, 239, 221, 0.85); }
     }
 
     @keyframes rotate-slow {
@@ -82,9 +84,9 @@
     }
 
     @keyframes neon-flare {
-      0% { text-shadow: 0 0 10px rgba(224, 44, 60, 0.5); }
-      50% { text-shadow: 0 0 20px rgba(224, 44, 60, 1), 0 0 40px rgba(224, 44, 60, 0.5); }
-      100% { text-shadow: 0 0 10px rgba(224, 44, 60, 0.5); }
+      0% { text-shadow: 0 0 10px rgba(76, 201, 240, 0.55); }
+      50% { text-shadow: 0 0 20px rgba(76, 201, 240, 1), 0 0 40px rgba(114, 239, 221, 0.45); }
+      100% { text-shadow: 0 0 10px rgba(76, 201, 240, 0.55); }
     }
 
     .scanline-overlay {
@@ -95,8 +97,8 @@
         0deg,
         transparent,
         transparent 2px,
-        rgba(212, 168, 67, 0.015) 2px,
-        rgba(212, 168, 67, 0.015) 4px
+        rgba(76, 201, 240, 0.018) 2px,
+        rgba(76, 201, 240, 0.018) 4px
       );
       z-index: 999;
     }
@@ -107,28 +109,28 @@
           0deg,
           transparent,
           transparent 30px,
-          rgba(196, 30, 46, 0.03) 30px,
-          rgba(196, 30, 46, 0.03) 31px
+          rgba(76, 201, 240, 0.035) 30px,
+          rgba(76, 201, 240, 0.035) 31px
         ),
         repeating-linear-gradient(
           90deg,
           transparent,
           transparent 30px,
-          rgba(212, 168, 67, 0.03) 30px,
-          rgba(212, 168, 67, 0.03) 31px
+          rgba(122, 167, 255, 0.035) 30px,
+          rgba(122, 167, 255, 0.035) 31px
         );
     }
 
     .file-card {
       animation: fadeSlideIn 0.3s ease forwards;
       transition: all 0.2s ease;
-      border-left: 3px solid rgba(224, 44, 60, 0);
+      border-left: 3px solid rgba(76, 201, 240, 0);
     }
 
     .file-card:hover {
       transform: translateY(-2px);
-      box-shadow: 0 0 15px rgba(196, 30, 46, 0.4), inset 0 0 10px rgba(224, 44, 60, 0.05);
-      border-left-color: rgba(224, 44, 60, 0.8);
+      box-shadow: 0 0 15px rgba(76, 201, 240, 0.35), inset 0 0 10px rgba(114, 239, 221, 0.07);
+      border-left-color: rgba(76, 201, 240, 0.9);
       animation: pulse-glow 1.5s ease infinite;
     }
 
@@ -160,11 +162,12 @@
     .flicker { animation: flicker 4s infinite; }
 
     .stat-card {
-      border: 1px solid rgba(212, 168, 67, 0.15);
-      background: linear-gradient(135deg, #141414 0%, #1a1208 100%);
+      border: 1px solid rgba(122, 167, 255, 0.2);
+      background: linear-gradient(135deg, #101a31 0%, #0e1730 100%);
       transition: all 0.3s ease;
       position: relative;
       overflow: hidden;
+      border-radius: 12px;
     }
 
     .stat-card::after {
@@ -174,13 +177,13 @@
       left: -100%;
       width: 100%;
       height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(224, 44, 60, 0.1), transparent);
+      background: linear-gradient(90deg, transparent, rgba(76, 201, 240, 0.12), transparent);
       animation: float-up 2s ease-in-out infinite;
     }
 
     .stat-card:hover {
-      border-color: rgba(224, 44, 60, 0.4);
-      box-shadow: 0 0 15px rgba(224, 44, 60, 0.1), inset 0 0 15px rgba(224, 44, 60, 0.03);
+      border-color: rgba(76, 201, 240, 0.5);
+      box-shadow: 0 0 15px rgba(76, 201, 240, 0.2), inset 0 0 15px rgba(114, 239, 221, 0.06);
       transform: translateY(-2px);
     }
 
@@ -230,20 +233,20 @@
   </style>
   <style>body { box-sizing: border-box; }</style>
  </head>
- <body class="h-full" style="background: var(--bg); color: var(--text); font-family: 'Rajdhani', sans-serif; margin: 0;">
+  <body class="h-full" style="background: var(--bg); color: var(--text); font-family: 'Rajdhani', sans-serif; margin: 0;">
   <div class="scanline-overlay"></div>
   <div id="toast-container" class="toast-container"></div>
   <div id="app" class="h-full w-full overflow-auto data-bg" style="display: flex; flex-direction: column;">
-   <header style="background: linear-gradient(180deg, #141414 0%, #0e0e0e 100%); border-bottom: 1px solid rgba(196, 30, 46, 0.3);" class="px-4 sm:px-6 py-4 flex items-center justify-between flex-shrink-0 relative">
-    <div style="position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(224, 44, 60, 0.5), transparent); animation: scan-down 4s linear infinite;"></div>
+   <header style="background: linear-gradient(180deg, #0e1930 0%, #0a1223 100%); border-bottom: 1px solid rgba(76, 201, 240, 0.35); box-shadow: 0 8px 24px rgba(8, 16, 32, 0.5);" class="px-4 sm:px-6 py-4 flex items-center justify-between flex-shrink-0 relative">
+    <div style="position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(76, 201, 240, 0.7), transparent); animation: scan-down 4s linear infinite;"></div>
     <div class="flex items-center gap-3">
-     <div style="background: var(--primary); width: 36px; height: 36px;" class="rounded flex items-center justify-center flicker"><i data-lucide="terminal" style="color: #0a0a0a; width: 20px; height: 20px;"></i></div>
+     <div style="background: linear-gradient(135deg, var(--primary), var(--accent)); width: 40px; height: 40px; border-radius: 10px;" class="flex items-center justify-center flicker"><i data-lucide="shield-check" style="color: #08101f; width: 22px; height: 22px;"></i></div>
      <div>
-      <h1 id="panel-title" style="font-family: 'Share Tech Mono', monospace; color: var(--text); font-size: 18px; line-height: 1.2; margin: 0; animation: neon-flare 3s ease infinite;">ADMIN://FILE_PANEL</h1>
-      <p id="welcome-msg" style="font-family: 'Share Tech Mono', monospace; color: var(--secondary); font-size: 11px; margin: 0;">SYSTEM ONLINE — FILE MANAGEMENT ACTIVE</p>
+      <h1 id="panel-title" style="font-family: 'Share Tech Mono', monospace; color: var(--text); font-size: 18px; line-height: 1.2; margin: 0; animation: neon-flare 3s ease infinite;">ADMIN://CONTENT_CONTROL</h1>
+      <p id="welcome-msg" style="font-family: 'Share Tech Mono', monospace; color: var(--secondary); font-size: 11px; margin: 0;">SECURE DASHBOARD — ASSET DEPLOYMENT ACTIVE</p>
      </div>
     </div>
-    <div class="flex items-center gap-2"><span style="width: 8px; height: 8px; background: #c41e2e; border-radius: 50; animation: pulse-glow 2s infinite;" class="rounded-full inline-block"></span> <span style="font-family: 'Share Tech Mono', monospace; font-size: 11px; color: var(--secondary);">LIVE</span></div>
+    <div class="flex items-center gap-2"><span style="width: 8px; height: 8px; background: var(--accent); border-radius: 50; animation: pulse-glow 2s infinite;" class="rounded-full inline-block"></span> <span style="font-family: 'Share Tech Mono', monospace; font-size: 11px; color: var(--secondary);">LIVE</span></div>
    </header>
    <main class="flex-1 p-4 sm:p-6 flex flex-col gap-5">
     <div class="grid grid-cols-2 sm:grid-cols-4 gap-3" style="animation: fadeSlideIn 0.6s ease;">
@@ -252,19 +255,41 @@
      <div class="stat-card rounded px-3 py-3 relative" style="animation-delay: 0.3s;"><div class="corner-accent corner-tl"></div><div class="corner-accent corner-br"></div><div style="font-family: 'Share Tech Mono', monospace; font-size: 10px; color: var(--secondary); text-transform: uppercase;">Documents</div><div id="stat-docs" style="font-family: 'Share Tech Mono', monospace; font-size: 24px; color: var(--text); line-height: 1.3;">0</div></div>
      <div class="stat-card rounded px-3 py-3 relative" style="animation-delay: 0.4s;"><div class="corner-accent corner-tl"></div><div class="corner-accent corner-br"></div><div style="font-family: 'Share Tech Mono', monospace; font-size: 10px; color: var(--secondary); text-transform: uppercase;">Storage</div><div id="stat-storage" style="font-family: 'Share Tech Mono', monospace; font-size: 24px; color: var(--primary); line-height: 1.3;">0 B</div></div>
     </div>
-    <div id="drop-zone" class="drop-zone rounded-lg p-8 flex flex-col items-center justify-center gap-3 cursor-pointer relative" style="border: 2px dashed rgba(212, 168, 67, 0.25); background: rgba(20, 20, 20, 0.6); min-height: 160px;" onclick="document.getElementById('file-input').click()">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3" style="font-family: 'Share Tech Mono', monospace; font-size: 12px;">
+      <label for="destination-select" style="color: var(--secondary);">TARGET WEBSITE SECTION</label>
+      <select id="destination-select" style="background: #111; color: var(--text); border: 1px solid rgba(212, 168, 67, 0.25); border-radius: 4px; padding: 6px 10px;">
+        <option value="about">About Us</option>
+        <option value="divisions">Divisions</option>
+        <option value="innovation">Innovation</option>
+        <option value="careers">Careers</option>
+        <option value="investors">Investors</option>
+        <option value="newsroom">Newsroom</option>
+        <option value="contact">Contact</option>
+      </select>
+    </div>
+    <div id="drop-zone" class="drop-zone rounded-lg p-8 flex flex-col items-center justify-center gap-3 cursor-pointer relative" style="border: 2px dashed rgba(122, 167, 255, 0.45); background: linear-gradient(180deg, rgba(15, 26, 47, 0.92), rgba(11, 21, 39, 0.9)); min-height: 160px; border-radius: 14px;" onclick="document.getElementById('file-input').click()">
      <div class="corner-accent corner-tl"></div><div class="corner-accent corner-tr"></div><div class="corner-accent corner-bl"></div><div class="corner-accent corner-br"></div><i data-lucide="upload-cloud" style="width: 40px; height: 40px; color: var(--secondary);"></i>
      <div style="font-family: 'Share Tech Mono', monospace; font-size: 14px; color: var(--text);">DROP FILES HERE OR CLICK TO UPLOAD</div>
-     <div style="font-family: 'Share Tech Mono', monospace; font-size: 11px; color: var(--secondary);">File metadata will be logged to the system</div><input type="file" id="file-input" multiple style="display: none;">
+     <div style="font-family: 'Share Tech Mono', monospace; font-size: 11px; color: var(--secondary);">Files will be stored and published to selected website sections</div><input type="file" id="file-input" multiple style="display: none;">
     </div>
     <div class="flex items-center justify-between"><h2 style="font-family: 'Share Tech Mono', monospace; font-size: 14px; color: var(--secondary); margin: 0;"><span style="color: var(--primary);">▶</span> FILE_REGISTRY</h2><span id="file-count" style="font-family: 'Share Tech Mono', monospace; font-size: 11px; color: var(--secondary);">0 entries</span></div>
     <div id="file-list" class="flex flex-col gap-2 pb-4"><div id="empty-state" class="flex flex-col items-center justify-center py-10 gap-2" style="border: 1px solid rgba(212, 168, 67, 0.08); border-radius: 8px; background: rgba(20,20,20,0.4);"><i data-lucide="folder-open" style="width: 32px; height: 32px; color: var(--secondary); opacity: 0.4;"></i> <span style="font-family: 'Share Tech Mono', monospace; font-size: 12px; color: var(--secondary); opacity: 0.5;">NO FILES IN REGISTRY</span></div></div>
    </main>
   </div>
   <script>
-    const defaultConfig = { panel_title: 'ADMIN://FILE_PANEL', welcome_message: 'SYSTEM ONLINE — FILE MANAGEMENT ACTIVE', background_color: '#0a0a0a', surface_color: '#141414', text_color: '#d4a843', primary_color: '#c41e2e', secondary_color: '#8b7332', font_family: 'Rajdhani', font_size: 14 };
+    const defaultConfig = { panel_title: 'ADMIN://CONTENT_CONTROL', welcome_message: 'SECURE DASHBOARD — ASSET DEPLOYMENT ACTIVE', background_color: '#060b17', surface_color: '#0f1a2f', text_color: '#d9ecff', primary_color: '#4cc9f0', secondary_color: '#7aa7ff', font_family: 'Rajdhani', font_size: 14 };
     let allFiles = [];
     let pendingDeletes = new Set();
+    const localUploadsKey = 'kiasUploadedAssets';
+    const destinationLabels = {
+      about: 'About Us',
+      divisions: 'Divisions',
+      innovation: 'Innovation',
+      careers: 'Careers',
+      investors: 'Investors',
+      newsroom: 'Newsroom',
+      contact: 'Contact'
+    };
     function showToast(msg, type = 'success') {
       const c = document.getElementById('toast-container');
       const t = document.createElement('div');
@@ -329,7 +354,8 @@
         if (existingMap.has(id)) {
           const el = existingMap.get(id);
           el.querySelector('.file-name').textContent = file.name;
-          el.querySelector('.file-meta').textContent = `${formatSize(file.size)} · ${file.type || 'unknown'} · ${new Date(file.uploaded_at).toLocaleString()}`;
+          const destLabel = destinationLabels[file.destination] || 'Unassigned';
+          el.querySelector('.file-meta').textContent = `${formatSize(file.size)} · ${file.type || 'unknown'} · ${destLabel} · ${new Date(file.uploaded_at).toLocaleString()}`;
           const statusEl = el.querySelector('.file-status');
           statusEl.textContent = file.status;
           statusEl.style.color = file.status === 'UPLOADED' ? 'var(--text)' : 'var(--primary)';
@@ -339,7 +365,8 @@
           card.style.cssText = 'background: var(--surface); border: 1px solid rgba(212, 168, 67, 0.1);';
           card.dataset.fileId = id;
           card.style.animationDelay = (idx * 0.05) + 's';
-          card.innerHTML = `<div style="width: 36px; height: 36px; background: rgba(196, 30, 46, 0.1); border: 1px solid rgba(196, 30, 46, 0.2);" class="rounded flex items-center justify-center flex-shrink-0"><i data-lucide="${getFileIcon(file.type)}" style="width: 18px; height: 18px; color: var(--primary);"></i></div><div class="flex-1 min-w-0"><div class="file-name" style="font-family: 'Share Tech Mono', monospace; font-size: 13px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${file.name}</div><div class="file-meta" style="font-family: 'Share Tech Mono', monospace; font-size: 10px; color: var(--secondary);">${formatSize(file.size)} · ${file.type || 'unknown'} · ${new Date(file.uploaded_at).toLocaleString()}</div></div><span class="file-status flex-shrink-0" style="font-family: 'Share Tech Mono', monospace; font-size: 10px; color: ${file.status === 'UPLOADED' ? 'var(--text)' : 'var(--primary)'};">${file.status}</span><div class="delete-area flex-shrink-0"></div>`;
+          const destLabel = destinationLabels[file.destination] || 'Unassigned';
+          card.innerHTML = `<div style="width: 36px; height: 36px; background: rgba(196, 30, 46, 0.1); border: 1px solid rgba(196, 30, 46, 0.2);" class="rounded flex items-center justify-center flex-shrink-0"><i data-lucide="${getFileIcon(file.type)}" style="width: 18px; height: 18px; color: var(--primary);"></i></div><div class="flex-1 min-w-0"><div class="file-name" style="font-family: 'Share Tech Mono', monospace; font-size: 13px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${file.name}</div><div class="file-meta" style="font-family: 'Share Tech Mono', monospace; font-size: 10px; color: var(--secondary);">${formatSize(file.size)} · ${file.type || 'unknown'} · ${destLabel} · ${new Date(file.uploaded_at).toLocaleString()}</div></div><span class="file-status flex-shrink-0" style="font-family: 'Share Tech Mono', monospace; font-size: 10px; color: ${file.status === 'UPLOADED' ? 'var(--text)' : 'var(--primary)'};">${file.status}</span><div class="delete-area flex-shrink-0"></div>`;
           const deleteArea = card.querySelector('.delete-area');
           renderDeleteButton(deleteArea, file);
           container.appendChild(card);
@@ -363,17 +390,62 @@
     async function confirmDelete(file) {
       const btn = document.querySelector(`[data-file-id="${file.__backendId}"] .confirm-del-btn`);
       if (btn) { btn.textContent = '...'; btn.disabled = true; }
+      const localUploads = getLocalUploads().filter((item) => item.__backendId !== file.__backendId);
+      setLocalUploads(localUploads);
       const result = await window.dataSdk.delete(file);
       pendingDeletes.delete(file.__backendId);
       if (result.isOk) { showToast('FILE REMOVED: ' + file.name); } else { showToast('DELETE FAILED', 'error'); }
     }
     const dataHandler = { onDataChanged(data) { allFiles = data; updateStats(data); renderFiles(data); } };
+    function getLocalUploads() {
+      try {
+        return JSON.parse(window.localStorage.getItem(localUploadsKey) || '[]');
+      } catch (error) {
+        return [];
+      }
+    }
+    function setLocalUploads(data) {
+      window.localStorage.setItem(localUploadsKey, JSON.stringify(data));
+      window.dispatchEvent(new Event('storage'));
+    }
+    function readFileAsDataUrl(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = () => reject(reader.error);
+        reader.readAsDataURL(file);
+      });
+    }
     async function handleFiles(fileList) {
+      const destination = document.getElementById('destination-select').value;
+      const localUploads = getLocalUploads();
       for (const file of fileList) {
         if (allFiles.length >= 999) { showToast('LIMIT REACHED: Max 999 files', 'error'); return; }
-        const result = await window.dataSdk.create({ name: file.name, size: String(file.size), type: file.type || 'unknown', uploaded_at: new Date().toISOString(), status: 'UPLOADED' });
-        if (result.isOk) { showToast('LOGGED: ' + file.name); } else { showToast('UPLOAD FAILED: ' + file.name, 'error'); }
+        const uploadedAt = new Date().toISOString();
+        try {
+          const dataUrl = await readFileAsDataUrl(file);
+          const savedFile = {
+            __backendId: `local-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+            name: file.name,
+            size: String(file.size),
+            type: file.type || 'unknown',
+            uploaded_at: uploadedAt,
+            status: 'UPLOADED',
+            destination,
+            dataUrl
+          };
+          localUploads.unshift(savedFile);
+          const result = await window.dataSdk.create({ name: file.name, size: String(file.size), type: file.type || 'unknown', destination, uploaded_at: uploadedAt, status: 'UPLOADED' });
+          if (!result.isOk) showToast('REMOTE LOG FAILED, LOCAL SAVE OK: ' + file.name, 'error');
+          showToast(`UPLOADED: ${file.name} → ${destinationLabels[destination]}`);
+        } catch (error) {
+          showToast('UPLOAD FAILED: ' + file.name, 'error');
+        }
       }
+      setLocalUploads(localUploads);
+      allFiles = localUploads;
+      updateStats(allFiles);
+      renderFiles(allFiles);
     }
     const dropZone = document.getElementById('drop-zone');
     const fileInput = document.getElementById('file-input');
@@ -426,6 +498,12 @@
     (async () => {
       const result = await window.dataSdk.init(dataHandler);
       if (!result.isOk) showToast('DATA LINK FAILED', 'error');
+      const localUploads = getLocalUploads();
+      if (localUploads.length > 0) {
+        allFiles = localUploads;
+        updateStats(allFiles);
+        renderFiles(allFiles);
+      }
     })();
     lucide.createIcons();
   </script>

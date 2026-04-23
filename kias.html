@@ -16,6 +16,19 @@
           <h2>Published Information</h2>
           <p id="published-info">No information has been published yet.</p>
         </section>
+        <section class="kias-info">
+          <h2>Portal Briefing</h2>
+          <ul class="portal-list">
+            <li>Operational classification: Internal / Restricted.</li>
+            <li>Last policy sync: <span id="policy-sync-date">--</span>.</li>
+            <li>Data retention window: 180 days for uploaded assets.</li>
+            <li>Security posture: Multi-step verification required for administrative actions.</li>
+          </ul>
+        </section>
+        <section class="kias-info">
+          <h2>Published Asset Destinations</h2>
+          <div id="portal-asset-summary" class="portal-summary"></div>
+        </section>
 
         <div class="kias-actions">
           <a class="btn btn-outline" href="index.html">Return to Main Site</a>
@@ -49,6 +62,9 @@
       const adminPasswordInput = document.getElementById("admin-password-input");
       const adminSubmitButton = document.getElementById("admin-submit-btn");
       const adminStatus = document.getElementById("admin-status");
+      const policySyncDate = document.getElementById("policy-sync-date");
+      const portalAssetSummary = document.getElementById("portal-asset-summary");
+      const localUploadsKey = "kiasUploadedAssets";
 
       const loadPublishedInfo = () => {
         const savedInfo = window.localStorage.getItem("kiasPublishedInfo");
@@ -56,6 +72,25 @@
           savedInfo && savedInfo.trim().length > 0
             ? savedInfo
             : "No information has been published yet.";
+      };
+      const loadAssetSummary = () => {
+        const savedAssets = JSON.parse(window.localStorage.getItem(localUploadsKey) || "[]");
+        const sections = [
+          { key: "about", label: "About Us" },
+          { key: "divisions", label: "Divisions" },
+          { key: "innovation", label: "Innovation" },
+          { key: "careers", label: "Careers" },
+          { key: "investors", label: "Investors" },
+          { key: "newsroom", label: "Newsroom" },
+          { key: "contact", label: "Contact" },
+        ];
+
+        portalAssetSummary.innerHTML = sections
+          .map((section) => {
+            const count = savedAssets.filter((item) => item.destination === section.key).length;
+            return `<article class="summary-item"><h3>${section.label}</h3><p>${count} published file${count === 1 ? "" : "s"}</p></article>`;
+          })
+          .join("");
       };
 
       complianceButton.addEventListener("click", () => {
@@ -80,7 +115,10 @@
       });
 
       window.addEventListener("storage", loadPublishedInfo);
+      window.addEventListener("storage", loadAssetSummary);
+      policySyncDate.textContent = new Date().toLocaleString();
       loadPublishedInfo();
+      loadAssetSummary();
     </script>
   </body>
 </html>
