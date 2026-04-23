@@ -111,6 +111,37 @@
             <a href="#">Learn More</a>
           </article>
         </section>
+
+        <section class="site-assets">
+          <article class="assets-card">
+            <h2>About Us</h2>
+            <div id="assets-about" class="assets-grid"></div>
+          </article>
+          <article class="assets-card">
+            <h2>Divisions</h2>
+            <div id="assets-divisions" class="assets-grid"></div>
+          </article>
+          <article class="assets-card">
+            <h2>Innovation</h2>
+            <div id="assets-innovation" class="assets-grid"></div>
+          </article>
+          <article class="assets-card">
+            <h2>Careers</h2>
+            <div id="assets-careers" class="assets-grid"></div>
+          </article>
+          <article class="assets-card">
+            <h2>Investors</h2>
+            <div id="assets-investors" class="assets-grid"></div>
+          </article>
+          <article class="assets-card">
+            <h2>Newsroom</h2>
+            <div id="assets-newsroom" class="assets-grid"></div>
+          </article>
+          <article class="assets-card">
+            <h2>Contact</h2>
+            <div id="assets-contact" class="assets-grid"></div>
+          </article>
+        </section>
       </main>
 
       <footer class="footer">
@@ -133,6 +164,39 @@
       const secureCodeInput = document.getElementById("secure-code-input");
       const secureSubmitButton = document.getElementById("secure-submit-btn");
       const secureStatus = document.getElementById("secure-status");
+      const localUploadsKey = "kiasUploadedAssets";
+
+      const renderAssets = () => {
+        const assetsBySection = {
+          about: document.getElementById("assets-about"),
+          divisions: document.getElementById("assets-divisions"),
+          innovation: document.getElementById("assets-innovation"),
+          careers: document.getElementById("assets-careers"),
+          investors: document.getElementById("assets-investors"),
+          newsroom: document.getElementById("assets-newsroom"),
+          contact: document.getElementById("assets-contact"),
+        };
+        const saved = JSON.parse(window.localStorage.getItem(localUploadsKey) || "[]");
+
+        Object.entries(assetsBySection).forEach(([section, container]) => {
+          const sectionFiles = saved.filter((item) => item.destination === section).slice(0, 6);
+          container.innerHTML = sectionFiles.length
+            ? sectionFiles
+                .map(
+                  (file) => `
+                <div class="asset-item">
+                  ${file.type.startsWith("image/") ? `<img src="${file.dataUrl}" alt="${file.name}" />` : `<div class="asset-icon">FILE</div>`}
+                  <div>
+                    <p class="asset-name">${file.name}</p>
+                    <p class="asset-meta">${new Date(file.uploaded_at).toLocaleDateString()}</p>
+                  </div>
+                </div>
+              `
+                )
+                .join("")
+            : `<p class="asset-empty">No uploads yet.</p>`;
+        });
+      };
 
       securePortalButton.addEventListener("click", () => {
         securePortalLogin.hidden = false;
@@ -154,6 +218,9 @@
           secureSubmitButton.click();
         }
       });
+
+      window.addEventListener("storage", renderAssets);
+      renderAssets();
     </script>
   </body>
 </html>
