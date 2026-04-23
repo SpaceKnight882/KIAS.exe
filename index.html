@@ -84,6 +84,14 @@
       const secureStatus = document.getElementById("secure-status");
       const storageKey = "kiasContentAssets";
 
+      const previewFor = (file) => {
+        if (file.type.startsWith("image/")) return `<img src="${file.dataUrl}" alt="${file.name}" />`;
+        if (file.type.startsWith("audio/")) return `<div class="asset-icon">AUDIO</div>`;
+        if (file.type.startsWith("video/")) return `<div class="asset-icon">VIDEO</div>`;
+        if (file.type.startsWith("text/")) return `<div class="asset-icon">TEXT</div>`;
+        return `<div class="asset-icon">FILE</div>`;
+      };
+
       const renderAssets = () => {
         const sections = ["about", "divisions", "innovation", "careers", "investors", "newsroom", "contact"];
         const saved = JSON.parse(localStorage.getItem(storageKey) || "[]");
@@ -94,7 +102,7 @@
           container.innerHTML = sectionFiles.length
             ? sectionFiles
                 .map(
-                  (file) => `<div class="asset-item">${file.type.startsWith("image/") ? `<img src="${file.dataUrl}" alt="${file.name}" />` : `<div class="asset-icon">FILE</div>`}<div><p class="asset-name">${file.name}</p><p class="asset-meta">${new Date(file.uploadedAt).toLocaleDateString()}</p></div></div>`
+                  (file) => `<div class="asset-item">${previewFor(file)}<div><p class="asset-name">${file.title || file.name}</p><p class="asset-meta">${file.description || "No description"}</p><p class="asset-meta">${new Date(file.uploadedAt).toLocaleDateString()}</p></div></div>`
                 )
                 .join("")
             : `<p class="asset-empty">No uploads yet.</p>`;
