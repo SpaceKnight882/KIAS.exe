@@ -1,94 +1,238 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>KIAS Secure Portal</title>
-    <link rel="stylesheet" href="styles.css" />
-  </head>
-  <body>
-    <div class="page-shell kias-shell-layout">
-      <header class="topbar">
-        <div class="brand">
-          <div class="logo">K</div>
-          <span>KIAS Secure Portal</span>
-        </div>
-        <nav class="main-nav">
-          <a href="about.html">About Us</a>
-          <a href="divisions.html">Divisions</a>
-          <a href="innovation.html">Innovation</a>
-          <a href="careers.html">Careers</a>
-          <a href="investors.html">Investors</a>
-          <a href="newsroom.html">Newsroom</a>
-          <a href="contact.html">Contact</a>
-        </nav>
-      </header>
+<head>
+<meta charset="UTF-8">
+<title>KREED INDUSTRIES // K.I.A.S NODE</title>
 
-      <main class="kias-main">
-        <h1>Welcome to the KIAS Secure Portal</h1>
-        <p class="lead">Authorized access confirmed.</p>
+<style>
+body {
+    margin: 0;
+    background: #000;
+    color: #e6e6e6;
+    font-family: monospace;
+}
 
-        <section class="kias-info">
-          <h2>Published Asset Destinations (kias.html)</h2>
-          <div id="portal-asset-summary" class="portal-summary"></div>
-        </section>
+/* CRT EFFECT */
+body::after {
+    content:"";
+    position:fixed;
+    top:0; left:0;
+    width:100%; height:100%;
+    pointer-events:none;
+    background: repeating-linear-gradient(
+        0deg,
+        rgba(255,255,255,0.02),
+        rgba(255,255,255,0.02) 1px,
+        transparent 1px,
+        transparent 3px
+    );
+}
 
-        <section class="site-assets">
-          <article class="assets-card"><h2>About Us</h2><div id="kias-about" class="assets-grid"></div></article>
-          <article class="assets-card"><h2>Divisions</h2><div id="kias-divisions" class="assets-grid"></div></article>
-          <article class="assets-card"><h2>Innovation</h2><div id="kias-innovation" class="assets-grid"></div></article>
-          <article class="assets-card"><h2>Careers</h2><div id="kias-careers" class="assets-grid"></div></article>
-          <article class="assets-card"><h2>Investors</h2><div id="kias-investors" class="assets-grid"></div></article>
-          <article class="assets-card"><h2>Newsroom</h2><div id="kias-newsroom" class="assets-grid"></div></article>
-          <article class="assets-card"><h2>Contact</h2><div id="kias-contact" class="assets-grid"></div></article>
-        </section>
+/* HEADER */
+header {
+    padding: 12px 20px;
+    border-bottom: 1px solid #222;
+    display: flex;
+    justify-content: space-between;
+}
 
-        <div class="kias-actions">
-          <a class="btn btn-outline" href="index.html">Return to Main Site</a>
-          <a class="btn btn-outline" href="admin.html">Open Admin Panel</a>
-        </div>
-      </main>
+.title { font-size: 12px; letter-spacing: 2px; }
+.status { font-size: 10px; color: #777; }
+
+/* GRID SYSTEM */
+.layout {
+    display: grid;
+    grid-template-columns: 220px 1fr 260px;
+    height: calc(100vh - 40px);
+}
+
+/* SIDEBAR */
+.sidebar {
+    border-right: 1px solid #111;
+    padding: 15px;
+}
+
+.nav {
+    font-size: 11px;
+    padding: 6px 0;
+    color: #888;
+    cursor: pointer;
+}
+
+.nav:hover { color: #fff; }
+
+/* MAIN PANEL */
+.main {
+    padding: 15px;
+    overflow-y: auto;
+}
+
+.section-title {
+    font-size: 11px;
+    border-bottom: 1px solid #222;
+    padding-bottom: 5px;
+    margin-bottom: 10px;
+}
+
+/* FILE TABLE */
+.file {
+    padding: 8px;
+    border-bottom: 1px solid #111;
+    font-size: 11px;
+    cursor: pointer;
+}
+
+.file:hover {
+    background: #050505;
+}
+
+/* RIGHT PANEL */
+.sidepanel {
+    border-left: 1px solid #111;
+    padding: 15px;
+    font-size: 10px;
+    color: #777;
+}
+
+/* LOG STREAM */
+.log {
+    margin-bottom: 6px;
+}
+
+/* CLASS TAGS */
+.tag {
+    display: inline-block;
+    border: 1px solid #444;
+    padding: 2px 4px;
+    margin-right: 5px;
+    font-size: 9px;
+}
+
+/* FILE VIEW */
+.viewer {
+    margin-top: 10px;
+    border-top: 1px solid #222;
+    padding-top: 10px;
+    font-size: 11px;
+}
+
+/* BLINK */
+.blink::after {
+    content: "_";
+    animation: blink 1s infinite;
+}
+
+@keyframes blink {
+    50% { opacity: 0; }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+<div class="title">KREED INDUSTRIES // K.I.A.S ARCHIVE NODE</div>
+<div class="status blink">ADMIN: &lt;KIAS.exe&gt; // STATUS: ACTIVE</div>
+</header>
+
+<div class="layout">
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+<div class="nav" onclick="load('company')">MAIN COMPANY INFO</div>
+<div class="nav" onclick="load('lab')">LAB REPORTS</div>
+<div class="nav" onclick="load('testing')">CURRENTLY TESTING</div>
+<div class="nav" onclick="load('containment')">IN CONTAINMENT</div>
+<div class="nav" onclick="load('watchlist')">WATCHLIST</div>
+<div class="nav" onclick="load('journal')">RESEARCH JOURNAL</div>
+<div class="nav" onclick="window.location.href='index.html'">RETURN TO MAIN SITE</div>
+</div>
+
+<!-- MAIN -->
+<div class="main" id="main">
+<div class="section-title">SYSTEM INITIALIZED</div>
+<div class="file">SELECT A CATEGORY</div>
+</div>
+
+<!-- SIDE PANEL -->
+<div class="sidepanel" id="sidepanel">
+<div>K.I.A.S SYSTEM LOG</div>
+<div id="logs"></div>
+</div>
+
+</div>
+
+<script>
+
+// CATEGORY DATA STRUCTURE
+const data = {
+    company: ["Corporate Structure File", "Executive Records", "Internal Policies"],
+    lab: ["Experiment 01", "Crystal Study A", "Subject Report 12"],
+    testing: ["Subject A (Active)", "Subject B (Unstable)"],
+    containment: ["Entity 03 (Sealed)", "Specimen 09"],
+    watchlist: ["Unknown Subject", "External Observer"],
+    journal: ["Entry 001", "Entry 002", "Entry 003"]
+};
+
+// LOAD SECTION
+function load(type) {
+    const main = document.getElementById("main");
+    main.innerHTML = `<div class="section-title">${type.toUpperCase()}</div>`;
+
+    data[type].forEach(item => {
+        const div = document.createElement("div");
+        div.className = "file";
+        div.innerHTML = `
+            ${item}
+            <div>
+                <span class="tag">CLASSIFIED</span>
+                <span class="tag">1980</span>
+            </div>
+        `;
+        div.onclick = () => openFile(item);
+        main.appendChild(div);
+    });
+}
+
+// OPEN FILE VIEW
+function openFile(name) {
+    const main = document.getElementById("main");
+
+    main.innerHTML += `
+    <div class="viewer">
+        <div>[FILE OPENED]</div>
+        <div>NAME: ${name}</div>
+        <div>STATUS: INCOMPLETE DATA</div>
+        <div>ACCESS LEVEL: RESTRICTED</div>
+        <br>
+        <div>CONTENT: [DATA NOT FOUND]</div>
     </div>
+    `;
+}
 
-    <script>
-      const portalAssetSummary = document.getElementById("portal-asset-summary");
-      const storageKey = "kiasContentAssets";
+// SYSTEM LOG FEED
+function addLog() {
+    const logs = document.getElementById("logs");
 
-      const sections = [
-        { key: "about", label: "About Us" },
-        { key: "divisions", label: "Divisions" },
-        { key: "innovation", label: "Innovation" },
-        { key: "careers", label: "Careers" },
-        { key: "investors", label: "Investors" },
-        { key: "newsroom", label: "Newsroom" },
-        { key: "contact", label: "Contact" },
-      ];
+    const messages = [
+        "Data integrity check running...",
+        "New archive node connected.",
+        "Memory inconsistency detected.",
+        "Unauthorized access logged.",
+        "Subject data mismatch."
+    ];
 
-      const renderAssets = () => {
-        const savedAssets = JSON.parse(localStorage.getItem(storageKey) || "[]");
+    const div = document.createElement("div");
+    div.className = "log";
+    div.textContent = "> " + messages[Math.floor(Math.random()*messages.length)];
 
-        sections.forEach((section) => {
-          const container = document.getElementById(`kias-${section.key}`);
-          const sectionFiles = savedAssets.filter((item) => item.targetPage === "kias" && item.targetSection === section.key).slice(0, 8);
-          container.innerHTML = sectionFiles.length
-            ? sectionFiles
-                .map(
-                  (file) => `<div class="asset-item">${file.type.startsWith("image/") ? `<img src="${file.dataUrl}" alt="${file.name}" />` : `<div class="asset-icon">FILE</div>`}<div><p class="asset-name">${file.name}</p><p class="asset-meta">${new Date(file.uploadedAt).toLocaleDateString()}</p></div></div>`
-                )
-                .join("")
-            : `<p class="asset-empty">No uploads yet.</p>`;
-        });
+    logs.prepend(div);
+}
 
-        portalAssetSummary.innerHTML = sections
-          .map((section) => {
-            const count = savedAssets.filter((item) => item.targetPage === "kias" && item.targetSection === section.key).length;
-            return `<article class="summary-item"><h3>${section.label}</h3><p>${count} published file${count === 1 ? "" : "s"}</p></article>`;
-          })
-          .join("");
-      };
+// periodic logs
+setInterval(addLog, 3000);
 
-      window.addEventListener("storage", renderAssets);
-      renderAssets();
-    </script>
-  </body>
+</script>
+
+</body>
 </html>
