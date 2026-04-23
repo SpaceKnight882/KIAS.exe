@@ -20,13 +20,13 @@
           <span>Kreed Industries</span>
         </div>
         <nav class="main-nav">
-          <a href="#">About Us</a>
-          <a href="#">Divisions</a>
-          <a href="#">Innovation</a>
-          <a href="#">Careers</a>
-          <a href="#">Investors</a>
-          <a href="#">Newsroom</a>
-          <a href="#">Contact</a>
+          <a href="about.html">About Us</a>
+          <a href="divisions.html">Divisions</a>
+          <a href="innovation.html">Innovation</a>
+          <a href="careers.html">Careers</a>
+          <a href="investors.html">Investors</a>
+          <a href="newsroom.html">Newsroom</a>
+          <a href="contact.html">Contact</a>
         </nav>
         <button id="secure-portal-btn" class="btn btn-outline" type="button">Secure Portal</button>
       </header>
@@ -48,22 +48,10 @@
             <button class="btn btn-cta">Learn More About Us</button>
           </div>
           <aside class="hero-topics">
-            <article>
-              <h3>Research</h3>
-              <p>Pushing the limits of knowledge.</p>
-            </article>
-            <article>
-              <h3>Technology</h3>
-              <p>Engineering the future.</p>
-            </article>
-            <article>
-              <h3>Security</h3>
-              <p>Protecting what matters.</p>
-            </article>
-            <article>
-              <h3>Wellness</h3>
-              <p>Advancing human potential.</p>
-            </article>
+            <article><h3>Research</h3><p>Pushing the limits of knowledge.</p></article>
+            <article><h3>Technology</h3><p>Engineering the future.</p></article>
+            <article><h3>Security</h3><p>Protecting what matters.</p></article>
+            <article><h3>Wellness</h3><p>Advancing human potential.</p></article>
           </aside>
           <div class="status-pill">● System Status: Operational</div>
         </section>
@@ -71,91 +59,21 @@
         <section id="secure-portal-login" class="access-card" hidden>
           <h2>Secure Portal Access</h2>
           <label for="secure-code-input">Access code</label>
-          <input
-            id="secure-code-input"
-            class="access-input"
-            type="password"
-            placeholder="Enter secure access code"
-            autocomplete="off"
-          />
-          <div class="access-actions">
-            <button id="secure-submit-btn" class="btn btn-outline" type="button">Enter Portal</button>
-          </div>
+          <input id="secure-code-input" class="access-input" type="password" placeholder="Enter secure access code" autocomplete="off" />
+          <div class="access-actions"><button id="secure-submit-btn" class="btn btn-outline" type="button">Enter Portal</button></div>
           <p id="secure-status" class="access-status" aria-live="polite"></p>
         </section>
 
-        <section class="divisions">
-          <article class="division intro">
-            <h2>Our Divisions</h2>
-            <p>Four core divisions. One mission: Human advancement.</p>
-            <button class="btn btn-outline">Explore Divisions</button>
-          </article>
-          <article class="division card biosciences">
-            <h3>Biosciences</h3>
-            <p>Biotechnology and genetic research for a healthier future.</p>
-            <a href="#">Learn More</a>
-          </article>
-          <article class="division card materials">
-            <h3>Advanced Materials</h3>
-            <p>Revolutionizing what's possible through material innovation.</p>
-            <a href="#">Learn More</a>
-          </article>
-          <article class="division card robotics">
-            <h3>Systems & Robotics</h3>
-            <p>Intelligent systems engineered to solve complex challenges.</p>
-            <a href="#">Learn More</a>
-          </article>
-          <article class="division card security">
-            <h3>Security Solutions</h3>
-            <p>Integrated defense technologies for a safer world.</p>
-            <a href="#">Learn More</a>
-          </article>
-        </section>
-
         <section class="site-assets">
-          <article class="assets-card">
-            <h2>About Us</h2>
-            <div id="assets-about" class="assets-grid"></div>
-          </article>
-          <article class="assets-card">
-            <h2>Divisions</h2>
-            <div id="assets-divisions" class="assets-grid"></div>
-          </article>
-          <article class="assets-card">
-            <h2>Innovation</h2>
-            <div id="assets-innovation" class="assets-grid"></div>
-          </article>
-          <article class="assets-card">
-            <h2>Careers</h2>
-            <div id="assets-careers" class="assets-grid"></div>
-          </article>
-          <article class="assets-card">
-            <h2>Investors</h2>
-            <div id="assets-investors" class="assets-grid"></div>
-          </article>
-          <article class="assets-card">
-            <h2>Newsroom</h2>
-            <div id="assets-newsroom" class="assets-grid"></div>
-          </article>
-          <article class="assets-card">
-            <h2>Contact</h2>
-            <div id="assets-contact" class="assets-grid"></div>
-          </article>
+          <article class="assets-card"><h2>About Us</h2><div id="index-about" class="assets-grid"></div></article>
+          <article class="assets-card"><h2>Divisions</h2><div id="index-divisions" class="assets-grid"></div></article>
+          <article class="assets-card"><h2>Innovation</h2><div id="index-innovation" class="assets-grid"></div></article>
+          <article class="assets-card"><h2>Careers</h2><div id="index-careers" class="assets-grid"></div></article>
+          <article class="assets-card"><h2>Investors</h2><div id="index-investors" class="assets-grid"></div></article>
+          <article class="assets-card"><h2>Newsroom</h2><div id="index-newsroom" class="assets-grid"></div></article>
+          <article class="assets-card"><h2>Contact</h2><div id="index-contact" class="assets-grid"></div></article>
         </section>
       </main>
-
-      <footer class="footer">
-        <div class="brand muted">
-          <div class="logo">K</div>
-          <span>Kreed Industries</span>
-        </div>
-        <p>Innovation. Integrity. Impact.</p>
-        <nav>
-          <a href="#">Privacy Policy</a>
-          <a href="#">Terms of Service</a>
-          <a href="#">Compliance</a>
-        </nav>
-      </footer>
     </div>
 
     <script>
@@ -164,34 +82,19 @@
       const secureCodeInput = document.getElementById("secure-code-input");
       const secureSubmitButton = document.getElementById("secure-submit-btn");
       const secureStatus = document.getElementById("secure-status");
-      const localUploadsKey = "kiasUploadedAssets";
+      const storageKey = "kiasContentAssets";
 
       const renderAssets = () => {
-        const assetsBySection = {
-          about: document.getElementById("assets-about"),
-          divisions: document.getElementById("assets-divisions"),
-          innovation: document.getElementById("assets-innovation"),
-          careers: document.getElementById("assets-careers"),
-          investors: document.getElementById("assets-investors"),
-          newsroom: document.getElementById("assets-newsroom"),
-          contact: document.getElementById("assets-contact"),
-        };
-        const saved = JSON.parse(window.localStorage.getItem(localUploadsKey) || "[]");
+        const sections = ["about", "divisions", "innovation", "careers", "investors", "newsroom", "contact"];
+        const saved = JSON.parse(localStorage.getItem(storageKey) || "[]");
 
-        Object.entries(assetsBySection).forEach(([section, container]) => {
-          const sectionFiles = saved.filter((item) => item.destination === section).slice(0, 6);
+        sections.forEach((section) => {
+          const container = document.getElementById(`index-${section}`);
+          const sectionFiles = saved.filter((item) => item.targetPage === "index" && item.targetSection === section).slice(0, 8);
           container.innerHTML = sectionFiles.length
             ? sectionFiles
                 .map(
-                  (file) => `
-                <div class="asset-item">
-                  ${file.type.startsWith("image/") ? `<img src="${file.dataUrl}" alt="${file.name}" />` : `<div class="asset-icon">FILE</div>`}
-                  <div>
-                    <p class="asset-name">${file.name}</p>
-                    <p class="asset-meta">${new Date(file.uploaded_at).toLocaleDateString()}</p>
-                  </div>
-                </div>
-              `
+                  (file) => `<div class="asset-item">${file.type.startsWith("image/") ? `<img src="${file.dataUrl}" alt="${file.name}" />` : `<div class="asset-icon">FILE</div>`}<div><p class="asset-name">${file.name}</p><p class="asset-meta">${new Date(file.uploadedAt).toLocaleDateString()}</p></div></div>`
                 )
                 .join("")
             : `<p class="asset-empty">No uploads yet.</p>`;
@@ -209,14 +112,11 @@
           window.location.href = "kias.html";
           return;
         }
-
         secureStatus.textContent = "Access denied. Invalid code.";
       });
 
       secureCodeInput.addEventListener("keydown", (event) => {
-        if (event.key === "Enter") {
-          secureSubmitButton.click();
-        }
+        if (event.key === "Enter") secureSubmitButton.click();
       });
 
       window.addEventListener("storage", renderAssets);

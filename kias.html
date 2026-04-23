@@ -7,118 +7,88 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <div class="page-shell kias-shell">
+    <div class="page-shell kias-shell-layout">
+      <header class="topbar">
+        <div class="brand">
+          <div class="logo">K</div>
+          <span>KIAS Secure Portal</span>
+        </div>
+        <nav class="main-nav">
+          <a href="about.html">About Us</a>
+          <a href="divisions.html">Divisions</a>
+          <a href="innovation.html">Innovation</a>
+          <a href="careers.html">Careers</a>
+          <a href="investors.html">Investors</a>
+          <a href="newsroom.html">Newsroom</a>
+          <a href="contact.html">Contact</a>
+        </nav>
+      </header>
+
       <main class="kias-main">
         <h1>Welcome to the KIAS Secure Portal</h1>
         <p class="lead">Authorized access confirmed.</p>
 
-        <section class="kias-info" aria-live="polite">
-          <h2>Published Information</h2>
-          <p id="published-info">No information has been published yet.</p>
-        </section>
         <section class="kias-info">
-          <h2>Portal Briefing</h2>
-          <ul class="portal-list">
-            <li>Operational classification: Internal / Restricted.</li>
-            <li>Last policy sync: <span id="policy-sync-date">--</span>.</li>
-            <li>Data retention window: 180 days for uploaded assets.</li>
-            <li>Security posture: Multi-step verification required for administrative actions.</li>
-          </ul>
-        </section>
-        <section class="kias-info">
-          <h2>Published Asset Destinations</h2>
+          <h2>Published Asset Destinations (kias.html)</h2>
           <div id="portal-asset-summary" class="portal-summary"></div>
+        </section>
+
+        <section class="site-assets">
+          <article class="assets-card"><h2>About Us</h2><div id="kias-about" class="assets-grid"></div></article>
+          <article class="assets-card"><h2>Divisions</h2><div id="kias-divisions" class="assets-grid"></div></article>
+          <article class="assets-card"><h2>Innovation</h2><div id="kias-innovation" class="assets-grid"></div></article>
+          <article class="assets-card"><h2>Careers</h2><div id="kias-careers" class="assets-grid"></div></article>
+          <article class="assets-card"><h2>Investors</h2><div id="kias-investors" class="assets-grid"></div></article>
+          <article class="assets-card"><h2>Newsroom</h2><div id="kias-newsroom" class="assets-grid"></div></article>
+          <article class="assets-card"><h2>Contact</h2><div id="kias-contact" class="assets-grid"></div></article>
         </section>
 
         <div class="kias-actions">
           <a class="btn btn-outline" href="index.html">Return to Main Site</a>
-          <button id="compliance-admin-btn" class="btn btn-outline" type="button">
-            Compliance
-          </button>
+          <a class="btn btn-outline" href="admin.html">Open Admin Panel</a>
         </div>
-
-        <section id="compliance-login" class="access-card" hidden>
-          <h2>Compliance Admin Access</h2>
-          <label for="admin-password-input">Admin password</label>
-          <input
-            id="admin-password-input"
-            class="access-input"
-            type="password"
-            placeholder="Enter admin password"
-            autocomplete="off"
-          />
-          <div class="access-actions">
-            <button id="admin-submit-btn" class="btn btn-outline" type="button">Open Admin Panel</button>
-          </div>
-          <p id="admin-status" class="access-status" aria-live="polite"></p>
-        </section>
       </main>
     </div>
 
     <script>
-      const publishedInfo = document.getElementById("published-info");
-      const complianceButton = document.getElementById("compliance-admin-btn");
-      const complianceLogin = document.getElementById("compliance-login");
-      const adminPasswordInput = document.getElementById("admin-password-input");
-      const adminSubmitButton = document.getElementById("admin-submit-btn");
-      const adminStatus = document.getElementById("admin-status");
-      const policySyncDate = document.getElementById("policy-sync-date");
       const portalAssetSummary = document.getElementById("portal-asset-summary");
-      const localUploadsKey = "kiasUploadedAssets";
+      const storageKey = "kiasContentAssets";
 
-      const loadPublishedInfo = () => {
-        const savedInfo = window.localStorage.getItem("kiasPublishedInfo");
-        publishedInfo.textContent =
-          savedInfo && savedInfo.trim().length > 0
-            ? savedInfo
-            : "No information has been published yet.";
-      };
-      const loadAssetSummary = () => {
-        const savedAssets = JSON.parse(window.localStorage.getItem(localUploadsKey) || "[]");
-        const sections = [
-          { key: "about", label: "About Us" },
-          { key: "divisions", label: "Divisions" },
-          { key: "innovation", label: "Innovation" },
-          { key: "careers", label: "Careers" },
-          { key: "investors", label: "Investors" },
-          { key: "newsroom", label: "Newsroom" },
-          { key: "contact", label: "Contact" },
-        ];
+      const sections = [
+        { key: "about", label: "About Us" },
+        { key: "divisions", label: "Divisions" },
+        { key: "innovation", label: "Innovation" },
+        { key: "careers", label: "Careers" },
+        { key: "investors", label: "Investors" },
+        { key: "newsroom", label: "Newsroom" },
+        { key: "contact", label: "Contact" },
+      ];
+
+      const renderAssets = () => {
+        const savedAssets = JSON.parse(localStorage.getItem(storageKey) || "[]");
+
+        sections.forEach((section) => {
+          const container = document.getElementById(`kias-${section.key}`);
+          const sectionFiles = savedAssets.filter((item) => item.targetPage === "kias" && item.targetSection === section.key).slice(0, 8);
+          container.innerHTML = sectionFiles.length
+            ? sectionFiles
+                .map(
+                  (file) => `<div class="asset-item">${file.type.startsWith("image/") ? `<img src="${file.dataUrl}" alt="${file.name}" />` : `<div class="asset-icon">FILE</div>`}<div><p class="asset-name">${file.name}</p><p class="asset-meta">${new Date(file.uploadedAt).toLocaleDateString()}</p></div></div>`
+                )
+                .join("")
+            : `<p class="asset-empty">No uploads yet.</p>`;
+        });
 
         portalAssetSummary.innerHTML = sections
           .map((section) => {
-            const count = savedAssets.filter((item) => item.destination === section.key).length;
+            const count = savedAssets.filter((item) => item.targetPage === "kias" && item.targetSection === section.key).length;
             return `<article class="summary-item"><h3>${section.label}</h3><p>${count} published file${count === 1 ? "" : "s"}</p></article>`;
           })
           .join("");
       };
 
-      complianceButton.addEventListener("click", () => {
-        complianceLogin.hidden = false;
-        adminStatus.textContent = "";
-        adminPasswordInput.focus();
-      });
-
-      adminSubmitButton.addEventListener("click", () => {
-        if (adminPasswordInput.value === "owner-ecm") {
-          window.location.href = "admin.html";
-          return;
-        }
-
-        adminStatus.textContent = "Access denied. Invalid password.";
-      });
-
-      adminPasswordInput.addEventListener("keydown", (event) => {
-        if (event.key === "Enter") {
-          adminSubmitButton.click();
-        }
-      });
-
-      window.addEventListener("storage", loadPublishedInfo);
-      window.addEventListener("storage", loadAssetSummary);
-      policySyncDate.textContent = new Date().toLocaleString();
-      loadPublishedInfo();
-      loadAssetSummary();
+      window.addEventListener("storage", renderAssets);
+      renderAssets();
     </script>
   </body>
 </html>

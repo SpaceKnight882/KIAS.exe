@@ -504,3 +504,85 @@ h2 {
   margin-top: 0.8rem;
   color: #ff7f7f;
 }
+
+.admin-shell-layout,
+.kias-shell-layout,
+.subpage-shell {
+  min-height: 100vh;
+}
+
+.admin-main-layout {
+  padding: 2rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.admin-panel-card {
+  border: 1px solid #202a3e;
+  background: #050a14;
+  padding: 1.2rem;
+}
+
+.admin-controls-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.8rem;
+  margin: 1rem 0;
+}
+
+.admin-controls-grid label {
+  display: grid;
+  gap: 0.35rem;
+  font-family: Rajdhani, sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.admin-controls-grid select {
+  background: #02050d;
+  color: var(--text);
+  border: 1px solid #2a3346;
+  padding: 0.7rem;
+}
+
+#file-input {
+  display: none;
+}
+
+.admin-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.admin-asset-list {
+  margin-top: 0.8rem;
+  display: grid;
+  gap: 0.7rem;
+}
+
+.asset-row {
+  display: grid;
+  grid-template-columns: 70px 1fr auto;
+  gap: 0.7rem;
+  align-items: center;
+  border: 1px solid #1c2537;
+  background: #070d1b;
+  padding: 0.55rem;
+}
+
+.asset-row img,
+.asset-row .asset-icon {
+  width: 70px;
+  height: 54px;
+  object-fit: cover;
+  display: grid;
+  place-items: center;
+  background: #0d1728;
+  color: var(--muted);
+}
+
+.section-page-main {
+  padding: 3rem 2rem;
+}
