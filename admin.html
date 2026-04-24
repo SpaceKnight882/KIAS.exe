@@ -3,16 +3,341 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Panel Disabled</title>
+    <title>KIAS Admin Panel</title>
     <link rel="stylesheet" href="styles.css" />
+    <style>
+      main { padding: 1.5rem 2rem 2rem; }
+      .admin-grid { display: grid; grid-template-columns: minmax(320px, 420px) 1fr; gap: 1rem; align-items: start; }
+      .field { display: grid; gap: 0.35rem; margin-bottom: 0.8rem; }
+      .field label { font-family: Rajdhani, sans-serif; text-transform: uppercase; letter-spacing: 0.08em; }
+      input, select, textarea, button { background: #040a16; color: var(--text); border: 1px solid #263148; padding: 0.6rem 0.7rem; font: inherit; }
+      textarea { min-height: 88px; resize: vertical; }
+      .record-buttons { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+      .record-buttons button { flex: 1; min-width: 130px; }
+      .status { min-height: 1.2rem; color: var(--muted); margin-bottom: 0.7rem; }
+      .preview video, .preview audio { width: 100%; max-height: 260px; margin-top: 0.5rem; }
+      .text-help { margin: 0; color: var(--muted); font-size: 0.88rem; }
+      .asset-list { display: grid; gap: 0.6rem; }
+      .asset-row { border: 1px solid #202a3e; background: #070d1b; padding: 0.7rem; display: grid; grid-template-columns: 1fr auto; gap: 0.7rem; }
+      .asset-row p { margin: 0.2rem 0; color: var(--muted); }
+      .asset-row strong { font-family: Rajdhani, sans-serif; letter-spacing: 0.06em; }
+      .danger { border-color: #6f2d38; color: #ffb8bf; }
+      .quick-links { display: flex; gap: 0.6rem; margin-top: 0.8rem; flex-wrap: wrap; }
+      .quick-links a { text-decoration: none; }
+      @media (max-width: 980px) { .admin-grid { grid-template-columns: 1fr; } }
+    </style>
   </head>
   <body>
-    <div class="page-shell" style="min-height:100vh;display:grid;place-items:center;padding:2rem;">
-      <section class="assets-card" style="max-width:680px;">
-        <h1>Admin Panel Access Removed</h1>
-        <p class="lead">This panel has been disabled. Use the upload and section-management tools inside <strong>kias.html</strong>.</p>
-        <a class="btn btn-outline" href="kias.html">Open KIAS Node</a>
-      </section>
+    <div class="page-shell">
+      <header class="topbar">
+        <div class="brand"><div class="logo">K</div><span>KIAS Admin</span></div>
+        <div class="quick-links">
+          <a class="btn" href="kias.html">Open KIAS Node</a>
+          <a class="btn" href="index.html">Open Main Site</a>
+        </div>
+      </header>
+
+      <main>
+        <section class="assets-card" style="margin-bottom:1rem;">
+          <h2>Admin Publishing Panel</h2>
+          <p class="lead">Upload files, create text entries, or record live audio/video, then publish them to any section in <strong>kias.html</strong> or <strong>index.html</strong>.</p>
+        </section>
+
+        <div class="admin-grid">
+          <section class="assets-card">
+            <h2>Create / Upload Asset</h2>
+            <div class="field">
+              <label for="target-page">Target page</label>
+              <select id="target-page"></select>
+            </div>
+            <div class="field">
+              <label for="target-section">Target section</label>
+              <select id="target-section"></select>
+            </div>
+            <div class="field">
+              <label for="asset-title">Title</label>
+              <input id="asset-title" type="text" placeholder="Displayed file title" />
+            </div>
+            <div class="field">
+              <label for="asset-description">Description (used for videos/text too)</label>
+              <textarea id="asset-description" placeholder="Add description and context"></textarea>
+            </div>
+            <div class="field">
+              <label for="asset-essentials">Essentials / tags</label>
+              <input id="asset-essentials" type="text" placeholder="urgent, brief, internal" />
+            </div>
+
+            <div class="field">
+              <label for="asset-file">Upload file (video/audio/text/images/all files)</label>
+              <input id="asset-file" type="file" accept="video/*,audio/*,text/*,.md,.txt,.json,.csv,.xml,image/*,*/*" />
+            </div>
+            <button id="publish-file" class="btn" type="button">Publish Uploaded File</button>
+
+            <hr style="border-color:#1f2a3c; margin:1rem 0;" />
+
+            <div class="field">
+              <label for="text-content">Create text asset directly</label>
+              <textarea id="text-content" placeholder="Type text content here..."></textarea>
+              <p class="text-help">This creates a `.txt` asset and stores your description with it.</p>
+            </div>
+            <button id="publish-text" class="btn" type="button">Publish Text Asset</button>
+
+            <hr style="border-color:#1f2a3c; margin:1rem 0;" />
+
+            <div class="field">
+              <label>Record media (camera/mic)</label>
+              <div class="record-buttons">
+                <button id="start-video" type="button">Start Video + Audio</button>
+                <button id="start-audio" type="button">Start Audio Only</button>
+                <button id="stop-recording" type="button" class="danger">Stop & Save</button>
+              </div>
+            </div>
+
+            <div id="admin-status" class="status"></div>
+            <div class="preview" id="record-preview"></div>
+          </section>
+
+          <section class="assets-card">
+            <h2>Published Assets</h2>
+            <div id="asset-list" class="asset-list"></div>
+          </section>
+        </div>
+      </main>
     </div>
+
+    <script>
+      const storageKey = "kiasContentAssets";
+      const pageSections = {
+        kias: {
+          label: "kias.html",
+          sections: {
+            company: "Main Company Info",
+            lab: "Lab Reports",
+            testing: "Currently Testing",
+            containment: "In Containment",
+            watchlist: "Watchlist",
+            journal: "Research Journal",
+            newkias: "New KIAS Section"
+          }
+        },
+        index: {
+          label: "index.html",
+          sections: {
+            about: "About Us",
+            divisions: "Divisions",
+            innovation: "Innovation",
+            careers: "Careers",
+            investors: "Investors",
+            newsroom: "Newsroom",
+            contact: "Contact"
+          }
+        }
+      };
+
+      const targetPage = document.getElementById("target-page");
+      const targetSection = document.getElementById("target-section");
+      const assetFile = document.getElementById("asset-file");
+      const assetTitle = document.getElementById("asset-title");
+      const assetDescription = document.getElementById("asset-description");
+      const assetEssentials = document.getElementById("asset-essentials");
+      const textContent = document.getElementById("text-content");
+      const status = document.getElementById("admin-status");
+      const assetList = document.getElementById("asset-list");
+      const preview = document.getElementById("record-preview");
+
+      let recorder;
+      let recordedChunks = [];
+      let recordingStream;
+      let recordingMode = "video";
+
+      const getAssets = () => JSON.parse(localStorage.getItem(storageKey) || "[]");
+      const saveAssets = (assets) => localStorage.setItem(storageKey, JSON.stringify(assets));
+
+      const setStatus = (message, isError = false) => {
+        status.textContent = message;
+        status.style.color = isError ? "#ffb8bf" : "#9ea7ba";
+      };
+
+      const populatePages = () => {
+        targetPage.innerHTML = Object.entries(pageSections)
+          .map(([key, page]) => `<option value="${key}">${page.label}</option>`)
+          .join("");
+        populateSections();
+      };
+
+      const populateSections = () => {
+        const sections = pageSections[targetPage.value].sections;
+        targetSection.innerHTML = Object.entries(sections)
+          .map(([key, label]) => `<option value="${key}">${label}</option>`)
+          .join("");
+      };
+
+      const readFileAsDataUrl = (file) => new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = () => reject(reader.error);
+        reader.readAsDataURL(file);
+      });
+
+      const publishAsset = async ({ file, dataUrl, explicitType }) => {
+        const assets = getAssets();
+        assets.push({
+          id: crypto.randomUUID(),
+          name: file.name,
+          title: assetTitle.value.trim(),
+          description: assetDescription.value.trim(),
+          essentials: assetEssentials.value.trim(),
+          type: explicitType || file.type || "application/octet-stream",
+          size: file.size,
+          dataUrl,
+          targetPage: targetPage.value,
+          targetSection: targetSection.value,
+          uploadedAt: new Date().toISOString()
+        });
+
+        saveAssets(assets);
+        setStatus(`Published ${file.name} to ${pageSections[targetPage.value].label} > ${pageSections[targetPage.value].sections[targetSection.value]}.`);
+        assetFile.value = "";
+        textContent.value = "";
+        renderAssets();
+      };
+
+      const renderAssets = () => {
+        const pageLabel = pageSections[targetPage.value].label;
+        const sectionLabel = pageSections[targetPage.value].sections[targetSection.value];
+        const assets = getAssets().filter((item) => item.targetPage === targetPage.value && item.targetSection === targetSection.value);
+
+        assetList.innerHTML = `<p class="asset-meta">Showing ${assets.length} item(s) for <strong>${pageLabel}</strong> → <strong>${sectionLabel}</strong>.</p>`;
+        if (!assets.length) {
+          assetList.innerHTML += `<p class="asset-empty">No assets in this section yet.</p>`;
+          return;
+        }
+
+        assets
+          .sort((a, b) => new Date(b.uploadedAt) - new Date(a.uploadedAt))
+          .forEach((item) => {
+            const row = document.createElement("div");
+            row.className = "asset-row";
+            row.innerHTML = `
+              <div>
+                <strong>${item.title || item.name}</strong>
+                <p>${item.description || "No description"}</p>
+                <p>${item.type} • ${(item.size / 1024).toFixed(1)} KB • ${new Date(item.uploadedAt).toLocaleString()}</p>
+              </div>
+              <button type="button" class="danger" data-id="${item.id}">Delete</button>
+            `;
+            assetList.appendChild(row);
+          });
+      };
+
+      document.getElementById("publish-file").addEventListener("click", async () => {
+        const file = assetFile.files[0];
+        if (!file) {
+          setStatus("Select a file before publishing.", true);
+          return;
+        }
+
+        const dataUrl = await readFileAsDataUrl(file);
+        await publishAsset({ file, dataUrl });
+      });
+
+      document.getElementById("publish-text").addEventListener("click", async () => {
+        const content = textContent.value.trim();
+        if (!content) {
+          setStatus("Enter text content first.", true);
+          return;
+        }
+
+        const textBlob = new Blob([content], { type: "text/plain" });
+        const fileName = `${(assetTitle.value || "kias-note").trim().replace(/\s+/g, "-").toLowerCase() || "kias-note"}.txt`;
+        const file = new File([textBlob], fileName, { type: "text/plain" });
+        const dataUrl = await readFileAsDataUrl(file);
+        await publishAsset({ file, dataUrl, explicitType: "text/plain" });
+      });
+
+      const stopActiveStream = () => {
+        if (!recordingStream) return;
+        recordingStream.getTracks().forEach((track) => track.stop());
+        recordingStream = null;
+      };
+
+      const beginRecording = async (videoEnabled) => {
+        try {
+          stopActiveStream();
+          recordedChunks = [];
+          recordingMode = videoEnabled ? "video" : "audio";
+          const constraints = videoEnabled ? { video: true, audio: true } : { audio: true };
+          recordingStream = await navigator.mediaDevices.getUserMedia(constraints);
+
+          preview.innerHTML = "";
+          if (videoEnabled) {
+            const live = document.createElement("video");
+            live.autoplay = true;
+            live.muted = true;
+            live.srcObject = recordingStream;
+            preview.appendChild(live);
+          } else {
+            preview.innerHTML = "<p class='asset-meta'>Audio recording in progress…</p>";
+          }
+
+          const mimeType = videoEnabled ? "video/webm;codecs=vp9,opus" : "audio/webm;codecs=opus";
+          recorder = new MediaRecorder(recordingStream, { mimeType });
+          recorder.ondataavailable = (event) => {
+            if (event.data.size > 0) recordedChunks.push(event.data);
+          };
+          recorder.onstop = async () => {
+            const type = videoEnabled ? "video/webm" : "audio/webm";
+            const ext = videoEnabled ? "webm" : "webm";
+            const blob = new Blob(recordedChunks, { type });
+            const defaultName = `${videoEnabled ? "recorded-video" : "recorded-audio"}-${new Date().toISOString().replace(/[:.]/g, "-")}.${ext}`;
+            const file = new File([blob], defaultName, { type });
+            const dataUrl = await readFileAsDataUrl(file);
+
+            if (videoEnabled) {
+              preview.innerHTML = `<video controls src="${dataUrl}"></video>`;
+            } else {
+              preview.innerHTML = `<audio controls src="${dataUrl}"></audio>`;
+            }
+
+            await publishAsset({ file, dataUrl, explicitType: type });
+            stopActiveStream();
+          };
+
+          recorder.start();
+          setStatus(`${videoEnabled ? "Video" : "Audio"} recording started. Click "Stop & Save" when done.`);
+        } catch (error) {
+          setStatus(`Unable to start recording: ${error.message}`, true);
+        }
+      };
+
+      document.getElementById("start-video").addEventListener("click", () => beginRecording(true));
+      document.getElementById("start-audio").addEventListener("click", () => beginRecording(false));
+      document.getElementById("stop-recording").addEventListener("click", () => {
+        if (!recorder || recorder.state !== "recording") {
+          setStatus("No active recording to stop.", true);
+          return;
+        }
+        recorder.stop();
+      });
+
+      targetPage.addEventListener("change", () => {
+        populateSections();
+        renderAssets();
+      });
+      targetSection.addEventListener("change", renderAssets);
+
+      assetList.addEventListener("click", (event) => {
+        const id = event.target.getAttribute("data-id");
+        if (!id) return;
+
+        const updated = getAssets().filter((item) => item.id !== id);
+        saveAssets(updated);
+        setStatus("Asset deleted.");
+        renderAssets();
+      });
+
+      populatePages();
+      renderAssets();
+    </script>
   </body>
 </html>
