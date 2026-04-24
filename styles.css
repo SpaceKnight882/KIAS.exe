@@ -178,10 +178,42 @@ h1 {
   gap: 1rem;
 }
 
+.kias-presence-bar {
+  margin: 1.2rem 2rem 0;
+  padding: 0.9rem 1rem;
+  border: 1px solid #284168;
+  background: linear-gradient(90deg, rgba(11, 20, 39, 0.96), rgba(13, 34, 62, 0.78));
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.kias-presence-bar p {
+  margin: 0;
+  color: #bfcee7;
+}
+
 .assets-card {
   border: 1px solid #202a3e;
   background: #050a14;
   padding: 1rem;
+}
+
+.section-summary {
+  margin: 0.75rem 0;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.section-link {
+  color: #c8d2e8;
+  text-decoration: none;
+  font-family: Rajdhani, sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+  font-size: 0.9rem;
 }
 
 .assets-grid {
@@ -337,6 +369,13 @@ h2 {
     grid-template-columns: 1fr;
     padding-left: 1rem;
     padding-right: 1rem;
+  }
+
+  .kias-presence-bar {
+    margin-left: 1rem;
+    margin-right: 1rem;
+    flex-direction: column;
+    align-items: flex-start;
   }
 
   .hero {
@@ -585,4 +624,27 @@ h2 {
 
 .section-page-main {
   padding: 3rem 2rem;
+}
+
+.about-list {
+  color: var(--muted);
+  line-height: 1.6;
+  margin-top: 0.5rem;
+}
+
+.section-page-main blockquote {
+  border-left: 3px solid var(--accent);
+  margin: 0.5rem 0 1.2rem;
+  padding: 0.4rem 0 0.4rem 1rem;
+  color: #d5deef;
+  font-family: Rajdhani, sans-serif;
+  font-size: 1.2rem;
+}
+
+.about-focus {
+  color: #dbe6fb;
+  font-family: Rajdhani, sans-serif;
+  font-size: 1.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
 }
