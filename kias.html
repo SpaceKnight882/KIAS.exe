@@ -23,16 +23,9 @@ header { padding: 12px 20px; border-bottom: 1px solid #222; display: flex; justi
 .tag { display: inline-block; border: 1px solid #444; padding: 2px 4px; margin-right: 5px; font-size: 9px; }
 .viewer { margin-top: 10px; border-top: 1px solid #222; padding-top: 10px; font-size: 11px; }
 .blink::after { content: "_"; animation: blink 1s infinite; }
-.uploader { margin-top: 12px; border: 1px solid #222; padding: 10px; background: #060606; }
-.uploader h3 { margin: 0 0 8px; font-size: 11px; letter-spacing: 1px; color: #c8ffc8; }
-.uploader label { display: block; margin: 6px 0 2px; color: #a8a8a8; }
-.uploader input, .uploader select, .uploader textarea, .uploader button { width: 100%; background: #000; color: #ddd; border: 1px solid #333; font-family: monospace; font-size: 10px; padding: 6px; }
-.uploader textarea { min-height: 60px; resize: vertical; }
-.uploader button { margin-top: 8px; cursor: pointer; text-transform: uppercase; }
-.uploader button:hover { border-color: #5d5; color: #cfc; }
 .asset-preview { margin-top: 6px; border: 1px solid #1f1f1f; padding: 8px; background: #090909; }
-.asset-preview img, .asset-preview video, .asset-preview audio { width: 100%; max-height: 180px; object-fit: cover; }
-.asset-preview pre { white-space: pre-wrap; max-height: 180px; overflow: auto; margin: 0; color: #d0d0d0; }
+.asset-preview img, .asset-preview video, .asset-preview audio { width: 100%; max-height: 240px; object-fit: cover; }
+.asset-preview pre { white-space: pre-wrap; max-height: 240px; overflow: auto; margin: 0; color: #d0d0d0; }
 .meta { color: #989898; font-size: 10px; }
 @keyframes blink { 50% { opacity: 0; } }
 </style>
@@ -50,27 +43,6 @@ header { padding: 12px 20px; border-bottom: 1px solid #222; display: flex; justi
 <div class="sidepanel" id="sidepanel">
   <div>K.I.A.S SYSTEM LOG</div>
   <div id="logs"></div>
-
-  <div class="uploader">
-    <h3>Upload Asset</h3>
-    <label for="upload-section">Target KIAS Section</label>
-    <select id="upload-section"></select>
-
-    <label for="upload-file">Select file (all types)</label>
-    <input id="upload-file" type="file" />
-
-    <label for="upload-title">Title / Essential Name</label>
-    <input id="upload-title" type="text" placeholder="Optional custom title" />
-
-    <label for="upload-desc">Description</label>
-    <textarea id="upload-desc" placeholder="Add description and essentials"></textarea>
-
-    <label for="upload-essentials">Essentials (comma-separated tags)</label>
-    <input id="upload-essentials" type="text" placeholder="urgent, lab, briefing" />
-
-    <button id="publish-btn" type="button">Publish To Section</button>
-    <div id="upload-status" class="meta"></div>
-  </div>
 </div>
 </div>
 
@@ -99,41 +71,28 @@ const defaultData = {
 const sidebar = document.getElementById("sidebar");
 const main = document.getElementById("main");
 const logs = document.getElementById("logs");
-const uploadSection = document.getElementById("upload-section");
-const uploadFile = document.getElementById("upload-file");
-const uploadTitle = document.getElementById("upload-title");
-const uploadDesc = document.getElementById("upload-desc");
-const uploadEssentials = document.getElementById("upload-essentials");
-const uploadStatus = document.getElementById("upload-status");
 let activeSection = "company";
 
 const getAssets = () => {
   try { return JSON.parse(localStorage.getItem(storageKey) || "[]"); }
   catch { return []; }
 };
-const saveAssets = (assets) => localStorage.setItem(storageKey, JSON.stringify(assets));
-const readFileAsDataUrl = (file) => new Promise((resolve, reject) => {
-  const reader = new FileReader();
-  reader.onload = () => resolve(reader.result);
-  reader.onerror = () => reject(reader.error);
-  reader.readAsDataURL(file);
-});
 
 function renderSidebar() {
   sidebar.innerHTML = "";
-  uploadSection.innerHTML = "";
   Object.entries(sectionLabels).forEach(([key, label]) => {
     const div = document.createElement("div");
     div.className = `nav${activeSection === key ? " active" : ""}`;
     div.textContent = label.toUpperCase();
     div.onclick = () => load(key);
     sidebar.appendChild(div);
-
-    const opt = document.createElement("option");
-    opt.value = key;
-    opt.textContent = label;
-    uploadSection.appendChild(opt);
   });
+
+  const admin = document.createElement("div");
+  admin.className = "nav";
+  admin.textContent = "OPEN ADMIN PANEL";
+  admin.onclick = () => window.location.href = "admin.html";
+  sidebar.appendChild(admin);
 
   const back = document.createElement("div");
   back.className = "nav";
@@ -147,7 +106,7 @@ function renderPreview(asset) {
   if (asset.type.startsWith("audio/")) return `<audio controls src="${asset.dataUrl}"></audio>`;
   if (asset.type.startsWith("video/")) return `<video controls src="${asset.dataUrl}"></video>`;
   if (asset.type.startsWith("text/") || /json|xml|javascript/.test(asset.type)) {
-    const raw = atob(asset.dataUrl.split(",")[1] || "").slice(0, 1200);
+    const raw = atob((asset.dataUrl || "").split(",")[1] || "").slice(0, 1200);
     return `<pre>${raw.replace(/[<>&]/g, "")}</pre>`;
   }
   return `<div class="tag">${asset.type || "FILE"}</div>`;
@@ -155,7 +114,6 @@ function renderPreview(asset) {
 
 function load(type) {
   activeSection = type;
-  uploadSection.value = type;
   renderSidebar();
   main.innerHTML = `<div class="section-title">${sectionLabels[type].toUpperCase()}</div>`;
 
@@ -189,39 +147,8 @@ function addLog() {
   logs.prepend(div);
 }
 
-document.getElementById("publish-btn").addEventListener("click", async () => {
-  const file = uploadFile.files[0];
-  if (!file) {
-    uploadStatus.textContent = "Select a file first.";
-    return;
-  }
-
-  const dataUrl = await readFileAsDataUrl(file);
-  const assets = getAssets();
-  assets.push({
-    id: crypto.randomUUID(),
-    name: file.name,
-    title: uploadTitle.value.trim(),
-    description: uploadDesc.value.trim(),
-    essentials: uploadEssentials.value.trim(),
-    type: file.type || "application/octet-stream",
-    size: file.size,
-    dataUrl,
-    targetPage: "kias",
-    targetSection: uploadSection.value,
-    uploadedAt: new Date().toISOString()
-  });
-
-  saveAssets(assets);
-  uploadStatus.textContent = `Published ${file.name} to ${sectionLabels[uploadSection.value]}.`;
-  uploadFile.value = "";
-  uploadTitle.value = "";
-  uploadDesc.value = "";
-  uploadEssentials.value = "";
-  load(uploadSection.value);
-});
-
 setInterval(addLog, 3000);
+window.addEventListener("storage", () => load(activeSection));
 renderSidebar();
 load("company");
 </script>
