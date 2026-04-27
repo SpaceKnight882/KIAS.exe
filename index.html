@@ -20,13 +20,13 @@
           <span>Kreed Industries</span>
         </div>
         <nav class="main-nav">
-          <a href="about.html">About Us</a>
-          <a href="divisions.html">Divisions</a>
-          <a href="innovation.html">Innovation</a>
-          <a href="careers.html">Careers</a>
-          <a href="investors.html">Investors</a>
-          <a href="newsroom.html">Newsroom</a>
-          <a href="contact.html">Contact</a>
+          <a href="about">About Us</a>
+          <a href="divisions">Divisions</a>
+          <a href="innovation">Innovation</a>
+          <a href="careers">Careers</a>
+          <a href="investors">Investors</a>
+          <a href="newsroom">Newsroom</a>
+          <a href="contact">Contact</a>
         </nav>
         <button id="secure-portal-btn" class="btn btn-outline" type="button">Secure Portal</button>
       </header>
@@ -34,7 +34,8 @@
       <main>
         <section class="kias-presence-bar" aria-label="KIAS AI status">
           <p><strong>KIAS AI:</strong> Online and monitoring strategic operations across all divisions.</p>
-          <a class="btn btn-outline" href="kias.html">Open KIAS Interface</a>
+          <a class="btn btn-outline" href="kias">Open KIAS Interface</a>
+          <a class="btn btn-outline" href="kias.exe">Open KIAS Backend</a>
         </section>
 
         <section class="hero">
@@ -73,43 +74,43 @@
           <article class="assets-card">
             <h2>About Us</h2>
             <p class="section-summary">Explore Kreed's global mission, founding philosophy, and long-horizon strategy for advanced human systems.</p>
-            <a class="section-link" href="about.html">Read Company Profile →</a>
+            <a class="section-link" href="about">Read Company Profile →</a>
             <div id="index-about" class="assets-grid"></div>
           </article>
           <article class="assets-card">
             <h2>Divisions</h2>
             <p class="section-summary">Review active operational divisions spanning defense, biosciences, cognitive systems, and energy infrastructure.</p>
-            <a class="section-link" href="divisions.html">See Division Overview →</a>
+            <a class="section-link" href="divisions">See Division Overview →</a>
             <div id="index-divisions" class="assets-grid"></div>
           </article>
           <article class="assets-card">
             <h2>Innovation</h2>
             <p class="section-summary">Track prototype pipelines, secured R&D programs, and breakthrough technologies preparing for field deployment.</p>
-            <a class="section-link" href="innovation.html">View Innovation Programs →</a>
+            <a class="section-link" href="innovation">View Innovation Programs →</a>
             <div id="index-innovation" class="assets-grid"></div>
           </article>
           <article class="assets-card">
             <h2>Careers</h2>
             <p class="section-summary">Join multidisciplinary teams building systems that redefine defense, medicine, and high-impact intelligence operations.</p>
-            <a class="section-link" href="careers.html">Explore Opportunities →</a>
+            <a class="section-link" href="careers">Explore Opportunities →</a>
             <div id="index-careers" class="assets-grid"></div>
           </article>
           <article class="assets-card">
             <h2>Investors</h2>
             <p class="section-summary">Access private market updates, strategic capital briefings, and long-term value outlooks for vetted stakeholders.</p>
-            <a class="section-link" href="investors.html">Open Investor Center →</a>
+            <a class="section-link" href="investors">Open Investor Center →</a>
             <div id="index-investors" class="assets-grid"></div>
           </article>
           <article class="assets-card">
             <h2>Newsroom</h2>
             <p class="section-summary">Read official releases, deployment milestones, and public-facing updates from Kreed leadership and program teams.</p>
-            <a class="section-link" href="newsroom.html">Go to Newsroom →</a>
+            <a class="section-link" href="newsroom">Go to Newsroom →</a>
             <div id="index-newsroom" class="assets-grid"></div>
           </article>
           <article class="assets-card">
             <h2>Contact</h2>
             <p class="section-summary">Connect with our corporate offices for contracts, partnership proposals, media requests, and security-cleared outreach.</p>
-            <a class="section-link" href="contact.html">Contact Kreed Industries →</a>
+            <a class="section-link" href="contact">Contact Kreed Industries →</a>
             <div id="index-contact" class="assets-grid"></div>
           </article>
         </section>
@@ -157,7 +158,7 @@
 
       secureSubmitButton.addEventListener("click", () => {
         if (secureCodeInput.value === "<KIAS.exe>") {
-          window.location.href = "kias.html";
+          window.location.href = "kias";
           return;
         }
         secureStatus.textContent = "Access denied. Invalid code.";

@@ -24,6 +24,10 @@
       .danger { border-color: #6f2d38; color: #ffb8bf; }
       .quick-links { display: flex; gap: 0.6rem; margin-top: 0.8rem; flex-wrap: wrap; }
       .quick-links a { text-decoration: none; }
+      .security-card { margin-bottom: 1rem; border: 1px solid #2b3a53; background: #060e1f; padding: 0.85rem; }
+      .security-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 0.5rem; }
+      .security-grid p { margin: 0; color: var(--muted); }
+      .security-grid strong { color: var(--text); }
       @media (max-width: 980px) { .admin-grid { grid-template-columns: 1fr; } }
     </style>
   </head>
@@ -32,15 +36,24 @@
       <header class="topbar">
         <div class="brand"><div class="logo">K</div><span>KIAS Admin</span></div>
         <div class="quick-links">
-          <a class="btn" href="kias.html">Open KIAS Node</a>
-          <a class="btn" href="index.html">Open Main Site</a>
+          <a class="btn" href="kias">Open KIAS Node</a>
+          <a class="btn" href="/">Open Main Site</a>
         </div>
       </header>
 
       <main>
         <section class="assets-card" style="margin-bottom:1rem;">
           <h2>Admin Publishing Panel</h2>
-          <p class="lead">Upload files, create text entries, or record live audio/video, then publish them to any section in <strong>kias.html</strong> or <strong>index.html</strong>.</p>
+          <p class="lead">Upload files, create text entries, or record live audio/video, then publish them to any section in <strong>/kias</strong> or <strong>/</strong>.</p>
+        </section>
+        <section class="security-card" aria-label="admin security panel">
+          <h2 style="margin-top:0;">Access Control Panel</h2>
+          <div class="security-grid">
+            <p><strong>Protected routes:</strong> <code>/admin</code> and <code>/kias</code></p>
+            <p><strong>Auth type:</strong> HTTP Basic prompt in browser</p>
+            <p><strong>Username env:</strong> <code>KIAS_PANEL_USER</code></p>
+            <p><strong>Password env:</strong> <code>KIAS_PANEL_PASSWORD</code></p>
+          </div>
         </section>
 
         <div class="admin-grid">
@@ -109,7 +122,7 @@
       const storageKey = "kiasContentAssets";
       const pageSections = {
         kias: {
-          label: "kias.html",
+          label: "kias",
           sections: {
             company: "Main Company Info",
             lab: "Lab Reports",
@@ -121,7 +134,7 @@
           }
         },
         index: {
-          label: "index.html",
+          label: "/",
           sections: {
             about: "About Us",
             divisions: "Divisions",
