@@ -30,6 +30,8 @@ button {
     color: black;
     border: none;
 }
+.system { color: #9ca3af; }
+.error { color: #f87171; }
 </style>
 </head>
 
@@ -47,6 +49,37 @@ async function send() {
     const input = document.getElementById("input");
     const chatbox = document.getElementById("chatbox");
 
+    const message = input.value.trim();
+    if (!message) return;
+
+    input.value = "";
+    chatbox.innerHTML += "<div>> " + message + "</div>";
+    chatbox.innerHTML += "<div class='system'>KIAS: [PROCESSING]</div>";
+    chatbox.scrollTop = chatbox.scrollHeight;
+
+    try {
+        const res = await fetch("/ai", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ message })
+        });
+
+        const data = await res.json();
+        const reply = data.reply || data.choices?.[0]?.message?.content || data.error || "[NO RESPONSE]";
+
+        chatbox.innerHTML += "<div>KIAS: " + reply + "</div>";
+    } catch (e) {
+        chatbox.innerHTML += "<div class='error'>KIAS: [NETWORK FAILURE]</div>";
+    }
+
+    chatbox.scrollTop = chatbox.scrollHeight;
+}
+
+document.getElementById("input").addEventListener("keydown", (e) => {
+  if (e.key === "Enter") send();
+});
     const message = input.value;
     input.value = "";
 

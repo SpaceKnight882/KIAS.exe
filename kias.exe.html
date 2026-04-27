@@ -3,13 +3,37 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>KIAS Backend</title>
+    <title>KIAS Backend Chat</title>
     <link rel="stylesheet" href="styles.css" />
+    <style>
+      .chat-shell {
+        border: 1px solid #2a2a2a;
+        background: #050505;
+        padding: 1rem;
+        border-radius: 10px;
+      }
+      .chatbox {
+        min-height: 320px;
+        max-height: 420px;
+        overflow-y: auto;
+        border: 1px solid #2a2a2a;
+        padding: 0.75rem;
+        margin-bottom: 0.75rem;
+        background: #020202;
+      }
+      .chat-row { margin: 0 0 0.4rem; }
+      .chat-user { color: #b9e7ff; }
+      .chat-ai { color: #f1f1f1; }
+      .chat-meta { color: #9b9b9b; font-size: 0.85rem; }
+      .chat-error { color: #ff8f8f; }
+      .chat-controls { display: flex; gap: 0.6rem; }
+      .chat-controls input { flex: 1; }
+    </style>
   </head>
   <body>
     <div class="page-shell subpage-shell">
       <header class="topbar">
-        <div class="brand"><div class="logo">K</div><span>KIAS Backend</span></div>
+        <div class="brand"><div class="logo">K</div><span>KIAS Backend Chat</span></div>
         <div class="quick-links">
           <a class="btn" href="kias">Open KIAS Node</a>
           <a class="btn" href="admin">Open Admin Panel</a>
@@ -18,15 +42,60 @@
       </header>
 
       <main class="section-page-main">
-        <h1>KIAS Backend Section</h1>
-        <p class="lead">This page exposes the backend service endpoint details in one place.</p>
-        <ul>
-          <li><strong>Health check:</strong> <code>GET /api/health</code></li>
-          <li><strong>AI endpoint:</strong> <code>POST /ai</code></li>
-          <li><strong>Server port:</strong> <code>3000</code></li>
-        </ul>
-        <p>Use this page as a quick backend reference from the front-end navigation.</p>
+        <h1>K.I.A.S Execution Interface</h1>
+        <p class="lead">This chat talks to <code>POST /ai</code>. Your API key stays server-side via <code>OPENAI_API_KEY</code>.</p>
+
+        <div class="chat-shell">
+          <div id="chatbox" class="chatbox" aria-live="polite"></div>
+          <div class="chat-controls">
+            <input id="input" type="text" placeholder="enter message..." />
+            <button class="btn" id="sendBtn" type="button">EXECUTE</button>
+          </div>
+          <p class="chat-meta">Health: <code>GET /api/health</code> · AI: <code>POST /ai</code></p>
+        </div>
       </main>
     </div>
+
+    <script>
+      const input = document.getElementById("input");
+      const sendBtn = document.getElementById("sendBtn");
+      const chatbox = document.getElementById("chatbox");
+
+      function appendLine(cssClass, text) {
+        const line = document.createElement("div");
+        line.className = `chat-row ${cssClass}`;
+        line.textContent = text;
+        chatbox.appendChild(line);
+        chatbox.scrollTop = chatbox.scrollHeight;
+      }
+
+      async function send() {
+        const message = input.value.trim();
+        if (!message) return;
+
+        input.value = "";
+        appendLine("chat-user", `> ${message}`);
+        appendLine("chat-meta", "KIAS: [PROCESSING]");
+
+        try {
+          const res = await fetch("/ai", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ message })
+          });
+
+          const data = await res.json();
+          const reply = data.reply || data.choices?.[0]?.message?.content || data.error || "[NO RESPONSE]";
+          appendLine("chat-ai", `KIAS: ${reply}`);
+        } catch (err) {
+          appendLine("chat-error", "KIAS: [NETWORK FAILURE]");
+        }
+      }
+
+      sendBtn.addEventListener("click", send);
+      input.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") send();
+      });
+    </script>
   </body>
 </html>
