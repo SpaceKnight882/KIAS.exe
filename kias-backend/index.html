@@ -45,6 +45,8 @@ button {
 <button onclick="send()">EXECUTE</button>
 
 <script>
+const SERVER = "http://localhost:3000";
+
 async function send() {
     const input = document.getElementById("input");
     const chatbox = document.getElementById("chatbox");
@@ -58,7 +60,7 @@ async function send() {
     chatbox.scrollTop = chatbox.scrollHeight;
 
     try {
-        const res = await fetch("/ai", {
+        const res = await fetch(`${SERVER}/ai`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -71,35 +73,15 @@ async function send() {
 
         chatbox.innerHTML += "<div>KIAS: " + reply + "</div>";
     } catch (e) {
-        chatbox.innerHTML += "<div class='error'>KIAS: [NETWORK FAILURE]</div>";
+        chatbox.innerHTML += "<div class='error'>KIAS: [NETWORK FAILURE] Ensure backend is running on http://localhost:3000.</div>";
     }
 
     chatbox.scrollTop = chatbox.scrollHeight;
 }
 
 document.getElementById("input").addEventListener("keydown", (e) => {
-  if (e.key === "Enter") send();
+    if (e.key === "Enter") send();
 });
-    const message = input.value;
-    input.value = "";
-
-    chatbox.innerHTML += "<div>> " + message + "</div>";
-
-    const res = await fetch("https://YOUR_RENDER_URL/ai", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ message })
-    });
-
-    const data = await res.json();
-
-    const reply = data.choices?.[0]?.message?.content || "[NO RESPONSE]";
-
-    chatbox.innerHTML += "<div>KIAS: " + reply + "</div>";
-    chatbox.scrollTop = chatbox.scrollHeight;
-}
 </script>
 
 </body>
