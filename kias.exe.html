@@ -78,17 +78,31 @@
         appendLine("chat-meta", "KIAS: [PROCESSING]");
 
         try {
-          const res = await fetch("/ai", {
+          const apiBase =
+            window.location.protocol === "file:"
+              ? "http://localhost:3000"
+              : window.location.origin;
+
+          const res = await fetch(`${apiBase}/ai`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ message })
           });
 
           const data = await res.json();
+
+          if (!res.ok) {
+            appendLine("chat-error", `KIAS: [${data.error || "REQUEST FAILED"}]`);
+            return;
+          }
+
           const reply = data.reply || data.choices?.[0]?.message?.content || data.error || "[NO RESPONSE]";
           appendLine("chat-ai", `KIAS: ${reply}`);
-        } catch (err) {
-          appendLine("chat-error", "KIAS: [NETWORK FAILURE]");
+        } catch {
+          appendLine(
+            "chat-error",
+            "KIAS: [NETWORK FAILURE] Ensure backend is running on http://localhost:3000."
+          );
         }
       }
 
