@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>KIAS.exe</title>
+<style>
+body {
+    background: black;
+    color: white;
+    font-family: monospace;
+    padding: 20px;
+}
+#chatbox {
+    width: 100%;
+    height: 300px;
+    border: 1px solid white;
+    overflow-y: auto;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+input {
+    width: 80%;
+    padding: 10px;
+    background: black;
+    color: white;
+    border: 1px solid white;
+}
+button {
+    padding: 10px;
+    background: white;
+    color: black;
+    border: none;
+}
+</style>
+</head>
+
+<body>
+
+<h2>K.I.A.S // EXECUTION INTERFACE</h2>
+
+<div id="chatbox"></div>
+
+<input id="input" placeholder="enter message..." />
+<button onclick="send()">EXECUTE</button>
+
+<script>
+async function send() {
+    const input = document.getElementById("input");
+    const chatbox = document.getElementById("chatbox");
+
+    const message = input.value;
+    input.value = "";
+
+    chatbox.innerHTML += "<div>> " + message + "</div>";
+
+    const res = await fetch("https://YOUR_RENDER_URL/ai", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ message })
+    });
+
+    const data = await res.json();
+
+    const reply = data.choices?.[0]?.message?.content || "[NO RESPONSE]";
+
+    chatbox.innerHTML += "<div>KIAS: " + reply + "</div>";
+    chatbox.scrollTop = chatbox.scrollHeight;
+}
+</script>
+
+</body>
+</html>
