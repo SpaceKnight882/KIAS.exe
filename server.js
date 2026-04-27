@@ -43,6 +43,23 @@ const requirePanelAuth = (req, res, next) => {
   return res.status(401).send("Authentication required.");
 };
 
+const normalizeMessage = (body = {}) => {
+  if (typeof body.message === "string") return body.message.trim();
+  if (typeof body.prompt === "string") return body.prompt.trim();
+
+  if (Array.isArray(body.messages)) {
+    const latestUserMessage = [...body.messages].reverse().find((entry) => entry?.role === "user" && typeof entry?.content === "string");
+    return latestUserMessage?.content?.trim() || "";
+  }
+
+  return "";
+};
+
+const extractAssistantText = (data = {}) => {
+  const maybeText = data?.choices?.[0]?.message?.content;
+  return typeof maybeText === "string" ? maybeText : "";
+};
+
 app.use(requirePanelAuth);
 app.use(express.static(__dirname, { extensions: ["html"] }));
 
@@ -58,9 +75,21 @@ app.get("/kias.exe", (req, res) => {
 
 // AI route
 app.post("/ai", async (req, res) => {
-  try {
-    const userMsg = req.body.message;
+  const userMsg = normalizeMessage(req.body);
 
+  if (!API_KEY) {
+    return res.status(500).json({
+      error: "OPENAI_API_KEY is not configured on the server."
+    });
+  }
+
+  if (!userMsg) {
+    return res.status(400).json({
+      error: "Request must include a non-empty 'message' string (or 'prompt'/'messages')."
+    });
+  }
+
+  try {
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -83,9 +112,23 @@ app.post("/ai", async (req, res) => {
     });
 
     const data = await response.json();
-    res.json(data);
-  } catch (err) {
-    res.status(500).json({ error: "AI FAILURE" });
+
+    if (!response.ok) {
+      return res.status(response.status).json({
+        error: data?.error?.message || "OpenAI request failed.",
+        details: data?.error || null
+      });
+    }
+
+    return res.json({
+      reply: extractAssistantText(data),
+      model: data.model,
+      id: data.id,
+      usage: data.usage,
+      raw: data
+    });
+  } catch {
+    return res.status(500).json({ error: "AI FAILURE" });
   }
 });
 
