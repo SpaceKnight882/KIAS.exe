@@ -60,20 +60,31 @@ async function send() {
     chatbox.scrollTop = chatbox.scrollHeight;
 
     try {
-        const res = await fetch(`${SERVER}/ai`, {
+        const user = "anonymous";
+        const text = message;
+
+        const res = await fetch(SERVER + "/ai", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({ message })
+            body: JSON.stringify({
+                user,
+                message: text
+            })
         });
 
+        if (!res.ok) {
+            throw new Error(`HTTP ${res.status}`);
+        }
+
         const data = await res.json();
-        const reply = data.reply || data.choices?.[0]?.message?.content || data.error || "[NO RESPONSE]";
+        const reply = data.reply;
 
         chatbox.innerHTML += "<div>KIAS: " + reply + "</div>";
-    } catch (e) {
-        chatbox.innerHTML += "<div class='error'>KIAS: [NETWORK FAILURE] Ensure backend is reachable at https://kias-exe.onrender.com.</div>";
+    } catch (err) {
+        console.error(err);
+        chatbox.innerHTML += "<div class='error'>KIAS: [KIAS OFFLINE]</div>";
     }
 
     chatbox.scrollTop = chatbox.scrollHeight;
