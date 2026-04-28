@@ -7,6 +7,7 @@ const PORT = 3000;
 const ROOT = process.cwd();
 const STORAGE_DIR = path.join(ROOT, "storage");
 const INDEX_PATH = path.join(STORAGE_DIR, "index.json");
+const CONFIG_PATH = path.join(ROOT, "config.json");
 const TARGET_PATH = path.join(STORAGE_DIR, "target.json");
 const MEMORY_PATH = path.join(ROOT, "db.json");
 
@@ -15,6 +16,8 @@ app.use(express.json({ limit: "50mb" }));
 function ensureStorage() {
   if (!fs.existsSync(STORAGE_DIR)) fs.mkdirSync(STORAGE_DIR, { recursive: true });
   if (!fs.existsSync(INDEX_PATH)) fs.writeFileSync(INDEX_PATH, JSON.stringify({ files: [] }, null, 2));
+  if (!fs.existsSync(CONFIG_PATH)) {
+    fs.writeFileSync(CONFIG_PATH, JSON.stringify({ main: "index.html", kias: "kias.html" }, null, 2));
   if (!fs.existsSync(TARGET_PATH)) fs.writeFileSync(TARGET_PATH, JSON.stringify({ activeTarget: null }, null, 2));
   if (!fs.existsSync(MEMORY_PATH)) {
     fs.writeFileSync(
@@ -38,7 +41,7 @@ function writeJson(filePath, value) {
 }
 
 function sanitizeFileName(name = "file") {
-  const cleaned = name.replace(/[^a-zA-Z0-9._-]/g, "_");
+  const cleaned = String(name).replace(/[^a-zA-Z0-9._-]/g, "_");
   return cleaned || `file_${Date.now()}`;
 }
 
@@ -80,6 +83,20 @@ function saveIndex(data) {
   writeJson(INDEX_PATH, data);
 }
 
+function configData() {
+  ensureStorage();
+  const parsed = readJson(CONFIG_PATH, { main: "index.html", kias: "kias.html" });
+  return {
+    main: typeof parsed.main === "string" ? sanitizeFileName(parsed.main) : "index.html",
+    kias: typeof parsed.kias === "string" ? sanitizeFileName(parsed.kias) : "kias.html"
+  };
+}
+
+function saveConfig(data) {
+  writeJson(CONFIG_PATH, {
+    main: sanitizeFileName(data.main || "index.html"),
+    kias: sanitizeFileName(data.kias || "kias.html")
+  });
 function memoryData() {
   ensureStorage();
   const data = readJson(MEMORY_PATH, { users: {}, ai: { responses: [], interactions: [] }, logs: [] });
@@ -110,6 +127,43 @@ function resolveMetaByName(name) {
   return { data, file };
 }
 
+function resolveStoragePath(name) {
+  return path.join(STORAGE_DIR, sanitizeFileName(name));
+}
+
+function setTargetConfig(type, fileName) {
+  if (!["main", "kias"].includes(type)) {
+    return { status: 400, error: "type must be 'main' or 'kias'." };
+  }
+
+  const { file } = resolveMetaByName(fileName);
+  if (!file) return { status: 404, error: "Target file not found." };
+  if (file.type !== "html") return { status: 400, error: "Target must be an HTML file." };
+
+  const cfg = configData();
+  cfg[type] = fileName;
+  saveConfig(cfg);
+
+  return { config: cfg };
+}
+
+function serveConfiguredFile(type, res) {
+  const cfg = configData();
+  const fileName = type === "kias" ? cfg.kias : cfg.main;
+  const { file } = resolveMetaByName(fileName);
+
+  if (file && file.type === "html") {
+    const absolutePath = resolveStoragePath(file.name);
+    if (fs.existsSync(absolutePath)) return res.sendFile(absolutePath);
+  }
+
+  const storageFallback = resolveStoragePath(fileName);
+  if (fs.existsSync(storageFallback)) return res.sendFile(storageFallback);
+
+  const rootFallback = path.join(ROOT, fileName);
+  if (fs.existsSync(rootFallback)) return res.sendFile(rootFallback);
+
+  return res.status(404).send(`Configured ${type} page is not available.`);
 function getUserProgression(userId) {
   const safeId = String(userId || "guest");
   const memory = memoryData();
@@ -198,6 +252,10 @@ function applyCorruption(content, level = 0) {
 
 ensureStorage();
 
+app.get("/", (_req, res) => serveConfiguredFile("main", res));
+app.get("/kias", (_req, res) => serveConfiguredFile("kias", res));
+
+app.get("/files", (_req, res) => {
 app.get("/files", (req, res) => {
   const userId = req.query.user;
   const data = indexData();
@@ -307,6 +365,10 @@ app.post("/kias/unlock-file", (req, res) => {
   return res.json({ message: "File unlocked for user.", user, fileName: safeName });
 });
 
+app.get("/config", (_req, res) => {
+  res.json(configData());
+});
+
 app.post("/upload", (req, res) => {
   const incoming = req.body?.files;
   if (!Array.isArray(incoming) || incoming.length === 0) {
@@ -323,10 +385,8 @@ app.post("/upload", (req, res) => {
     const existing = data.files.find((entry) => entry.name === safeName);
     const finalName = existing ? `${Date.now()}_${safeName}` : safeName;
 
-    const absolutePath = path.join(STORAGE_DIR, finalName);
-    const buffer = Buffer.from(file.content, "base64");
-
-    fs.writeFileSync(absolutePath, buffer);
+    const absolutePath = resolveStoragePath(finalName);
+    fs.writeFileSync(absolutePath, Buffer.from(file.content, "base64"));
 
     const stat = fs.statSync(absolutePath);
     const fileType = getFileType(finalName);
@@ -350,11 +410,7 @@ app.post("/upload", (req, res) => {
   }
 
   saveIndex(data);
-
-  if (!saved.length) {
-    return res.status(400).json({ error: "No valid files were uploaded." });
-  }
-
+  if (!saved.length) return res.status(400).json({ error: "No valid files were uploaded." });
   return res.json({ message: "Upload successful.", files: saved });
 });
 
@@ -365,6 +421,7 @@ app.get("/file/:name", (req, res) => {
   const { file } = resolveMetaByName(fileName);
   if (!file) return res.status(404).json({ error: "File not found." });
 
+  const absolutePath = resolveStoragePath(file.name);
   if (userId) {
     const { user } = getUserProgression(userId);
     if (!isFileUnlocked(file, user)) {
@@ -398,14 +455,12 @@ app.post("/file/:name", (req, res) => {
   const content = req.body?.content;
   const encoding = req.body?.encoding === "base64" ? "base64" : "utf8";
 
-  if (typeof content !== "string") {
-    return res.status(400).json({ error: "Invalid content." });
-  }
+  if (typeof content !== "string") return res.status(400).json({ error: "Invalid content." });
 
   const { data, file } = resolveMetaByName(fileName);
   if (!file) return res.status(404).json({ error: "File not found." });
 
-  const absolutePath = path.join(ROOT, file.path);
+  const absolutePath = resolveStoragePath(file.name);
   if (!fs.existsSync(absolutePath)) return res.status(404).json({ error: "Stored file is missing." });
 
   fs.writeFileSync(absolutePath, Buffer.from(content, encoding));
@@ -442,48 +497,49 @@ app.delete("/file/:name", (req, res) => {
   const { data, file } = resolveMetaByName(fileName);
   if (!file) return res.status(404).json({ error: "File not found." });
 
-  const absolutePath = path.join(ROOT, file.path);
+  const absolutePath = resolveStoragePath(file.name);
   if (fs.existsSync(absolutePath)) fs.unlinkSync(absolutePath);
 
   data.files = data.files.filter((entry) => entry.name !== fileName);
   saveIndex(data);
 
-  const target = readJson(TARGET_PATH, { activeTarget: null });
-  if (target.activeTarget === fileName) {
-    target.activeTarget = null;
-    writeJson(TARGET_PATH, target);
+  const cfg = configData();
+  let changed = false;
+  if (cfg.main === fileName) {
+    cfg.main = "index.html";
+    changed = true;
   }
+  if (cfg.kias === fileName) {
+    cfg.kias = "kias.html";
+    changed = true;
+  }
+  if (changed) saveConfig(cfg);
 
   return res.json({ message: "File deleted.", name: fileName });
 });
 
 app.get("/target", (_req, res) => {
-  const target = readJson(TARGET_PATH, { activeTarget: null });
-  if (!target.activeTarget) return res.json({ activeTarget: null, html: "" });
-
-  const { file } = resolveMetaByName(target.activeTarget);
-  if (!file) return res.json({ activeTarget: null, html: "" });
-
-  const absolutePath = path.join(ROOT, file.path);
-  if (!fs.existsSync(absolutePath)) return res.json({ activeTarget: null, html: "" });
-
-  const html = fs.readFileSync(absolutePath, "utf8");
-  return res.json({ activeTarget: file.name, html, file });
+  const cfg = configData();
+  return res.json({ activeTarget: cfg.main, config: cfg });
 });
 
 app.post("/target", (req, res) => {
   const name = sanitizeFileName(req.body?.name || "");
-  const { file } = resolveMetaByName(name);
+  const result = setTargetConfig("main", name);
+  if (result.error) return res.status(result.status).json({ error: result.error });
+  return res.json({ message: "Active target updated.", activeTarget: result.config.main, config: result.config });
+});
 
-  if (!file) return res.status(404).json({ error: "Target file not found." });
-  if (file.type !== "html") return res.status(400).json({ error: "Target must be an HTML file." });
+app.post("/set-target", (req, res) => {
+  const type = req.body?.type;
+  const fileName = sanitizeFileName(req.body?.file || "");
+  const result = setTargetConfig(type, fileName);
 
-  writeJson(TARGET_PATH, { activeTarget: name });
-  return res.json({ message: "Active target updated.", activeTarget: name });
+  if (result.error) return res.status(result.status).json({ error: result.error });
+  return res.json({ message: `${type.toUpperCase()} target updated.`, config: result.config });
 });
 
 app.use("/storage", express.static(STORAGE_DIR));
-app.use(express.static(ROOT));
 
 app.get("/admin", (_req, res) => {
   res.sendFile(path.join(ROOT, "admin.html"));

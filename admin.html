@@ -17,6 +17,25 @@
         --line-bright: #f2f2f2;
         --text: #f4f4f4;
         --muted: #9e9e9e;
+    <title>K.I.A.S Admin Panel</title>
+    <style>
+      :root {
+        --bg: #000;
+        --panel: #0b0b0b;
+        --line: #2a2a2a;
+        --text: #f2f2f2;
+        --muted: #9a9a9a;
+        --ok: #8dffb2;
+        --bad: #ff9b9b;
+        --panel: #040404;
+        --line: #2c2c2c;
+        --panel: #070707;
+        --panel-2: #0b0b0b;
+        --line: #2a2a2a;
+        --line-bright: #bdbdbd;
+        --text: #f1f1f1;
+        --muted: #9a9a9a;
+        --danger: #ff9b9b;
       }
 
       * {
@@ -193,6 +212,41 @@
       .metric .label {
         color: var(--muted);
         font-size: 12px;
+      .card p { margin: 0 0 10px; color: var(--muted); font-size: 12px; }
+
+        --panel: #050505;
+        --line: #2a2a2a;
+        --text: #f2f2f2;
+        --muted: #8f8f8f;
+        --warn: #ff8d8d;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: "Courier New", monospace;
+        background: radial-gradient(circle at top, #111 0%, #000 65%);
+      }
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        background: repeating-linear-gradient(to bottom, rgba(255,255,255,0.06), rgba(255,255,255,0.06) 1px, transparent 1px, transparent 4px);
+        opacity: 0.2;
+      }
+      body::after {
+        content: "";
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        background: radial-gradient(circle at center, transparent 38%, rgba(255,255,255,0.08));
+        animation: flicker 0.25s infinite;
+        background: radial-gradient(circle at center, transparent 45%, rgba(255, 255, 255, 0.08));
+        animation: flicker 0.22s infinite;
+      }
+      @keyframes flicker {
+        0%, 100% { opacity: 0.07; }
+        50% { opacity: 0.12; }
       }
 
       .metric .value {
@@ -310,6 +364,95 @@
         .grid-3 {
           grid-template-columns: 1fr;
         }
+        text-align: left;
+        margin-bottom: 8px;
+        padding: 10px;
+        background: transparent;
+        color: var(--text);
+      }
+      .wrap { max-width: 1280px; margin: 0 auto; padding: 14px; }
+      .status { border: 1px solid var(--line); background: var(--panel); padding: 10px; margin-bottom: 12px; min-height: 42px; color: var(--muted); }
+      .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+      .card { border: 1px solid var(--line); background: var(--panel); padding: 12px; }
+      .card h2 { margin: 0 0 10px; font-size: 15px; }
+      .drop-zone {
+        border: 1px dashed #7a7a7a;
+        min-height: 120px;
+        display: grid;
+        place-items: center;
+        text-align: center;
+        color: var(--muted);
+        margin-bottom: 8px;
+        padding: 8px;
+      }
+      .drop-zone.drag { border-color: #fff; color: #fff; }
+      input, select, textarea, button {
+        width: 100%;
+        margin-bottom: 8px;
+        border: 1px solid var(--line);
+        background: #000;
+        color: var(--text);
+        padding: 8px;
+        font: inherit;
+      }
+      button { cursor: pointer; }
+      .file-list { border: 1px solid var(--line); max-height: 540px; overflow: auto; }
+      .file-row {
+        border-bottom: 1px solid var(--line);
+        padding: 10px;
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 8px;
+      }
+      .file-row:last-child { border-bottom: 0; }
+      .file-row.active-main { outline: 1px solid #267dff; background: #07111f; }
+      .file-row.active-kias { outline: 1px solid #8f4dff; background: #130a1f; }
+      .file-row.active-main.active-kias { outline: 1px solid #00d9ff; background: #051b20; }
+      .meta { color: var(--muted); font-size: 12px; }
+      .actions { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+      .actions button { width: auto; margin: 0; }
+      .tag { font-size: 11px; border: 1px solid var(--line); padding: 2px 6px; }
+      .tag.main { border-color: #267dff; color: #8db7ff; }
+      .tag.kias { border-color: #8f4dff; color: #c6a8ff; }
+      iframe { width: 100%; min-height: 300px; border: 1px solid var(--line); background: #fff; }
+      textarea { min-height: 220px; }
+      .two-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+      @media (max-width: 980px) { .grid { grid-template-columns: 1fr; } }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <h1>K.I.A.S // ADMIN</h1>
+      <div id="status" class="status">System ready.</div>
+
+      <div class="grid">
+        <section class="card">
+          <h2>Upload</h2>
+          <div id="dropZone" class="drop-zone">DROP FILES HERE</div>
+          <input id="fileInput" type="file" multiple />
+          <button id="uploadBtn">UPLOAD</button>
+          <input id="searchInput" type="search" placeholder="Search files" />
+          <div id="registryCount" class="meta">0 files</div>
+          <div id="registryList" class="file-list"></div>
+        </section>
+
+        <section class="card">
+          <h2>Preview + Editor</h2>
+          <div class="meta">Selected file: <span id="selectedFile">None</span></div>
+          <iframe id="preview"></iframe>
+          <textarea id="editor" spellcheck="false" placeholder="Select an HTML/text file to edit"></textarea>
+          <div class="two-buttons">
+            <button id="saveBtn">SAVE CHANGES</button>
+            <button id="refreshBtn">REFRESH</button>
+      .file-meta { color: var(--muted); font-size: 12px; }
+      .row-actions { display: flex; gap: 6px; align-items: center; }
+      .row-actions button { width: auto; margin: 0; }
+      iframe { width: 100%; height: 300px; border: 1px solid var(--line); background: #fff; }
+      textarea.editor { min-height: 260px; }
+      .logs { white-space: pre-wrap; max-height: 500px; overflow: auto; }
+      @media (max-width: 980px) {
+        .layout { grid-template-columns: 1fr; }
+        .grid-2 { grid-template-columns: 1fr; }
       }
     </style>
   </head>
@@ -464,6 +607,16 @@
           </div>
         </section>
       </main>
+
+        <section id="panel-logs" class="panel">
+          <div class="card">
+            <h3>SYSTEM LOGS</h3>
+            <button id="refreshLogsBtn">REFRESH LOGS</button>
+            <div id="logs" class="logs"></div>
+          </div>
+          <div class="meta" id="activeTargets">ACTIVE MAIN: none | ACTIVE KIAS: none</div>
+        </section>
+      </div>
     </div>
 
     <script>
@@ -496,6 +649,186 @@
         ["USR-202", "BETA", "pattern-watch", "00:11 ago", "kias.html"],
         ["USR-777", "OMEGA", "anomaly", "00:03 ago", "index.html, shard.txt"]
       ];
+      const state = {
+        files: [],
+        selectedUploadFiles: [],
+        selectedFile: null,
+        config: { main: "index.html", kias: "kias.html" }
+        files: [], selectedUploadFiles: [], selectedTarget: "", selectedWatchFile: null,
+        viewCorrupted: false, lastKnownUnlocked: new Set()
+      };
+
+      const statusEl = document.getElementById("status");
+      const logsEl = document.getElementById("logs");
+      const registryList = document.getElementById("registryList");
+      const registryCount = document.getElementById("registryCount");
+      const fileInput = document.getElementById("fileInput");
+      const dropZone = document.getElementById("dropZone");
+      const searchInput = document.getElementById("searchInput");
+      const preview = document.getElementById("preview");
+      const editor = document.getElementById("editor");
+      const selectedFileEl = document.getElementById("selectedFile");
+      const activeTargetsEl = document.getElementById("activeTargets");
+      const targetSelect = document.getElementById("targetSelect");
+      const targetPreview = document.getElementById("targetPreview");
+      const targetEditor = document.getElementById("targetEditor");
+      const activeTargetLabel = document.getElementById("activeTargetLabel");
+      const watchFileName = document.getElementById("watchFileName");
+      const watchEditor = document.getElementById("watchEditor");
+      const watchCorruptionSelect = document.getElementById("watchCorruptionSelect");
+      const unlockConditionInput = document.getElementById("unlockConditionInput");
+      const lockHintInput = document.getElementById("lockHintInput");
+      const lockedToggle = document.getElementById("lockedToggle");
+      const userScope = document.getElementById("userScope");
+      const toast = document.getElementById("toast");
+      const toggleCorruptionBtn = document.getElementById("toggleCorruptionBtn");
+      const corruptionLevelSelect = document.getElementById("corruptionLevelSelect");
+      const blackoutOverlay = document.getElementById("blackoutOverlay");
+
+      function terminalToast(message) {
+        toast.textContent = message;
+        toast.classList.add("active");
+        setTimeout(() => toast.classList.remove("active"), 1800);
+      const watchPreview = document.getElementById("watchPreview");
+      const logs = document.getElementById("logs");
+
+      function log(message) {
+        const stamp = new Date().toISOString();
+        logs.textContent = `[${stamp}] ${message}\n` + logs.textContent;
+      }
+
+      function setStatus(message, isError = false) {
+        statusEl.textContent = message;
+        statusEl.style.color = isError ? "var(--bad)" : "var(--ok)";
+      }
+
+      async function api(url, options = {}) {
+        const response = await fetch(url, {
+          headers: { "Content-Type": "application/json" },
+          ...options
+        });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(data.error || `Request failed: ${response.status}`);
+        statusEl.style.color = error ? "#ff9a9a" : "#bcbcbc";
+        terminalToast(message);
+      }
+
+      function logLine(message) {
+        const stamp = new Date().toISOString();
+        logsEl.textContent = `[${stamp}] ${message}\n` + logsEl.textContent;
+        statusEl.style.color = error ? "#ff9b9b" : "#bcbcbc";
+        statusEl.style.borderColor = error ? "#5b3232" : "#2a2a2a";
+        statusEl.style.color = error ? "#ff9898" : "#bcbcbc";
+        log(message);
+      }
+
+      async function api(url, options = {}) {
+        const headers = options.body ? { "Content-Type": "application/json" } : {};
+        const res = await fetch(url, { ...options, headers });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.error || `Request failed: ${res.status}`);
+        return data;
+      }
+
+      function formatSize(size) {
+        if (!size) return "0 B";
+        const units = ["B", "KB", "MB", "GB"];
+        const i = Math.min(Math.floor(Math.log(size) / Math.log(1024)), units.length - 1);
+        return `${(size / (1024 ** i)).toFixed(i === 0 ? 0 : 1)} ${units[i]}`;
+      }
+
+      function filteredFiles() {
+        const q = searchInput.value.trim().toLowerCase();
+        return state.files.filter((f) => !q || f.name.toLowerCase().includes(q));
+      }
+
+      function renderRegistry() {
+        const files = filteredFiles();
+        registryCount.textContent = `${files.length} / ${state.files.length} files`;
+
+        registryList.innerHTML = files.map((file) => {
+          const isMain = file.name === state.config.main;
+          const isKias = file.name === state.config.kias;
+          const rowClasses = ["file-row", isMain ? "active-main" : "", isKias ? "active-kias" : ""].join(" ").trim();
+
+          const tags = [
+            isMain ? '<span class="tag main">ACTIVE MAIN</span>' : "",
+            isKias ? '<span class="tag kias">ACTIVE KIAS</span>' : ""
+          ].join(" ");
+
+          const htmlActions = file.type === "html"
+            ? `
+              <button onclick="setTarget('main', '${encodeURIComponent(file.name)}')">SET AS MAIN</button>
+              <button onclick="setTarget('kias', '${encodeURIComponent(file.name)}')">SET AS KIAS</button>
+            `
+            : "";
+
+          return `
+            <div class="${rowClasses}">
+              <div>
+                <strong>${file.name}</strong> ${tags}
+                <div class="meta">type: ${file.type} | size: ${formatSize(file.size)} | uploaded: ${new Date(file.uploadedAt).toLocaleString()}</div>
+              </div>
+              <div class="actions">
+                <button onclick="openFile('${encodeURIComponent(file.name)}')">OPEN</button>
+                ${htmlActions}
+                <button onclick="removeFile('${encodeURIComponent(file.name)}')">DELETE</button>
+              </div>
+            </div>
+          `;
+        }).join("") || '<div class="file-row"><div>No files in registry.</div></div>';
+      function currentUser() { return userScope.value.trim() || "agent_001"; }
+
+      function filterFiles() {
+        const q = searchInput.value.trim().toLowerCase();
+        const t = typeFilter.value;
+        return state.files.filter((f) => (!q || f.name.toLowerCase().includes(q)) && (t === "all" || f.type === t));
+      }
+
+      function renderRegistry() {
+        const filtered = filterFiles();
+        registryCount.textContent = `${filtered.length} / ${state.files.length} files`;
+        registryList.innerHTML = filtered.map((file) => {
+          const locked = file.access === "locked" || file.locked;
+          const label = locked ? `<span class="redacted">REDACTED</span>` : `<strong>${file.name}</strong>`;
+          const hint = locked ? `<div class="file-meta">Hint: ${file.hint || "Progress required."}</div>` : "";
+          const lockMeta = `lock:${file.locked ? "Y" : "N"} | cond:${file.unlockCondition || "none"} | corr:L${file.corruptionLevel || 0}`;
+          return `<div class="file-row ${locked ? "locked" : ""}" id="row-${encodeURIComponent(file.name)}">
+            <div>${label}<div class="file-meta">type:${file.type} | size:${formatSize(file.size)} | ${lockMeta}</div>${hint}</div>
+            <div class="row-actions">
+              <button onclick="openFile('${encodeURIComponent(file.name)}')" ${locked ? "disabled" : ""}>OPEN</button>
+              <button onclick="openFile('${encodeURIComponent(file.name)}')">OPEN</button>
+              <button class="danger" onclick="removeFile('${encodeURIComponent(file.name)}')">DELETE</button>
+              <button onclick="removeFile('${encodeURIComponent(file.name)}')">DELETE</button>
+            </div>
+          </div>`;
+        }).join("") || `<div class="file-row"><div>No files in registry.</div></div>`;
+      }
+
+      function renderTargetList() {
+        const htmlFiles = state.files.filter((f) => f.type === "html" && f.access !== "locked");
+        targetSelect.innerHTML = htmlFiles.map((f) => `<option value="${f.name}">${f.name}</option>`).join("");
+
+        if (htmlFiles.length && !htmlFiles.some((f) => f.name === state.selectedTarget)) {
+          state.selectedTarget = htmlFiles[0].name;
+          targetSelect.value = state.selectedTarget;
+        }
+
+        activeTargetsEl.textContent = `ACTIVE MAIN: ${state.config.main || "none"} | ACTIVE KIAS: ${state.config.kias || "none"}`;
+      }
+
+      async function refreshAll() {
+        const [filesData, configData] = await Promise.all([api("/files"), api("/config")]);
+        state.files = filesData.files || [];
+        state.config = configData;
+        renderRegistry();
+      function renderWatchPreview(file, content, encoding) {
+        if (!file) {
+          watchPreview.innerHTML = "<div class='file-meta'>No file selected.</div>";
+          return;
+        }
+
+        const safeStorageUrl = `/${file.path}`;
 
       const randomMessages = [
         "Monitoring user behavior...",
@@ -532,6 +865,69 @@
         if (source) {
           frame.removeAttribute("src");
           frame.srcdoc = source.content;
+      async function filesToPayload(files) {
+        return Promise.all(files.map((file) => new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => {
+            const result = String(reader.result);
+            resolve({
+              name: file.name,
+              mime: file.type || "application/octet-stream",
+              content: result.split(",")[1] || ""
+            const base64 = String(reader.result).split(",")[1] || "";
+            resolve({
+              name: file.name,
+              mime: file.type || "application/octet-stream",
+              content: base64,
+              corruptionLevel: 0,
+              locked: false,
+              unlockCondition: ""
+            });
+          };
+          reader.onerror = () => reject(new Error(`Failed reading ${file.name}`));
+          reader.readAsDataURL(file);
+        })));
+      }
+
+      async function uploadSelectedFiles() {
+        if (!state.selectedUploadFiles.length) {
+          setStatus("No files selected.", true);
+          return;
+        }
+        if (!state.selectedUploadFiles.length) return setStatus("No files selected for upload.", true);
+        try {
+          const payload = await filesToPayload(state.selectedUploadFiles);
+          const result = await api("/upload", { method: "POST", body: JSON.stringify({ files: payload }) });
+          state.selectedUploadFiles = [];
+          fileInput.value = "";
+          await refreshAll();
+          setStatus(`Upload successful: ${result.files.length} file(s).`);
+          await refreshFiles();
+          await refreshLogsPanel();
+        } catch (err) {
+          setStatus(`Upload failed: ${err.message}`, true);
+        }
+      }
+
+      async function openWithMode(name, viewMode) {
+        const data = await api(`/file/${encodeURIComponent(name)}?user=${encodeURIComponent(currentUser())}&mode=${viewMode}`);
+        state.selectedWatchFile = data.file;
+        watchFileName.value = data.file.name;
+        watchCorruptionSelect.value = String(data.file.corruptionLevel || 0);
+        unlockConditionInput.value = data.file.unlockCondition || "";
+        lockHintInput.value = data.file.hint || "";
+        lockedToggle.checked = Boolean(data.file.locked);
+        corruptionLevelSelect.value = String(data.file.corruptionLevel || 0);
+        if (data.encoding === "utf8") {
+          watchEditor.value = data.content;
+          if (data.file.type === "html") {
+            targetEditor.value = data.content;
+            targetPreview.srcdoc = data.content;
+            if (data.file.corruptionLevel === 3 && viewMode === "corrupted" && Math.random() < 0.45) {
+              blackoutOverlay.classList.add("active");
+              setTimeout(() => blackoutOverlay.classList.remove("active"), 220);
+            }
+          }
         } else {
           frame.removeAttribute("srcdoc");
           frame.src = `${fileName}?v=${Date.now()}`;
@@ -601,6 +997,158 @@
               </div>
             </td>`;
           fileTableBody.appendChild(row);
+      async function refreshFiles() {
+        const data = await api("/files");
+        state.files = data.files || [];
+        renderRegistry();
+        renderTargetList();
+
+        const target = await api("/target");
+        activeTargetLabel.textContent = target.activeTarget ? `ACTIVE TARGET: ${target.activeTarget}` : "No active target.";
+      }
+
+      async function filesToPayload(files) {
+        return Promise.all(files.map((file) => new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => {
+            const result = String(reader.result);
+            const base64 = result.split(",")[1] || "";
+            resolve({ name: file.name, mime: file.type || "application/octet-stream", content: base64 });
+          };
+          reader.onerror = () => reject(new Error(`Failed reading ${file.name}`));
+          reader.readAsDataURL(file);
+        })));
+      }
+
+      async function uploadSelectedFiles() {
+        if (!state.selectedUploadFiles.length) {
+          setStatus("No files selected for upload.", true);
+          return;
+        }
+        try {
+          const payload = await filesToPayload(state.selectedUploadFiles);
+          const result = await api("/upload", { method: "POST", body: JSON.stringify({ files: payload }) });
+          setStatus(`Upload success: ${result.files.length} file(s) saved.`);
+          state.selectedUploadFiles = [];
+          fileInput.value = "";
+          await refreshFiles();
+        } catch (err) {
+          setStatus(`Upload failed: ${err.message}`, true);
+        }
+      }
+
+      window.openFile = async function openFile(encodedName) {
+        const name = decodeURIComponent(encodedName);
+        try {
+          const data = await api(`/file/${encodeURIComponent(name)}`);
+          state.selectedFile = data.file;
+          selectedFileEl.textContent = data.file.name;
+
+          if (data.file.type === "html") {
+            preview.srcdoc = data.content || "";
+          } else {
+            preview.srcdoc = `<pre>Preview only supports HTML in iframe.\nType: ${data.file.type}</pre>`;
+          }
+
+          if (data.encoding === "utf8") {
+            editor.value = data.content || "";
+            editor.disabled = false;
+          } else {
+            editor.value = "";
+            editor.disabled = true;
+          }
+
+          setStatus(`Loaded file: ${name}`);
+        } catch (err) {
+          setStatus(`Open failed: ${err.message}`, true);
+        }
+      };
+
+      window.removeFile = async function removeFile(encodedName) {
+        const name = decodeURIComponent(encodedName);
+        if (!confirm(`Delete ${name}?`)) return;
+
+        try {
+          await api(`/file/${encodeURIComponent(name)}`, { method: "DELETE" });
+          if (state.selectedFile?.name === name) {
+            state.selectedFile = null;
+            selectedFileEl.textContent = "None";
+            preview.srcdoc = "";
+            editor.value = "";
+          }
+          await refreshAll();
+          setStatus(`Deleted: ${name}`);
+        } catch (err) {
+          setStatus(`Delete failed: ${err.message}`, true);
+        }
+      };
+
+      window.setTarget = async function setTarget(type, encodedName) {
+        const file = decodeURIComponent(encodedName);
+        try {
+          await api("/set-target", {
+            method: "POST",
+            body: JSON.stringify({ type, file })
+          });
+          await refreshAll();
+          setStatus(`Updated ${type.toUpperCase()} target: ${file}`);
+        } catch (err) {
+          setStatus(`Set target failed: ${err.message}`, true);
+        }
+      };
+
+      async function saveSelectedFile() {
+        if (!state.selectedFile) {
+          setStatus("No file selected.", true);
+          return;
+        }
+        if (editor.disabled) {
+          setStatus("Binary file cannot be edited.", true);
+          return;
+          setStatus(`Target save failed: ${err.message}`, true);
+        }
+      }
+
+      async function saveWatchEdit() {
+        const name = watchFileName.value.trim();
+        if (!name) {
+          setStatus("No watchlist file selected.", true);
+          return;
+      window.openFile = async function openFile(encodedName) {
+        const name = decodeURIComponent(encodedName);
+        try {
+          await openWithMode(name, state.viewCorrupted ? "corrupted" : "raw");
+          setStatus(`Loaded file: ${name} [${state.viewCorrupted ? "CORRUPTED" : "RAW"}]`);
+          await refreshLogsPanel();
+        } catch (err) {
+          setStatus(`Open failed: ${err.message}`, true);
+        }
+      };
+
+      window.removeFile = async function removeFile(encodedName) {
+        const name = decodeURIComponent(encodedName);
+        if (!confirm(`Delete ${name}?`)) return;
+        try {
+          await api(`/file/${encodeURIComponent(name)}`, { method: "DELETE" });
+          setStatus(`Deleted file: ${name}`);
+          await refreshFiles();
+          await refreshLogsPanel();
+        } catch (err) {
+          setStatus(`Delete failed: ${err.message}`, true);
+        }
+      };
+
+      async function saveMetadataOnly() {
+        const name = watchFileName.value.trim();
+        if (!name) return;
+        await api(`/file/${encodeURIComponent(name)}/meta`, {
+          method: "PATCH",
+          body: JSON.stringify({
+            corruptionLevel: Number(watchCorruptionSelect.value),
+            locked: lockedToggle.checked,
+            unlockCondition: unlockConditionInput.value.trim(),
+            hint: lockHintInput.value.trim() || "Progress further to unlock."
+          })
         });
 
         totalFiles.textContent = files.size;
@@ -628,6 +1176,46 @@
         if (targets.kias === name) {
           targets.kias = "kias.html";
           logSystem(`KIAS target reset to kias.html after deletion of ${name}`);
+      async function loadSelectedTarget() {
+        const name = targetSelect.value;
+        if (!name) return setStatus("No HTML target selected.", true);
+        try {
+          await openWithMode(name, state.viewCorrupted ? "corrupted" : "raw");
+          state.selectedTarget = name;
+          setStatus(`Loaded target HTML: ${name}`);
+        } catch (err) {
+          setStatus(`Target load failed: ${err.message}`, true);
+        }
+
+        try {
+          await api(`/file/${encodeURIComponent(state.selectedFile.name)}`, {
+            method: "POST",
+            body: JSON.stringify({ content: editor.value, encoding: "utf8" })
+            body: JSON.stringify({ content: targetEditor.value, encoding: "utf8", corruptionLevel: Number(corruptionLevelSelect.value) })
+          });
+
+          if (state.selectedFile.type === "html") {
+            preview.srcdoc = editor.value;
+          }
+
+          await refreshAll();
+          setStatus(`Saved: ${state.selectedFile.name}`);
+        } catch (err) {
+          setStatus(`Save failed: ${err.message}`, true);
+        }
+      }
+
+      document.getElementById("uploadBtn").addEventListener("click", uploadSelectedFiles);
+      document.getElementById("saveBtn").addEventListener("click", saveSelectedFile);
+      async function setActiveTarget() {
+        const name = targetSelect.value;
+        if (!name) return setStatus("No target selected.", true);
+        try {
+          await api("/target", { method: "POST", body: JSON.stringify({ name }) });
+          setStatus(`Active target set: ${name}`);
+          await refreshFiles();
+        } catch (err) {
+          setStatus(`Set target failed: ${err.message}`, true);
         }
         updateTargetLabels();
         updatePreview("main");
@@ -700,6 +1288,12 @@
           updatePreview("main");
           refreshSelectors();
           logSystem(`New MAIN target assigned: ${name}`);
+      document.getElementById("refreshBtn").addEventListener("click", async () => {
+        try {
+          await refreshAll();
+          setStatus("Refreshed.");
+        } catch (err) {
+          setStatus(`Refresh failed: ${err.message}`, true);
         }
 
         if (act === "kias") {
@@ -745,6 +1339,17 @@
           ? "[SETTINGS] Maintenance mode enabled"
           : "[SETTINGS] Operational mode enabled";
         logSystem(`Settings updated: maintenance=${maintenance}, glitch=${glitch}, intensity=${intensity.toFixed(2)}`);
+      document.getElementById("uploadBtn").addEventListener("click", uploadSelectedFiles);
+      document.getElementById("loadTargetBtn").addEventListener("click", loadSelectedTarget);
+      document.getElementById("saveTargetBtn").addEventListener("click", saveTargetChanges);
+      document.getElementById("setTargetBtn").addEventListener("click", setActiveTarget);
+      document.getElementById("saveWatchBtn").addEventListener("click", saveWatchEdit);
+
+      searchInput.addEventListener("input", renderRegistry);
+
+      fileInput.addEventListener("change", (e) => {
+        state.selectedUploadFiles = Array.from(e.target.files || []);
+        setStatus(`${state.selectedUploadFiles.length} file(s) selected.`);
       });
 
       setInterval(() => {
@@ -774,6 +1379,44 @@
       updatePreview("kias");
       logSystem("Panel initialized.");
       logSystem("Live preview system online.");
+      ["dragleave", "drop"].forEach((eventName) => {
+        dropZone.addEventListener(eventName, (event) => {
+          event.preventDefault();
+          dropZone.classList.remove("drag");
+        });
+      });
+
+      dropZone.addEventListener("drop", (event) => {
+        state.selectedUploadFiles = Array.from(event.dataTransfer.files || []);
+        setStatus(`${state.selectedUploadFiles.length} file(s) dropped.`);
+        setStatus(`${state.selectedUploadFiles.length} file(s) dropped and ready for upload.`);
+      });
+
+      targetSelect.addEventListener("change", () => { state.selectedTarget = targetSelect.value; });
+
+      setInterval(refreshLogsPanel, 4000);
+      setInterval(refreshMonitor, 5000);
+
+      (async function init() {
+        try {
+          await refreshFiles();
+          await refreshMonitor();
+          await refreshLogsPanel();
+          renderWatchPreview(null);
+      });
+
+      targetSelect.addEventListener("change", () => {
+        state.selectedTarget = targetSelect.value;
+      });
+
+      (async function init() {
+        try {
+          await refreshAll();
+          setStatus("Admin panel ready.");
+        } catch (err) {
+          setStatus(`Initialization failed: ${err.message}`, true);
+        }
+      })();
     </script>
   </body>
 </html>
