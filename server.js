@@ -82,20 +82,39 @@ function resolveStoragePath(name) {
   return path.join(STORAGE_DIR, sanitizeFileName(name));
 }
 
+function setTargetConfig(type, fileName) {
+  if (!["main", "kias"].includes(type)) {
+    return { status: 400, error: "type must be 'main' or 'kias'." };
+  }
+
+  const { file } = resolveMetaByName(fileName);
+  if (!file) return { status: 404, error: "Target file not found." };
+  if (file.type !== "html") return { status: 400, error: "Target must be an HTML file." };
+
+  const cfg = configData();
+  cfg[type] = fileName;
+  saveConfig(cfg);
+
+  return { config: cfg };
+}
+
 function serveConfiguredFile(type, res) {
   const cfg = configData();
   const fileName = type === "kias" ? cfg.kias : cfg.main;
   const { file } = resolveMetaByName(fileName);
-  if (!file || file.type !== "html") {
-    return res.status(404).send(`Configured ${type} page is not available.`);
+
+  if (file && file.type === "html") {
+    const absolutePath = resolveStoragePath(file.name);
+    if (fs.existsSync(absolutePath)) return res.sendFile(absolutePath);
   }
 
-  const absolutePath = resolveStoragePath(file.name);
-  if (!fs.existsSync(absolutePath)) {
-    return res.status(404).send(`Configured ${type} page file is missing.`);
-  }
+  const storageFallback = resolveStoragePath(fileName);
+  if (fs.existsSync(storageFallback)) return res.sendFile(storageFallback);
 
-  return res.sendFile(absolutePath);
+  const rootFallback = path.join(ROOT, fileName);
+  if (fs.existsSync(rootFallback)) return res.sendFile(rootFallback);
+
+  return res.status(404).send(`Configured ${type} page is not available.`);
 }
 
 ensureStorage();
@@ -112,8 +131,7 @@ app.get("/files", (_req, res) => {
 });
 
 app.get("/config", (_req, res) => {
-  const cfg = configData();
-  res.json(cfg);
+  res.json(configData());
 });
 
 app.post("/upload", (req, res) => {
@@ -133,8 +151,7 @@ app.post("/upload", (req, res) => {
     const finalName = existing ? `${Date.now()}_${safeName}` : safeName;
 
     const absolutePath = resolveStoragePath(finalName);
-    const buffer = Buffer.from(file.content, "base64");
-    fs.writeFileSync(absolutePath, buffer);
+    fs.writeFileSync(absolutePath, Buffer.from(file.content, "base64"));
 
     const stat = fs.statSync(absolutePath);
     const fileType = getFileType(finalName);
@@ -154,11 +171,7 @@ app.post("/upload", (req, res) => {
   }
 
   saveIndex(data);
-
-  if (!saved.length) {
-    return res.status(400).json({ error: "No valid files were uploaded." });
-  }
-
+  if (!saved.length) return res.status(400).json({ error: "No valid files were uploaded." });
   return res.json({ message: "Upload successful.", files: saved });
 });
 
@@ -185,9 +198,7 @@ app.post("/file/:name", (req, res) => {
   const content = req.body?.content;
   const encoding = req.body?.encoding === "base64" ? "base64" : "utf8";
 
-  if (typeof content !== "string") {
-    return res.status(400).json({ error: "Invalid content." });
-  }
+  if (typeof content !== "string") return res.status(400).json({ error: "Invalid content." });
 
   const { data, file } = resolveMetaByName(fileName);
   if (!file) return res.status(404).json({ error: "File not found." });
@@ -231,23 +242,25 @@ app.delete("/file/:name", (req, res) => {
   return res.json({ message: "File deleted.", name: fileName });
 });
 
+app.get("/target", (_req, res) => {
+  const cfg = configData();
+  return res.json({ activeTarget: cfg.main, config: cfg });
+});
+
+app.post("/target", (req, res) => {
+  const name = sanitizeFileName(req.body?.name || "");
+  const result = setTargetConfig("main", name);
+  if (result.error) return res.status(result.status).json({ error: result.error });
+  return res.json({ message: "Active target updated.", activeTarget: result.config.main, config: result.config });
+});
+
 app.post("/set-target", (req, res) => {
   const type = req.body?.type;
   const fileName = sanitizeFileName(req.body?.file || "");
+  const result = setTargetConfig(type, fileName);
 
-  if (!["main", "kias"].includes(type)) {
-    return res.status(400).json({ error: "type must be 'main' or 'kias'." });
-  }
-
-  const { file } = resolveMetaByName(fileName);
-  if (!file) return res.status(404).json({ error: "Target file not found." });
-  if (file.type !== "html") return res.status(400).json({ error: "Target must be an HTML file." });
-
-  const cfg = configData();
-  cfg[type] = fileName;
-  saveConfig(cfg);
-
-  return res.json({ message: `${type.toUpperCase()} target updated.`, config: cfg });
+  if (result.error) return res.status(result.status).json({ error: result.error });
+  return res.json({ message: `${type.toUpperCase()} target updated.`, config: result.config });
 });
 
 app.use("/storage", express.static(STORAGE_DIR));
