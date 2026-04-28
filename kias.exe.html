@@ -79,9 +79,7 @@
 
         try {
           const apiBase =
-            window.location.protocol === "file:"
-              ? "http://localhost:3000"
-              : window.location.origin;
+            "https://kias-exe.onrender.com";
 
           const res = await fetch(`${apiBase}/ai`, {
             method: "POST",
@@ -101,7 +99,7 @@
         } catch {
           appendLine(
             "chat-error",
-            "KIAS: [NETWORK FAILURE] Ensure backend is running on http://localhost:3000."
+            "KIAS: [NETWORK FAILURE] Ensure backend is reachable at https://kias-exe.onrender.com."
           );
         }
       }
