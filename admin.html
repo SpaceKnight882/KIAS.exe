@@ -155,6 +155,7 @@
                 <button id="clear-section" type="button" class="danger">Clear Section</button>
               </div>
               <input id="import-file" type="file" accept="application/json,.json" hidden />
+              <input id="replace-file-input" type="file" hidden />
               <p id="asset-stats" class="asset-stats"></p>
             </div>
             <div id="asset-list" class="asset-list"></div>
@@ -207,11 +208,13 @@
       const sortBy = document.getElementById("asset-sort");
       const assetStats = document.getElementById("asset-stats");
       const importFileInput = document.getElementById("import-file");
+      const replaceFileInput = document.getElementById("replace-file-input");
 
       let recorder;
       let recordedChunks = [];
       let recordingStream;
       let recordingMode = "video";
+      let pendingReplaceAssetId = null;
 
       const getAssets = () => {
         try {
@@ -342,6 +345,8 @@
                 <button type="button" data-action="download" data-id="${item.id}">Download</button>
                 <button type="button" data-action="duplicate" data-id="${item.id}">Duplicate</button>
                 <button type="button" data-action="edit" data-id="${item.id}">Edit</button>
+                <button type="button" data-action="retarget" data-id="${item.id}">Retarget</button>
+                <button type="button" data-action="replace-file" data-id="${item.id}">Replace File</button>
                 <button type="button" class="danger" data-action="delete" data-id="${item.id}">Delete</button>
               </div>
             `;
@@ -504,6 +509,24 @@
           return;
         }
 
+        if (action === "retarget") {
+          const updated = allAssets.map((item) =>
+            item.id === id
+              ? { ...item, targetPage: targetPage.value, targetSection: targetSection.value }
+              : item
+          );
+          saveAssets(updated);
+          setStatus(`Asset moved to ${pageSections[targetPage.value].label} > ${pageSections[targetPage.value].sections[targetSection.value]}.`);
+          renderAssets();
+          return;
+        }
+
+        if (action === "replace-file") {
+          pendingReplaceAssetId = id;
+          replaceFileInput.click();
+          return;
+        }
+
         if (action === "download") {
           const link = document.createElement("a");
           link.href = current.dataUrl;
@@ -511,6 +534,36 @@
           document.body.appendChild(link);
           link.click();
           link.remove();
+        }
+      });
+
+      replaceFileInput.addEventListener("change", async () => {
+        const file = replaceFileInput.files[0];
+        const assetId = pendingReplaceAssetId;
+        pendingReplaceAssetId = null;
+        replaceFileInput.value = "";
+
+        if (!assetId || !file) return;
+
+        try {
+          const dataUrl = await readFileAsDataUrl(file);
+          const updated = getAssets().map((item) =>
+            item.id === assetId
+              ? {
+                  ...item,
+                  name: file.name,
+                  type: file.type || item.type || "application/octet-stream",
+                  size: file.size,
+                  dataUrl,
+                  uploadedAt: new Date().toISOString()
+                }
+              : item
+          );
+          saveAssets(updated);
+          setStatus(`Replaced file content with ${file.name}.`);
+          renderAssets();
+        } catch (error) {
+          setStatus(`File replacement failed: ${error.message}`, true);
         }
       });
 
