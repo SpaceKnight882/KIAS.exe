@@ -7,10 +7,11 @@
     <style>
       :root {
         --bg: #000;
-        --panel: #050505;
-        --line: #2a2a2a;
+        --panel: #040404;
+        --line: #2c2c2c;
         --text: #f2f2f2;
-        --muted: #9c9c9c;
+        --muted: #8f8f8f;
+        --warn: #ff8d8d;
       }
       * { box-sizing: border-box; }
       body {
@@ -25,14 +26,7 @@
         position: fixed;
         inset: 0;
         pointer-events: none;
-        background: repeating-linear-gradient(
-          to bottom,
-          rgba(255, 255, 255, 0.06) 0,
-          rgba(255, 255, 255, 0.06) 1px,
-          transparent 1px,
-          transparent 4px
-        );
-        mix-blend-mode: screen;
+        background: repeating-linear-gradient(to bottom, rgba(255,255,255,0.06), rgba(255,255,255,0.06) 1px, transparent 1px, transparent 4px);
         opacity: 0.2;
       }
       body::after {
@@ -40,94 +34,49 @@
         position: fixed;
         inset: 0;
         pointer-events: none;
-        background: radial-gradient(circle at center, transparent 45%, rgba(255, 255, 255, 0.08));
-        animation: flicker 0.22s infinite;
+        background: radial-gradient(circle at center, transparent 38%, rgba(255,255,255,0.08));
+        animation: flicker 0.25s infinite;
       }
-      @keyframes flicker {
-        0%, 100% { opacity: 0.07; }
-        50% { opacity: 0.12; }
-      }
-      .layout {
-        display: grid;
-        grid-template-columns: 230px 1fr;
-        min-height: 100vh;
-      }
-      .sidebar {
-        border-right: 1px solid var(--line);
-        padding: 16px;
-        background: #020202;
-      }
-      .sidebar h1 {
-        font-size: 16px;
-        letter-spacing: 2px;
-        margin: 0 0 18px;
-      }
-      .nav-btn {
-        width: 100%;
-        text-align: left;
-        margin-bottom: 8px;
-        padding: 10px;
-        background: transparent;
-        color: var(--text);
-        border: 1px solid var(--line);
-        cursor: pointer;
-      }
-      .nav-btn.active,
-      .nav-btn:hover { background: #0b0b0b; border-color: #f2f2f2; }
-      .main {
-        padding: 16px;
-      }
-      .header {
-        border: 1px solid var(--line);
-        padding: 12px;
-        margin-bottom: 12px;
-        display: grid;
-        grid-template-columns: 1fr auto;
-        gap: 10px;
-      }
-      .header h2 { margin: 0; font-size: 16px; }
-      .header small { color: var(--muted); }
-      .status { border: 1px solid var(--line); padding: 10px; min-height: 40px; color: var(--muted); margin-bottom: 12px; }
-      .panel { display: none; }
-      .panel.active { display: block; }
-      .grid-2 { display: grid; gap: 12px; grid-template-columns: 1fr 1fr; }
-      .card { border: 1px solid var(--line); background: var(--panel); padding: 12px; }
-      .card h3 { margin-top: 0; font-size: 14px; letter-spacing: 1px; }
-      input, select, textarea, button {
-        width: 100%;
-        background: #000;
-        color: var(--text);
-        border: 1px solid var(--line);
-        padding: 8px;
-        margin-bottom: 8px;
-        font: inherit;
-      }
-      button { cursor: pointer; }
-      button:hover { border-color: #f2f2f2; }
-      .drop-zone {
-        border: 1px dashed #666;
-        padding: 20px;
-        text-align: center;
-      }
-      .drop-zone.drag { border-color: #fff; background: #0a0a0a; }
-      .file-list { max-height: 480px; overflow: auto; border: 1px solid var(--line); }
-      .file-row {
-        border-bottom: 1px solid var(--line);
-        padding: 10px;
-        display: grid;
-        grid-template-columns: 1fr auto;
-        gap: 8px;
-      }
-      .file-meta { color: var(--muted); font-size: 12px; }
-      .row-actions { display: flex; gap: 6px; align-items: center; }
-      .row-actions button { width: auto; margin: 0; }
-      iframe { width: 100%; height: 300px; border: 1px solid var(--line); background: #fff; }
-      textarea.editor { min-height: 260px; }
-      .logs { white-space: pre-wrap; max-height: 500px; overflow: auto; }
-      @media (max-width: 980px) {
-        .layout { grid-template-columns: 1fr; }
-        .grid-2 { grid-template-columns: 1fr; }
-      }
+      @keyframes flicker { 0%,100% { opacity: .08; } 50% { opacity: .13; } }
+      @keyframes glitchShift { 0%,100%{transform:translateX(0);} 20%{transform:translateX(-1px);} 40%{transform:translateX(2px);} 60%{transform:translateX(-2px);} 80%{transform:translateX(1px);} }
+      @keyframes unlockPulse { 0%{box-shadow:0 0 0 rgba(255,255,255,0);} 50%{box-shadow:0 0 14px rgba(255,255,255,0.3);} 100%{box-shadow:0 0 0 rgba(255,255,255,0);} }
+
+      .layout { display:grid; grid-template-columns:240px 1fr; min-height:100vh; }
+      .sidebar { border-right:1px solid var(--line); padding:16px; background:#020202; }
+      .sidebar h1 { margin:0 0 16px; font-size:16px; letter-spacing:2px; }
+      .nav-btn { width:100%; margin:0 0 8px; padding:10px; background:transparent; color:var(--text); border:1px solid var(--line); text-align:left; cursor:pointer; }
+      .nav-btn.active,.nav-btn:hover { border-color:#fff; background:#0b0b0b; }
+      .main { padding:16px; }
+      .header { border:1px solid var(--line); padding:12px; margin-bottom:12px; display:grid; grid-template-columns:1fr auto; gap:10px; }
+      .status { border:1px solid var(--line); min-height:42px; margin-bottom:12px; padding:10px; color:var(--muted); }
+      .panel { display:none; }
+      .panel.active { display:block; }
+      .grid-2 { display:grid; gap:12px; grid-template-columns:1fr 1fr; }
+      .grid-3 { display:grid; gap:12px; grid-template-columns:repeat(3,1fr); }
+      .card { border:1px solid var(--line); background:var(--panel); padding:12px; }
+      .card h3 { margin:0 0 10px; font-size:14px; letter-spacing:1px; }
+      input,select,textarea,button { width:100%; background:#000; color:var(--text); border:1px solid var(--line); padding:8px; margin-bottom:8px; font:inherit; }
+      button { cursor:pointer; }
+      button:hover { border-color:#fff; }
+      .drop-zone { border:1px dashed #666; padding:20px; text-align:center; }
+      .drop-zone.drag { border-color:#fff; background:#0a0a0a; }
+      .file-list { max-height:500px; overflow:auto; border:1px solid var(--line); }
+      .file-row { border-bottom:1px solid var(--line); padding:10px; display:grid; grid-template-columns:1fr auto; gap:8px; }
+      .file-row.locked { background: repeating-linear-gradient(135deg, rgba(255,255,255,0.02), rgba(255,255,255,0.02) 4px, rgba(255,255,255,0.06) 4px, rgba(255,255,255,0.06) 8px); }
+      .file-row.unlocked-flash { animation: unlockPulse 1s ease; }
+      .redacted { filter: blur(2px); letter-spacing:1px; color:var(--warn); }
+      .file-meta { color:var(--muted); font-size:12px; }
+      .row-actions { display:flex; gap:6px; align-items:flex-start; }
+      .row-actions button { width:auto; margin:0; }
+      textarea.editor { min-height:260px; }
+      .preview-wrap { position:relative; }
+      .blackout { position:absolute; inset:0; background:#000; opacity:0; pointer-events:none; }
+      .blackout.active { opacity:.96; }
+      .terminal-toast { position:fixed; right:14px; bottom:14px; max-width:360px; border:1px solid #fff; background:#000; color:#fff; padding:8px; z-index:30; display:none; }
+      .terminal-toast.active { display:block; animation: glitchShift .4s linear 2; }
+      .logs { white-space:pre-wrap; max-height:460px; overflow:auto; border:1px solid var(--line); padding:8px; }
+      .tiny { font-size:12px; color:var(--muted); }
+      @media (max-width: 1024px) { .layout{grid-template-columns:1fr;} .grid-2,.grid-3{grid-template-columns:1fr;} }
     </style>
   </head>
   <body>
@@ -137,15 +86,19 @@
         <button class="nav-btn active" data-panel="registry">FILE REGISTRY</button>
         <button class="nav-btn" data-panel="target">TARGET PAGE</button>
         <button class="nav-btn" data-panel="watchlist">WATCHLIST</button>
+        <button class="nav-btn" data-panel="kias">KIAS CONTROL</button>
         <button class="nav-btn" data-panel="logs">SYSTEM LOGS</button>
       </aside>
       <main class="main">
         <section class="header">
           <div>
-            <h2>ADMIN FILE MANAGEMENT GRID</h2>
-            <small>PORT 3000 // LOCAL STORAGE ENABLED</small>
+            <h2 style="margin:0;font-size:16px;">ADMIN FILE MANAGEMENT GRID</h2>
+            <small style="color:var(--muted);">PORT 3000 // LOCAL STORAGE ENABLED</small>
           </div>
-          <div><button id="refreshBtn">REFRESH REGISTRY</button></div>
+          <div>
+            <input id="userScope" placeholder="User ID scope (optional)" value="agent_001" />
+            <button id="refreshBtn">REFRESH REGISTRY</button>
+          </div>
         </section>
 
         <div id="status" class="status">System initialized.</div>
@@ -186,13 +139,23 @@
               <button id="loadTargetBtn">LOAD SELECTED HTML</button>
               <div id="activeTargetLabel" class="file-meta">No active target.</div>
             </div>
-            <div class="card">
+            <div class="card preview-wrap">
               <h3>TARGET PREVIEW</h3>
-              <iframe id="targetPreview"></iframe>
+              <iframe id="targetPreview" style="width:100%;height:300px;border:1px solid var(--line);background:#fff;"></iframe>
+              <div id="blackoutOverlay" class="blackout"></div>
             </div>
           </div>
           <div class="card" style="margin-top:12px;">
             <h3>TARGET EDITOR</h3>
+            <div class="grid-2">
+              <button id="toggleCorruptionBtn">VIEW CORRUPTED</button>
+              <select id="corruptionLevelSelect">
+                <option value="0">CORRUPTION LEVEL 0</option>
+                <option value="1">CORRUPTION LEVEL 1</option>
+                <option value="2">CORRUPTION LEVEL 2</option>
+                <option value="3">CORRUPTION LEVEL 3</option>
+              </select>
+            </div>
             <textarea id="targetEditor" class="editor" spellcheck="false"></textarea>
             <button id="saveTargetBtn">SAVE HTML CHANGES</button>
           </div>
@@ -201,31 +164,76 @@
         <section id="panel-watchlist" class="panel">
           <div class="card">
             <h3>WATCHLIST</h3>
-            <p class="file-meta">Select any file in registry to inspect and edit textual content.</p>
+            <p class="tiny">Select a file in registry to inspect/edit. Locked files are redacted.</p>
             <input id="watchFileName" type="text" readonly placeholder="No file selected" />
+            <div class="grid-3">
+              <select id="watchCorruptionSelect">
+                <option value="0">CORRUPTION 0</option>
+                <option value="1">CORRUPTION 1</option>
+                <option value="2">CORRUPTION 2</option>
+                <option value="3">CORRUPTION 3</option>
+              </select>
+              <input id="unlockConditionInput" placeholder="unlock condition (e.g. stage_1)" />
+              <input id="lockHintInput" placeholder="locked hint text" />
+            </div>
+            <label class="tiny"><input id="lockedToggle" type="checkbox" style="width:auto;margin-right:6px;"/> LOCKED</label>
             <textarea id="watchEditor" class="editor" spellcheck="false" placeholder="Load a text/html file from File Registry"></textarea>
             <button id="saveWatchBtn">SAVE WATCHLIST EDIT</button>
+          </div>
+        </section>
+
+        <section id="panel-kias" class="panel">
+          <div class="grid-2">
+            <div class="card">
+              <h3>LIVE AI MONITOR</h3>
+              <button id="refreshMonitorBtn">REFRESH MONITOR</button>
+              <div class="tiny">AI RESPONSES</div>
+              <div id="aiResponses" class="logs"></div>
+              <div class="tiny" style="margin-top:8px;">USER INTERACTIONS</div>
+              <div id="aiInteractions" class="logs"></div>
+            </div>
+            <div class="card">
+              <h3>MANUAL OVERRIDE</h3>
+              <input id="injectUserId" placeholder="user id" value="agent_001" />
+              <textarea id="injectMessage" placeholder="Inject message into KIAS"></textarea>
+              <button id="injectBtn">POST /kias/inject</button>
+
+              <h3>TRIGGER EVENTS</h3>
+              <input id="stageUserId" placeholder="user id" value="agent_001" />
+              <input id="stageInput" type="number" min="0" value="1" />
+              <button id="setStageBtn">POST /kias/set-stage</button>
+
+              <input id="flagUserId" placeholder="user id" value="agent_001" />
+              <input id="flagReason" placeholder="flag reason" value="anomaly" />
+              <button id="flagBtn">POST /kias/flag</button>
+
+              <input id="unlockUserId" placeholder="user id" value="agent_001" />
+              <input id="unlockFileName" placeholder="file name" />
+              <button id="unlockFileBtn">MANUAL UNLOCK FILE</button>
+            </div>
           </div>
         </section>
 
         <section id="panel-logs" class="panel">
           <div class="card">
             <h3>SYSTEM LOGS</h3>
+            <button id="refreshLogsBtn">REFRESH LOGS</button>
             <div id="logs" class="logs"></div>
           </div>
         </section>
       </main>
     </div>
 
+    <div id="toast" class="terminal-toast"></div>
+
     <script>
       const state = {
-        files: [],
-        selectedUploadFiles: [],
-        selectedTarget: "",
-        selectedWatchFile: null
+        files: [], selectedUploadFiles: [], selectedTarget: "", selectedWatchFile: null,
+        viewCorrupted: false, lastKnownUnlocked: new Set()
       };
 
       const statusEl = document.getElementById("status");
+      const logsEl = document.getElementById("logs");
       const registryList = document.getElementById("registryList");
       const searchInput = document.getElementById("searchInput");
       const typeFilter = document.getElementById("typeFilter");
@@ -238,24 +246,36 @@
       const activeTargetLabel = document.getElementById("activeTargetLabel");
       const watchFileName = document.getElementById("watchFileName");
       const watchEditor = document.getElementById("watchEditor");
-      const logs = document.getElementById("logs");
+      const watchCorruptionSelect = document.getElementById("watchCorruptionSelect");
+      const unlockConditionInput = document.getElementById("unlockConditionInput");
+      const lockHintInput = document.getElementById("lockHintInput");
+      const lockedToggle = document.getElementById("lockedToggle");
+      const userScope = document.getElementById("userScope");
+      const toast = document.getElementById("toast");
+      const toggleCorruptionBtn = document.getElementById("toggleCorruptionBtn");
+      const corruptionLevelSelect = document.getElementById("corruptionLevelSelect");
+      const blackoutOverlay = document.getElementById("blackoutOverlay");
 
-      function log(message) {
-        const stamp = new Date().toISOString();
-        logs.textContent = `[${stamp}] ${message}\n` + logs.textContent;
+      function terminalToast(message) {
+        toast.textContent = message;
+        toast.classList.add("active");
+        setTimeout(() => toast.classList.remove("active"), 1800);
       }
 
       function setStatus(message, error = false) {
         statusEl.textContent = message;
-        statusEl.style.color = error ? "#ff9898" : "#bcbcbc";
-        log(message);
+        statusEl.style.color = error ? "#ff9a9a" : "#bcbcbc";
+        terminalToast(message);
+      }
+
+      function logLine(message) {
+        const stamp = new Date().toISOString();
+        logsEl.textContent = `[${stamp}] ${message}\n` + logsEl.textContent;
       }
 
       async function api(url, options = {}) {
-        const res = await fetch(url, {
-          headers: { "Content-Type": "application/json" },
-          ...options
-        });
+        const headers = options.body ? { "Content-Type": "application/json" } : {};
+        const res = await fetch(url, { ...options, headers });
         const data = await res.json().catch(() => ({}));
         if (!res.ok) throw new Error(data.error || `Request failed: ${res.status}`);
         return data;
@@ -268,63 +288,80 @@
         return `${(size / (1024 ** i)).toFixed(i === 0 ? 0 : 1)} ${units[i]}`;
       }
 
+      function currentUser() { return userScope.value.trim() || "agent_001"; }
+
       function filterFiles() {
         const q = searchInput.value.trim().toLowerCase();
         const t = typeFilter.value;
-        return state.files.filter((f) => {
-          const matchesSearch = !q || f.name.toLowerCase().includes(q);
-          const matchesType = t === "all" || f.type === t;
-          return matchesSearch && matchesType;
-        });
+        return state.files.filter((f) => (!q || f.name.toLowerCase().includes(q)) && (t === "all" || f.type === t));
       }
 
       function renderRegistry() {
         const filtered = filterFiles();
         registryCount.textContent = `${filtered.length} / ${state.files.length} files`;
-        registryList.innerHTML = filtered.map((file) => `
-          <div class="file-row">
-            <div>
-              <strong>${file.name}</strong>
-              <div class="file-meta">type: ${file.type} | size: ${formatSize(file.size)} | uploaded: ${new Date(file.uploadedAt).toLocaleString()}</div>
-            </div>
+        registryList.innerHTML = filtered.map((file) => {
+          const locked = file.access === "locked" || file.locked;
+          const label = locked ? `<span class="redacted">REDACTED</span>` : `<strong>${file.name}</strong>`;
+          const hint = locked ? `<div class="file-meta">Hint: ${file.hint || "Progress required."}</div>` : "";
+          const lockMeta = `lock:${file.locked ? "Y" : "N"} | cond:${file.unlockCondition || "none"} | corr:L${file.corruptionLevel || 0}`;
+          return `<div class="file-row ${locked ? "locked" : ""}" id="row-${encodeURIComponent(file.name)}">
+            <div>${label}<div class="file-meta">type:${file.type} | size:${formatSize(file.size)} | ${lockMeta}</div>${hint}</div>
             <div class="row-actions">
-              <button onclick="openFile('${encodeURIComponent(file.name)}')">OPEN</button>
+              <button onclick="openFile('${encodeURIComponent(file.name)}')" ${locked ? "disabled" : ""}>OPEN</button>
               <button onclick="removeFile('${encodeURIComponent(file.name)}')">DELETE</button>
             </div>
-          </div>
-        `).join("") || `<div class="file-row"><div>No files in registry.</div></div>`;
+          </div>`;
+        }).join("") || `<div class="file-row"><div>No files in registry.</div></div>`;
       }
 
       function renderTargetList() {
-        const htmlFiles = state.files.filter((f) => f.type === "html");
+        const htmlFiles = state.files.filter((f) => f.type === "html" && f.access !== "locked");
         targetSelect.innerHTML = htmlFiles.map((f) => `<option value="${f.name}">${f.name}</option>`).join("");
         if (htmlFiles.length && !htmlFiles.some((f) => f.name === state.selectedTarget)) {
           state.selectedTarget = htmlFiles[0].name;
           targetSelect.value = state.selectedTarget;
         }
-        if (!htmlFiles.length) {
-          state.selectedTarget = "";
-          targetPreview.srcdoc = "";
-          targetEditor.value = "";
-        }
       }
 
       async function refreshFiles() {
-        const data = await api("/files");
+        const data = await api(`/files?user=${encodeURIComponent(currentUser())}`);
+        const prevUnlocked = new Set(state.files.filter((f) => f.access !== "locked").map((f) => f.name));
         state.files = data.files || [];
         renderRegistry();
         renderTargetList();
+
+        state.files.filter((f) => f.access !== "locked").forEach((f) => {
+          if (!prevUnlocked.has(f.name) && state.lastKnownUnlocked.has(f.name)) return;
+          if (!prevUnlocked.has(f.name)) {
+            const row = document.getElementById(`row-${encodeURIComponent(f.name)}`);
+            if (row) row.classList.add("unlocked-flash");
+            logLine(`[FILE UNLOCKED]: ${f.name}`);
+          }
+          state.lastKnownUnlocked.add(f.name);
+        });
+
         const target = await api("/target");
         activeTargetLabel.textContent = target.activeTarget ? `ACTIVE TARGET: ${target.activeTarget}` : "No active target.";
+      }
+
+      async function refreshLogsPanel() {
+        const data = await api("/logs");
+        logsEl.textContent = (data.logs || []).map((l) => `[${l.timestamp}] ${l.message}`).join("\n");
       }
 
       async function filesToPayload(files) {
         return Promise.all(files.map((file) => new Promise((resolve, reject) => {
           const reader = new FileReader();
           reader.onload = () => {
-            const result = String(reader.result);
-            const base64 = result.split(",")[1] || "";
-            resolve({ name: file.name, mime: file.type || "application/octet-stream", content: base64 });
+            const base64 = String(reader.result).split(",")[1] || "";
+            resolve({
+              name: file.name,
+              mime: file.type || "application/octet-stream",
+              content: base64,
+              corruptionLevel: 0,
+              locked: false,
+              unlockCondition: ""
+            });
           };
           reader.onerror = () => reject(new Error(`Failed reading ${file.name}`));
           reader.readAsDataURL(file);
@@ -332,10 +369,7 @@
       }
 
       async function uploadSelectedFiles() {
-        if (!state.selectedUploadFiles.length) {
-          setStatus("No files selected for upload.", true);
-          return;
-        }
+        if (!state.selectedUploadFiles.length) return setStatus("No files selected for upload.", true);
         try {
           const payload = await filesToPayload(state.selectedUploadFiles);
           const result = await api("/upload", { method: "POST", body: JSON.stringify({ files: payload }) });
@@ -343,30 +377,42 @@
           state.selectedUploadFiles = [];
           fileInput.value = "";
           await refreshFiles();
+          await refreshLogsPanel();
         } catch (err) {
           setStatus(`Upload failed: ${err.message}`, true);
+        }
+      }
+
+      async function openWithMode(name, viewMode) {
+        const data = await api(`/file/${encodeURIComponent(name)}?user=${encodeURIComponent(currentUser())}&mode=${viewMode}`);
+        state.selectedWatchFile = data.file;
+        watchFileName.value = data.file.name;
+        watchCorruptionSelect.value = String(data.file.corruptionLevel || 0);
+        unlockConditionInput.value = data.file.unlockCondition || "";
+        lockHintInput.value = data.file.hint || "";
+        lockedToggle.checked = Boolean(data.file.locked);
+        corruptionLevelSelect.value = String(data.file.corruptionLevel || 0);
+        if (data.encoding === "utf8") {
+          watchEditor.value = data.content;
+          if (data.file.type === "html") {
+            targetEditor.value = data.content;
+            targetPreview.srcdoc = data.content;
+            if (data.file.corruptionLevel === 3 && viewMode === "corrupted" && Math.random() < 0.45) {
+              blackoutOverlay.classList.add("active");
+              setTimeout(() => blackoutOverlay.classList.remove("active"), 220);
+            }
+          }
+        } else {
+          watchEditor.value = "";
         }
       }
 
       window.openFile = async function openFile(encodedName) {
         const name = decodeURIComponent(encodedName);
         try {
-          const data = await api(`/file/${encodeURIComponent(name)}`);
-          state.selectedWatchFile = data.file;
-          watchFileName.value = data.file.name;
-          if (data.encoding === "utf8") {
-            watchEditor.value = data.content;
-            if (data.file.type === "html") {
-              state.selectedTarget = data.file.name;
-              targetSelect.value = data.file.name;
-              targetEditor.value = data.content;
-              targetPreview.srcdoc = data.content;
-            }
-            setStatus(`Loaded file: ${name}`);
-          } else {
-            watchEditor.value = "";
-            setStatus(`Loaded binary file metadata: ${name}. Binary editing disabled.`, true);
-          }
+          await openWithMode(name, state.viewCorrupted ? "corrupted" : "raw");
+          setStatus(`Loaded file: ${name} [${state.viewCorrupted ? "CORRUPTED" : "RAW"}]`);
+          await refreshLogsPanel();
         } catch (err) {
           setStatus(`Open failed: ${err.message}`, true);
         }
@@ -378,27 +424,55 @@
         try {
           await api(`/file/${encodeURIComponent(name)}`, { method: "DELETE" });
           setStatus(`Deleted file: ${name}`);
-          if (state.selectedWatchFile?.name === name) {
-            state.selectedWatchFile = null;
-            watchFileName.value = "";
-            watchEditor.value = "";
-          }
           await refreshFiles();
+          await refreshLogsPanel();
         } catch (err) {
           setStatus(`Delete failed: ${err.message}`, true);
         }
       };
 
+      async function saveMetadataOnly() {
+        const name = watchFileName.value.trim();
+        if (!name) return;
+        await api(`/file/${encodeURIComponent(name)}/meta`, {
+          method: "PATCH",
+          body: JSON.stringify({
+            corruptionLevel: Number(watchCorruptionSelect.value),
+            locked: lockedToggle.checked,
+            unlockCondition: unlockConditionInput.value.trim(),
+            hint: lockHintInput.value.trim() || "Progress further to unlock."
+          })
+        });
+      }
+
+      async function saveWatchEdit() {
+        const name = watchFileName.value.trim();
+        if (!name) return setStatus("No watchlist file selected.", true);
+        try {
+          await api(`/file/${encodeURIComponent(name)}`, {
+            method: "POST",
+            body: JSON.stringify({
+              content: watchEditor.value,
+              encoding: "utf8",
+              corruptionLevel: Number(watchCorruptionSelect.value),
+              locked: lockedToggle.checked,
+              unlockCondition: unlockConditionInput.value.trim(),
+              hint: lockHintInput.value.trim() || "Progress further to unlock."
+            })
+          });
+          setStatus(`Saved watchlist file: ${name}`);
+          await refreshFiles();
+          await refreshLogsPanel();
+        } catch (err) {
+          setStatus(`Watchlist save failed: ${err.message}`, true);
+        }
+      }
+
       async function loadSelectedTarget() {
         const name = targetSelect.value;
-        if (!name) {
-          setStatus("No HTML target selected.", true);
-          return;
-        }
+        if (!name) return setStatus("No HTML target selected.", true);
         try {
-          const data = await api(`/file/${encodeURIComponent(name)}`);
-          targetEditor.value = data.content || "";
-          targetPreview.srcdoc = data.content || "";
+          await openWithMode(name, state.viewCorrupted ? "corrupted" : "raw");
           state.selectedTarget = name;
           setStatus(`Loaded target HTML: ${name}`);
         } catch (err) {
@@ -412,28 +486,13 @@
         try {
           await api(`/file/${encodeURIComponent(name)}`, {
             method: "POST",
-            body: JSON.stringify({ content: targetEditor.value, encoding: "utf8" })
+            body: JSON.stringify({ content: targetEditor.value, encoding: "utf8", corruptionLevel: Number(corruptionLevelSelect.value) })
           });
           targetPreview.srcdoc = targetEditor.value;
           setStatus(`Saved HTML changes: ${name}`);
           await refreshFiles();
         } catch (err) {
           setStatus(`Target save failed: ${err.message}`, true);
-        }
-      }
-
-      async function saveWatchEdit() {
-        const name = watchFileName.value.trim();
-        if (!name) return setStatus("No watchlist file selected.", true);
-        try {
-          await api(`/file/${encodeURIComponent(name)}`, {
-            method: "POST",
-            body: JSON.stringify({ content: watchEditor.value, encoding: "utf8" })
-          });
-          setStatus(`Saved watchlist file: ${name}`);
-          await refreshFiles();
-        } catch (err) {
-          setStatus(`Watchlist save failed: ${err.message}`, true);
         }
       }
 
@@ -449,6 +508,74 @@
         }
       }
 
+      async function refreshMonitor() {
+        try {
+          const data = await api("/kias/monitor");
+          document.getElementById("aiResponses").textContent = (data.responses || []).map((r) => `[${r.timestamp}] ${r.userId} :: ${r.message}`).join("\n");
+          document.getElementById("aiInteractions").textContent = (data.interactions || []).map((i) => `[${i.timestamp}] ${i.userId} :: ${i.type}`).join("\n");
+        } catch (err) {
+          setStatus(`Monitor refresh failed: ${err.message}`, true);
+        }
+      }
+
+      async function injectMessage() {
+        try {
+          await api("/kias/inject", {
+            method: "POST",
+            body: JSON.stringify({ userId: document.getElementById("injectUserId").value.trim(), message: document.getElementById("injectMessage").value })
+          });
+          setStatus("Manual override injected.");
+          await refreshMonitor();
+          await refreshLogsPanel();
+        } catch (err) {
+          setStatus(`Inject failed: ${err.message}`, true);
+        }
+      }
+
+      async function setStage() {
+        try {
+          await api("/kias/set-stage", {
+            method: "POST",
+            body: JSON.stringify({ userId: document.getElementById("stageUserId").value.trim(), stage: Number(document.getElementById("stageInput").value) })
+          });
+          setStatus("User stage updated.");
+          await refreshFiles();
+          await refreshMonitor();
+          await refreshLogsPanel();
+        } catch (err) {
+          setStatus(`Set stage failed: ${err.message}`, true);
+        }
+      }
+
+      async function flagUser() {
+        try {
+          await api("/kias/flag", {
+            method: "POST",
+            body: JSON.stringify({ userId: document.getElementById("flagUserId").value.trim(), flagged: true, reason: document.getElementById("flagReason").value.trim() })
+          });
+          setStatus("User flagged.");
+          await refreshMonitor();
+          await refreshLogsPanel();
+        } catch (err) {
+          setStatus(`Flag failed: ${err.message}`, true);
+        }
+      }
+
+      async function unlockFileManual() {
+        try {
+          await api("/kias/unlock-file", {
+            method: "POST",
+            body: JSON.stringify({ userId: document.getElementById("unlockUserId").value.trim(), fileName: document.getElementById("unlockFileName").value.trim() })
+          });
+          setStatus("Manual file unlock completed.");
+          await refreshFiles();
+          await refreshMonitor();
+          await refreshLogsPanel();
+        } catch (err) {
+          setStatus(`Unlock failed: ${err.message}`, true);
+        }
+      }
+
       document.querySelectorAll(".nav-btn").forEach((btn) => {
         btn.addEventListener("click", () => {
           document.querySelectorAll(".nav-btn").forEach((b) => b.classList.remove("active"));
@@ -459,23 +586,43 @@
         });
       });
 
-      document.getElementById("refreshBtn").addEventListener("click", async () => {
-        try {
-          await refreshFiles();
-          setStatus("Registry refreshed.");
-        } catch (err) {
-          setStatus(`Refresh failed: ${err.message}`, true);
-        }
-      });
-
+      document.getElementById("refreshBtn").addEventListener("click", async () => { await refreshFiles(); setStatus("Registry refreshed."); });
       document.getElementById("uploadBtn").addEventListener("click", uploadSelectedFiles);
       document.getElementById("loadTargetBtn").addEventListener("click", loadSelectedTarget);
       document.getElementById("saveTargetBtn").addEventListener("click", saveTargetChanges);
       document.getElementById("setTargetBtn").addEventListener("click", setActiveTarget);
       document.getElementById("saveWatchBtn").addEventListener("click", saveWatchEdit);
+      document.getElementById("refreshLogsBtn").addEventListener("click", refreshLogsPanel);
+      document.getElementById("refreshMonitorBtn").addEventListener("click", refreshMonitor);
+      document.getElementById("injectBtn").addEventListener("click", injectMessage);
+      document.getElementById("setStageBtn").addEventListener("click", setStage);
+      document.getElementById("flagBtn").addEventListener("click", flagUser);
+      document.getElementById("unlockFileBtn").addEventListener("click", unlockFileManual);
+
+      [watchCorruptionSelect, unlockConditionInput, lockHintInput, lockedToggle].forEach((el) => {
+        el.addEventListener("change", async () => {
+          try { await saveMetadataOnly(); await refreshFiles(); } catch (err) { setStatus(`Meta save failed: ${err.message}`, true); }
+        });
+      });
+
+      toggleCorruptionBtn.addEventListener("click", async () => {
+        state.viewCorrupted = !state.viewCorrupted;
+        toggleCorruptionBtn.textContent = state.viewCorrupted ? "VIEW RAW" : "VIEW CORRUPTED";
+        if (state.selectedWatchFile?.name) {
+          try { await openWithMode(state.selectedWatchFile.name, state.viewCorrupted ? "corrupted" : "raw"); } catch (err) { setStatus(err.message, true); }
+        }
+      });
+
+      corruptionLevelSelect.addEventListener("change", async () => {
+        if (!state.selectedWatchFile?.name) return;
+        watchCorruptionSelect.value = corruptionLevelSelect.value;
+        await saveMetadataOnly();
+        await refreshFiles();
+      });
 
       searchInput.addEventListener("input", renderRegistry);
       typeFilter.addEventListener("change", renderRegistry);
+      userScope.addEventListener("change", async () => { await refreshFiles(); });
 
       fileInput.addEventListener("change", (event) => {
         state.selectedUploadFiles = Array.from(event.target.files || []);
@@ -483,32 +630,26 @@
       });
 
       ["dragenter", "dragover"].forEach((eventName) => {
-        dropZone.addEventListener(eventName, (event) => {
-          event.preventDefault();
-          dropZone.classList.add("drag");
-        });
+        dropZone.addEventListener(eventName, (event) => { event.preventDefault(); dropZone.classList.add("drag"); });
       });
-
       ["dragleave", "drop"].forEach((eventName) => {
-        dropZone.addEventListener(eventName, (event) => {
-          event.preventDefault();
-          dropZone.classList.remove("drag");
-        });
+        dropZone.addEventListener(eventName, (event) => { event.preventDefault(); dropZone.classList.remove("drag"); });
       });
-
       dropZone.addEventListener("drop", (event) => {
-        const dropped = Array.from(event.dataTransfer.files || []);
-        state.selectedUploadFiles = dropped;
-        setStatus(`${dropped.length} file(s) dropped and ready for upload.`);
+        state.selectedUploadFiles = Array.from(event.dataTransfer.files || []);
+        setStatus(`${state.selectedUploadFiles.length} file(s) dropped and ready for upload.`);
       });
 
-      targetSelect.addEventListener("change", () => {
-        state.selectedTarget = targetSelect.value;
-      });
+      targetSelect.addEventListener("change", () => { state.selectedTarget = targetSelect.value; });
+
+      setInterval(refreshLogsPanel, 4000);
+      setInterval(refreshMonitor, 5000);
 
       (async function init() {
         try {
           await refreshFiles();
+          await refreshMonitor();
+          await refreshLogsPanel();
           setStatus("Admin panel ready.");
         } catch (err) {
           setStatus(`Initialization failed: ${err.message}`, true);
