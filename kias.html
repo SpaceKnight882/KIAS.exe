@@ -82,6 +82,24 @@ const sidebar = document.getElementById("sidebar");
 const main = document.getElementById("main");
 const logs = document.getElementById("logs");
 let activeSection = "company";
+let activeRecord = null;
+const escapeHtml = (value = "") =>
+  String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
+const decodeDataUrlText = (dataUrl = "") => {
+  try {
+    const encoded = (dataUrl.split(",")[1] || "");
+    const binary = atob(encoded);
+    const bytes = Uint8Array.from(binary, (char) => char.charCodeAt(0));
+    return new TextDecoder().decode(bytes);
+  } catch {
+    return "[UNREADABLE CONTENT]";
+  }
+};
 
 const getAssets = () => {
   try { return JSON.parse(localStorage.getItem(storageKey) || "[]"); }
@@ -118,25 +136,26 @@ function renderSidebar() {
 }
 
 function renderPreview(asset) {
-  if (asset.type.startsWith("image/")) return `<img src="${asset.dataUrl}" alt="${asset.name}">`;
+  if (asset.type.startsWith("image/")) return `<img src="${asset.dataUrl}" alt="${escapeHtml(asset.name)}">`;
   if (asset.type.startsWith("audio/")) return `<audio controls src="${asset.dataUrl}"></audio>`;
   if (asset.type.startsWith("video/")) return `<video controls src="${asset.dataUrl}"></video>`;
   if (asset.type.startsWith("text/") || /json|xml|javascript/.test(asset.type)) {
-    const raw = atob((asset.dataUrl || "").split(",")[1] || "").slice(0, 1200);
-    return `<pre>${raw.replace(/[<>&]/g, "")}</pre>`;
+    const raw = decodeDataUrlText(asset.dataUrl).slice(0, 2400);
+    return `<pre>${escapeHtml(raw)}</pre>`;
   }
-  return `<div class="tag">${asset.type || "FILE"}</div>`;
+  return `<div class="tag">${escapeHtml(asset.type || "FILE")}</div>`;
 }
 
 function load(type) {
   activeSection = type;
+  activeRecord = null;
   renderSidebar();
   main.innerHTML = `<div class="section-title">${sectionLabels[type].toUpperCase()}</div>`;
 
   defaultData[type].forEach(item => {
     const div = document.createElement("div");
     div.className = "file";
-    div.innerHTML = `${item}<div><span class="tag">CLASSIFIED</span><span class="tag">1980</span></div>`;
+    div.innerHTML = `${escapeHtml(item)}<div><span class="tag">CLASSIFIED</span><span class="tag">1980</span></div>`;
     div.onclick = () => openFile({ name: item, description: "Legacy archive record.", essentials: "classified" });
     main.appendChild(div);
   });
@@ -145,14 +164,18 @@ function load(type) {
   uploaded.forEach(asset => {
     const div = document.createElement("div");
     div.className = "file";
-    div.innerHTML = `<strong>${asset.title || asset.name}</strong><div class="meta">${new Date(asset.uploadedAt).toLocaleString()} • ${(asset.size/1024).toFixed(1)} KB</div><div>${(asset.description || "No description").slice(0, 120)}</div>`;
+    div.innerHTML = `<strong>${escapeHtml(asset.title || asset.name)}</strong><div class="meta">${new Date(asset.uploadedAt).toLocaleString()} • ${(asset.size/1024).toFixed(1)} KB</div><div>${escapeHtml((asset.description || "No description").slice(0, 120))}</div>`;
     div.onclick = () => openFile(asset);
     main.appendChild(div);
   });
+
 }
 
 function openFile(record) {
-  main.innerHTML += `<div class="viewer"><div>[FILE OPENED]</div><div>NAME: ${record.title || record.name}</div><div>STATUS: ARCHIVED</div><div>ACCESS LEVEL: KIAS NODE</div><br><div>DESCRIPTION: ${record.description || "N/A"}</div><div>ESSENTIALS: ${record.essentials || "N/A"}</div><div class="asset-preview">${record.dataUrl ? renderPreview(record) : "<div>CONTENT: [DATA NOT FOUND]</div>"}</div></div>`;
+  activeRecord = record;
+  const existingViewer = main.querySelector(".viewer");
+  if (existingViewer) existingViewer.remove();
+  main.innerHTML += `<div class="viewer"><div>[FILE OPENED]</div><div>NAME: ${escapeHtml(record.title || record.name)}</div><div>STATUS: ARCHIVED</div><div>ACCESS LEVEL: KIAS NODE</div><br><div>DESCRIPTION: ${escapeHtml(record.description || "N/A")}</div><div>ESSENTIALS: ${escapeHtml(record.essentials || "N/A")}</div><div class="asset-preview">${record.dataUrl ? renderPreview(record) : "<div>CONTENT: [DATA NOT FOUND]</div>"}</div></div>`;
 }
 
 function addLog() {

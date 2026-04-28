@@ -23,6 +23,11 @@
       .asset-row { border: 1px solid #202a3e; background: #070d1b; padding: 0.7rem; display: grid; grid-template-columns: 1fr auto; gap: 0.7rem; }
       .asset-row p { margin: 0.2rem 0; color: var(--muted); }
       .asset-row strong { font-family: Rajdhani, sans-serif; letter-spacing: 0.06em; }
+      .asset-actions { display: grid; gap: 0.4rem; align-content: start; }
+      .asset-actions button { min-width: 86px; }
+      .asset-tools { display: grid; gap: 0.6rem; margin-bottom: 0.9rem; }
+      .asset-tools-grid { display: grid; gap: 0.6rem; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); }
+      .asset-stats { color: var(--muted); font-size: 0.9rem; margin: 0; }
       .danger { border-color: #6f2d38; color: #ffb8bf; }
       .quick-links { display: flex; gap: 0.6rem; margin-top: 0.8rem; flex-wrap: wrap; }
       .quick-links a { text-decoration: none; }
@@ -115,6 +120,43 @@
 
           <section class="assets-card">
             <h2>Published Assets</h2>
+            <div class="asset-tools">
+              <div class="asset-tools-grid">
+                <div class="field">
+                  <label for="asset-search">Search</label>
+                  <input id="asset-search" type="search" placeholder="Search title, description, tags..." />
+                </div>
+                <div class="field">
+                  <label for="asset-type-filter">Type</label>
+                  <select id="asset-type-filter">
+                    <option value="all">All types</option>
+                    <option value="image">Images</option>
+                    <option value="video">Videos</option>
+                    <option value="audio">Audio</option>
+                    <option value="text">Text</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label for="asset-sort">Sort by</label>
+                  <select id="asset-sort">
+                    <option value="newest">Newest first</option>
+                    <option value="oldest">Oldest first</option>
+                    <option value="size_desc">Largest first</option>
+                    <option value="size_asc">Smallest first</option>
+                    <option value="title_asc">Title A → Z</option>
+                    <option value="title_desc">Title Z → A</option>
+                  </select>
+                </div>
+              </div>
+              <div class="record-buttons">
+                <button id="export-assets" type="button">Export Section JSON</button>
+                <button id="import-assets" type="button">Import JSON</button>
+                <button id="clear-section" type="button" class="danger">Clear Section</button>
+              </div>
+              <input id="import-file" type="file" accept="application/json,.json" hidden />
+              <p id="asset-stats" class="asset-stats"></p>
+            </div>
             <div id="asset-list" class="asset-list"></div>
           </section>
         </div>
@@ -160,14 +202,49 @@
       const status = document.getElementById("admin-status");
       const assetList = document.getElementById("asset-list");
       const preview = document.getElementById("record-preview");
+      const assetSearch = document.getElementById("asset-search");
+      const typeFilter = document.getElementById("asset-type-filter");
+      const sortBy = document.getElementById("asset-sort");
+      const assetStats = document.getElementById("asset-stats");
+      const importFileInput = document.getElementById("import-file");
 
       let recorder;
       let recordedChunks = [];
       let recordingStream;
       let recordingMode = "video";
 
-      const getAssets = () => JSON.parse(localStorage.getItem(storageKey) || "[]");
+      const getAssets = () => {
+        try {
+          const raw = JSON.parse(localStorage.getItem(storageKey) || "[]");
+          return Array.isArray(raw) ? raw : [];
+        } catch {
+          return [];
+        }
+      };
       const saveAssets = (assets) => localStorage.setItem(storageKey, JSON.stringify(assets));
+      const escapeHtml = (value = "") =>
+        String(value)
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#39;");
+      const formatBytes = (bytes = 0) => {
+        if (!Number.isFinite(bytes) || bytes <= 0) return "0 B";
+        const units = ["B", "KB", "MB", "GB"];
+        const power = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1);
+        const normalized = bytes / 1024 ** power;
+        return `${normalized.toFixed(normalized >= 10 || power === 0 ? 0 : 1)} ${units[power]}`;
+      };
+      const classifyType = (type = "") => {
+        if (type.startsWith("image/")) return "image";
+        if (type.startsWith("video/")) return "video";
+        if (type.startsWith("audio/")) return "audio";
+        if (type.startsWith("text/") || /json|xml|javascript|csv/.test(type)) return "text";
+        return "other";
+      };
+      const getSectionAssets = () =>
+        getAssets().filter((item) => item.targetPage === targetPage.value && item.targetSection === targetSection.value);
 
       const setStatus = (message, isError = false) => {
         status.textContent = message;
@@ -221,29 +298,55 @@
       const renderAssets = () => {
         const pageLabel = pageSections[targetPage.value].label;
         const sectionLabel = pageSections[targetPage.value].sections[targetSection.value];
-        const assets = getAssets().filter((item) => item.targetPage === targetPage.value && item.targetSection === targetSection.value);
+        const searchTerm = assetSearch.value.trim().toLowerCase();
+        const selectedType = typeFilter.value;
+        const sortKey = sortBy.value;
 
-        assetList.innerHTML = `<p class="asset-meta">Showing ${assets.length} item(s) for <strong>${pageLabel}</strong> → <strong>${sectionLabel}</strong>.</p>`;
-        if (!assets.length) {
+        const assets = getSectionAssets();
+        const filtered = assets.filter((item) => {
+          const haystack = `${item.name} ${item.title} ${item.description} ${item.essentials}`.toLowerCase();
+          const matchesSearch = !searchTerm || haystack.includes(searchTerm);
+          const matchesType = selectedType === "all" || classifyType(item.type) === selectedType;
+          return matchesSearch && matchesType;
+        });
+
+        filtered.sort((a, b) => {
+          if (sortKey === "oldest") return new Date(a.uploadedAt) - new Date(b.uploadedAt);
+          if (sortKey === "size_desc") return (b.size || 0) - (a.size || 0);
+          if (sortKey === "size_asc") return (a.size || 0) - (b.size || 0);
+          if (sortKey === "title_asc") return String(a.title || a.name || "").localeCompare(String(b.title || b.name || ""));
+          if (sortKey === "title_desc") return String(b.title || b.name || "").localeCompare(String(a.title || a.name || ""));
+          return new Date(b.uploadedAt) - new Date(a.uploadedAt);
+        });
+
+        const totalBytes = filtered.reduce((sum, item) => sum + (item.size || 0), 0);
+        assetStats.textContent = `Showing ${filtered.length} of ${assets.length} item(s) in ${pageLabel} → ${sectionLabel}. Selected size: ${formatBytes(totalBytes)}.`;
+
+        assetList.innerHTML = "";
+        if (!filtered.length) {
           assetList.innerHTML += `<p class="asset-empty">No assets in this section yet.</p>`;
           return;
         }
 
-        assets
-          .sort((a, b) => new Date(b.uploadedAt) - new Date(a.uploadedAt))
-          .forEach((item) => {
-            const row = document.createElement("div");
-            row.className = "asset-row";
-            row.innerHTML = `
+        filtered.forEach((item) => {
+          const row = document.createElement("div");
+          row.className = "asset-row";
+          row.innerHTML = `
               <div>
-                <strong>${item.title || item.name}</strong>
-                <p>${item.description || "No description"}</p>
-                <p>${item.type} • ${(item.size / 1024).toFixed(1)} KB • ${new Date(item.uploadedAt).toLocaleString()}</p>
+                <strong>${escapeHtml(item.title || item.name)}</strong>
+                <p>${escapeHtml(item.description || "No description")}</p>
+                <p>${escapeHtml(item.type)} • ${formatBytes(item.size)} • ${new Date(item.uploadedAt).toLocaleString()}</p>
+                <p>Tags: ${escapeHtml(item.essentials || "n/a")}</p>
               </div>
-              <button type="button" class="danger" data-id="${item.id}">Delete</button>
+              <div class="asset-actions">
+                <button type="button" data-action="download" data-id="${item.id}">Download</button>
+                <button type="button" data-action="duplicate" data-id="${item.id}">Duplicate</button>
+                <button type="button" data-action="edit" data-id="${item.id}">Edit</button>
+                <button type="button" class="danger" data-action="delete" data-id="${item.id}">Delete</button>
+              </div>
             `;
-            assetList.appendChild(row);
-          });
+          assetList.appendChild(row);
+        });
       };
 
       document.getElementById("publish-file").addEventListener("click", async () => {
@@ -279,6 +382,10 @@
 
       const beginRecording = async (videoEnabled) => {
         try {
+          if (!navigator.mediaDevices?.getUserMedia) {
+            setStatus("Recording not supported in this browser.", true);
+            return;
+          }
           stopActiveStream();
           recordedChunks = [];
           recordingMode = videoEnabled ? "video" : "audio";
@@ -296,8 +403,13 @@
             preview.innerHTML = "<p class='asset-meta'>Audio recording in progress…</p>";
           }
 
-          const mimeType = videoEnabled ? "video/webm;codecs=vp9,opus" : "audio/webm;codecs=opus";
-          recorder = new MediaRecorder(recordingStream, { mimeType });
+          const candidates = videoEnabled
+            ? ["video/webm;codecs=vp9,opus", "video/webm;codecs=vp8,opus", "video/webm"]
+            : ["audio/webm;codecs=opus", "audio/webm"];
+          const mimeType = candidates.find((type) => MediaRecorder.isTypeSupported(type));
+          recorder = mimeType
+            ? new MediaRecorder(recordingStream, { mimeType })
+            : new MediaRecorder(recordingStream);
           recorder.ondataavailable = (event) => {
             if (event.data.size > 0) recordedChunks.push(event.data);
           };
@@ -341,14 +453,126 @@
         renderAssets();
       });
       targetSection.addEventListener("change", renderAssets);
+      assetSearch.addEventListener("input", renderAssets);
+      typeFilter.addEventListener("change", renderAssets);
+      sortBy.addEventListener("change", renderAssets);
 
       assetList.addEventListener("click", (event) => {
-        const id = event.target.getAttribute("data-id");
+        const target = event.target.closest("button[data-id]");
+        if (!target) return;
+        const id = target.getAttribute("data-id");
+        const action = target.getAttribute("data-action");
         if (!id) return;
 
-        const updated = getAssets().filter((item) => item.id !== id);
+        const allAssets = getAssets();
+        const current = allAssets.find((item) => item.id === id);
+        if (!current) return;
+
+        if (action === "delete") {
+          const updated = allAssets.filter((item) => item.id !== id);
+          saveAssets(updated);
+          setStatus("Asset deleted.");
+          renderAssets();
+          return;
+        }
+
+        if (action === "duplicate") {
+          allAssets.push({
+            ...current,
+            id: crypto.randomUUID(),
+            uploadedAt: new Date().toISOString(),
+            title: `${current.title || current.name} (Copy)`
+          });
+          saveAssets(allAssets);
+          setStatus("Asset duplicated.");
+          renderAssets();
+          return;
+        }
+
+        if (action === "edit") {
+          const nextTitle = window.prompt("Edit title", current.title || "") ?? current.title || "";
+          const nextDescription = window.prompt("Edit description", current.description || "") ?? current.description || "";
+          const nextTags = window.prompt("Edit tags", current.essentials || "") ?? current.essentials || "";
+          const updated = allAssets.map((item) =>
+            item.id === id
+              ? { ...item, title: nextTitle.trim(), description: nextDescription.trim(), essentials: nextTags.trim() }
+              : item
+          );
+          saveAssets(updated);
+          setStatus("Asset metadata updated.");
+          renderAssets();
+          return;
+        }
+
+        if (action === "download") {
+          const link = document.createElement("a");
+          link.href = current.dataUrl;
+          link.download = current.name || "kias-asset";
+          document.body.appendChild(link);
+          link.click();
+          link.remove();
+        }
+      });
+
+      document.getElementById("export-assets").addEventListener("click", () => {
+        const payload = {
+          exportedAt: new Date().toISOString(),
+          targetPage: targetPage.value,
+          targetSection: targetSection.value,
+          assets: getSectionAssets()
+        };
+        const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+        const href = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = href;
+        link.download = `kias-export-${targetPage.value}-${targetSection.value}.json`;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        URL.revokeObjectURL(href);
+        setStatus("Section exported.");
+      });
+
+      document.getElementById("import-assets").addEventListener("click", () => importFileInput.click());
+      importFileInput.addEventListener("change", async () => {
+        const file = importFileInput.files[0];
+        if (!file) return;
+        try {
+          const text = await file.text();
+          const parsed = JSON.parse(text);
+          const incoming = Array.isArray(parsed) ? parsed : parsed.assets;
+          if (!Array.isArray(incoming)) throw new Error("JSON must be an array or include an assets array.");
+          const normalized = incoming.map((item) => ({
+            id: crypto.randomUUID(),
+            name: item.name || "imported-asset",
+            title: item.title || "",
+            description: item.description || "",
+            essentials: item.essentials || "",
+            type: item.type || "application/octet-stream",
+            size: Number(item.size) || 0,
+            dataUrl: item.dataUrl || "",
+            targetPage: targetPage.value,
+            targetSection: targetSection.value,
+            uploadedAt: new Date().toISOString()
+          }));
+          saveAssets([...getAssets(), ...normalized]);
+          setStatus(`Imported ${normalized.length} asset(s).`);
+          renderAssets();
+        } catch (error) {
+          setStatus(`Import failed: ${error.message}`, true);
+        } finally {
+          importFileInput.value = "";
+        }
+      });
+
+      document.getElementById("clear-section").addEventListener("click", () => {
+        const confirmed = window.confirm(`Delete all assets in ${targetPage.value} / ${targetSection.value}?`);
+        if (!confirmed) return;
+        const updated = getAssets().filter(
+          (item) => !(item.targetPage === targetPage.value && item.targetSection === targetSection.value)
+        );
         saveAssets(updated);
-        setStatus("Asset deleted.");
+        setStatus("Section cleared.");
         renderAssets();
       });
 
