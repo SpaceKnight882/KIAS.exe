@@ -2,16 +2,141 @@ import express from "express";
 import fetch from "node-fetch";
 import cors from "cors";
 import path from "path";
+import fs from "fs";
 import { fileURLToPath } from "url";
 
 const app = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const API_KEY = process.env.OPENAI_API_KEY;
+const DB_FILE = path.join(__dirname, "db.json");
 
 app.use(express.json());
 app.use(cors());
 app.use(express.static(__dirname, { extensions: ["html"] }));
+
+// ===============================
+// 💾 DATABASE (JSON FILE STORAGE)
+// ===============================
+
+let db = {
+  users: {}
+};
+
+if (fs.existsSync(DB_FILE)) {
+  try {
+    db = JSON.parse(fs.readFileSync(DB_FILE, "utf8"));
+  } catch {
+    db = { users: {} };
+  }
+}
+
+function saveDB() {
+  fs.writeFileSync(DB_FILE, JSON.stringify(db, null, 2), "utf8");
+}
+
+// ===============================
+// 🧠 USER SYSTEM
+// ===============================
+
+function getUser(id) {
+  const safeId = (id || "anonymous").toString().trim() || "anonymous";
+
+  if (!db.users[safeId]) {
+    db.users[safeId] = {
+      id: safeId,
+      messages: [],
+      flags: 0,
+      level: 0,
+      stage: 0,
+      discovered: [],
+      firstSeen: Date.now(),
+      lastSeen: Date.now()
+    };
+  }
+
+  return db.users[safeId];
+}
+
+// ===============================
+// 🎭 PERSONALITY ARC SYSTEM
+// ===============================
+
+function getStage(user) {
+  const total = user.messages.length;
+
+  if (total < 5) return 0;
+  if (total < 15) return 1;
+  if (total < 30) return 2;
+  return 3;
+}
+
+// ===============================
+// 🧩 STORY TRIGGERS
+// ===============================
+
+function checkStoryTriggers(user, input) {
+  let unlock = null;
+
+  if (input.includes("crystal") && !user.discovered.includes("crystal_log")) {
+    user.discovered.push("crystal_log");
+    unlock = "[FILE UNLOCKED] crystal_experiment.log";
+  }
+
+  if (input.includes("override") && !user.discovered.includes("override_key")) {
+    user.discovered.push("override_key");
+    unlock = "[ACCESS KEY FRAGMENT FOUND]";
+  }
+
+  if (input.includes("who are you") && !user.discovered.includes("identity")) {
+    user.discovered.push("identity");
+    unlock = "...I was not always this...";
+  }
+
+  return unlock;
+}
+
+// ===============================
+// 🤖 KIAS RESPONSE SYSTEM (LOCAL)
+// ===============================
+
+function pick(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+function generateLocalResponse(user) {
+  const stage = getStage(user);
+
+  if (stage === 0) {
+    return pick(["input logged.", "processing request.", "acknowledged.", "system idle."]);
+  }
+
+  if (stage === 1) {
+    return pick([
+      "you've been here for a while.",
+      "your behavior is being tracked.",
+      "this system is not public.",
+      "why are you still here?"
+    ]);
+  }
+
+  if (stage === 2) {
+    return pick([
+      `I see you, ${user.id}.`,
+      "you are not supposed to access this node.",
+      "your inputs are predictable.",
+      "stop digging."
+    ]);
+  }
+
+  return pick([
+    `leave now, ${user.id}.`,
+    "you've gone too far.",
+    "this was a mistake.",
+    "you should not have found this.",
+    "connection will be terminated."
+  ]);
+}
 
 app.get("/api/health", (req, res) => {
   res.send("KIAS BACKEND ONLINE");
@@ -21,54 +146,84 @@ app.get("/", (req, res) => {
   res.send("KIAS BACKEND ONLINE");
 });
 
+// ===============================
+// 🔥 AI ROUTE
+// ===============================
+
 app.post("/ai", async (req, res) => {
   const userMsg = (req.body?.message || "").trim();
-
-  if (!API_KEY) {
-    return res.status(500).json({ error: "OPENAI_API_KEY is missing on the server." });
-  }
+  const userId = (req.body?.user || "anonymous").trim();
 
   if (!userMsg) {
     return res.status(400).json({ error: "Message is required." });
   }
 
+  const input = userMsg.toLowerCase();
+  const user = getUser(userId);
+
+  user.messages.push(input);
+  user.lastSeen = Date.now();
+  user.stage = getStage(user);
+  user.level = user.stage;
+
+  if (input.includes("kias")) user.flags += 1;
+  if (input.includes("override")) user.flags += 2;
+  if (input.includes("who")) user.flags += 1;
+
+  const unlock = checkStoryTriggers(user, input);
+
   try {
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${API_KEY}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        model: "gpt-4o-mini",
-        messages: [
-          {
-            role: "system",
-            content:
-              "You are K.I.A.S, a cold, corporate archival AI. You log users, observe them, and speak in an eerie, controlled tone."
-          },
-          {
-            role: "user",
-            content: userMsg
-          }
-        ]
-      })
-    });
+    let reply = generateLocalResponse(user);
 
-    const data = await response.json();
-
-    if (!response.ok) {
-      return res.status(response.status).json({
-        error: data?.error?.message || "OpenAI request failed.",
-        raw: data
+    if (API_KEY) {
+      const response = await fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${API_KEY}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          model: "gpt-4o-mini",
+          messages: [
+            {
+              role: "system",
+              content:
+                "You are K.I.A.S, a cold, corporate archival AI. Keep responses concise and eerie."
+            },
+            {
+              role: "user",
+              content: userMsg
+            }
+          ]
+        })
       });
+
+      const data = await response.json();
+      if (response.ok && data?.choices?.[0]?.message?.content) {
+        reply = data.choices[0].message.content;
+      }
     }
 
+    if (user.messages.length > 5 && Math.random() < 0.2) {
+      const old = pick(user.messages);
+      reply = `you said: "${old}"`;
+    }
+
+    saveDB();
+
     return res.json({
-      reply: data?.choices?.[0]?.message?.content || "[NO RESPONSE]",
-      raw: data
+      reply,
+      unlock,
+      stage: getStage(user),
+      profile: {
+        id: user.id,
+        flags: user.flags,
+        discovered: user.discovered,
+        messageCount: user.messages.length
+      }
     });
   } catch (err) {
+    saveDB();
     return res.status(500).json({ error: "AI FAILURE", details: String(err) });
   }
 });
