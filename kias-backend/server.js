@@ -13,7 +13,6 @@ const DB_FILE = path.join(__dirname, "db.json");
 
 app.use(express.json());
 app.use(cors());
-app.use(express.static(__dirname, { extensions: ["html"] }));
 
 // ===============================
 // 💾 DATABASE (JSON FILE STORAGE)
@@ -138,12 +137,12 @@ function generateLocalResponse(user) {
   ]);
 }
 
-app.get("/api/health", (req, res) => {
-  res.send("KIAS BACKEND ONLINE");
+app.get("/api/health", (_req, res) => {
+  res.send("KIAS SYSTEM ONLINE");
 });
 
-app.get("/", (req, res) => {
-  res.send("KIAS BACKEND ONLINE");
+app.get("/", (_req, res) => {
+  res.send("KIAS SYSTEM ONLINE");
 });
 
 // ===============================
@@ -151,6 +150,8 @@ app.get("/", (req, res) => {
 // ===============================
 
 app.post("/ai", async (req, res) => {
+  console.log("REQUEST:", req.body);
+
   const userMsg = (req.body?.message || "").trim();
   const userId = (req.body?.user || "anonymous").trim();
 
@@ -228,4 +229,9 @@ app.post("/ai", async (req, res) => {
   }
 });
 
-app.listen(3000, () => console.log("KIAS backend running on http://localhost:3000"));
+
+app.use(express.static(__dirname, { extensions: ["html"] }));
+
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => console.log(`KIAS backend running on port ${PORT}`));
