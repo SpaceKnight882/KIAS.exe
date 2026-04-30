@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nothing Is Lost Forever</title>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #050505;
+      --panel: rgba(255,255,255,0.04);
+      --line: #3a3a3a;
+      --text: #e8e8e8;
+      --dim: #9c9c9c;
+      --accent: #91d1ff;
+      --warn: #ffd28a;
+    }
+    * { box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; margin: 0; }
+    body {
+      font-family: 'Share Tech Mono', monospace;
+      color: var(--text);
+      background: radial-gradient(circle at center, #111 0%, var(--bg) 60%);
+      overflow: hidden;
+    }
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background: repeating-linear-gradient(0deg, rgba(255,255,255,0.03), rgba(255,255,255,0.03) 1px, transparent 1px, transparent 3px);
+    }
+    .hidden { display: none !important; }
+
+    #lockScreen {
+      position: fixed; inset: 0; z-index: 20;
+      display: grid; place-items: center;
+      background: linear-gradient(180deg, #030303, #0b0b0b);
+    }
+    .lock-card {
+      width: min(460px, 92vw);
+      border: 1px solid var(--line);
+      background: rgba(0,0,0,0.8);
+      padding: 18px;
+      box-shadow: 0 0 30px rgba(145,209,255,0.12);
+    }
+    .lock-card h1 { font-size: 18px; margin: 0 0 6px; }
+    .muted { color: var(--dim); font-size: 12px; }
+    .row { margin-top: 12px; display: flex; gap: 10px; }
+    input {
+      flex: 1; background: #070707; color: var(--text); border: 1px solid #4a4a4a; padding: 10px;
+      font-family: inherit;
+    }
+    button {
+      border: 1px solid #6a6a6a; background: #101010; color: var(--text); cursor: pointer; padding: 10px 12px;
+      font-family: inherit;
+    }
+    .error { min-height: 18px; color: var(--warn); margin-top: 8px; font-size: 12px; }
+
+    #header { height: 44px; padding: 12px; border-bottom: 1px solid var(--line); font-size: 12px; letter-spacing: 1px; display: flex; justify-content: space-between; }
+    #status { color: var(--accent); }
+    #board { position: fixed; top: 44px; bottom: 118px; left: 0; right: 0; }
+    .clue {
+      position: absolute; width: 205px; padding: 10px;
+      background: var(--panel); border: 1px solid #6b6b6b; cursor: grab; user-select: none;
+    }
+    .clue .title { font-size: 12px; color: #fff; margin-bottom: 4px; }
+    .clue .meta { font-size: 10px; color: var(--dim); margin-bottom: 6px; }
+    .clue .desc { font-size: 11px; line-height: 1.4; }
+
+    #controls {
+      position: fixed; bottom: 0; left: 0; right: 0; height: 118px;
+      border-top: 1px solid #222; background: linear-gradient(#060606, #020202);
+      padding: 10px 12px;
+      display: grid; grid-template-columns: 1fr auto auto; gap: 12px; align-items: center;
+    }
+    #hint { font-size: 11px; color: var(--dim); }
+    #crystal { font-size: 42px; cursor: pointer; transition: transform 0.2s; }
+    #crystal:hover { transform: scale(1.12); }
+    #addBtn { font-size: 12px; }
+    #cracks { position: fixed; inset: 0; opacity: 0; pointer-events: none; background: url('https://i.imgur.com/8yKXslG.png') center/cover; transition: opacity 0.2s; }
+    .glitch { animation: glitch 0.25s infinite; }
+    .alt { filter: invert(1) contrast(1.25); }
+    @keyframes glitch { 0%{transform:translate(0)} 25%{transform:translate(-2px,2px)} 50%{transform:translate(2px,-2px)} 75%{transform:translate(-1px,1px)} 100%{transform:translate(0)} }
+  </style>
+</head>
+<body>
+  <div id="lockScreen">
+    <div class="lock-card">
+      <h1>NOTHING IS LOST FOREVER</h1>
+      <div class="muted">Restricted archive channel. Enter passphrase to continue.</div>
+      <div class="row">
+        <input id="password" type="password" placeholder="Access code" autocomplete="off" />
+        <button id="unlockBtn">UNLOCK</button>
+      </div>
+      <div class="error" id="error"></div>
+      <div class="muted">Hint: Format looks like initials + role.</div>
+    </div>
+  </div>
+
+  <div id="app" class="hidden">
+    <div id="header"><span>KREED INDUSTRIES // NOTHING IS LOST FOREVER</span><span id="status">NODE: STABLE</span></div>
+    <div id="board"></div>
+    <div id="controls">
+      <div id="hint">Drag clues to map relationships. Layout autosaves locally. Press the crystal to shift context.</div>
+      <button id="addBtn">ADD CLUE</button>
+      <div id="crystal" title="Reality Shift">⬡</div>
+    </div>
+  </div>
+  <div id="cracks"></div>
+
+  <script>
+    const PASSCODE = "JK-user";
+    const CLUE_KEY = "nothing_lost_forever_clues_v1";
+    const board = document.getElementById("board");
+    const statusEl = document.getElementById("status");
+
+    const seedClues = [
+      { title: "Subject 01", text: "Memory fragmentation increases near crystal pulses.", tag: "CORE", x: 90, y: 110 },
+      { title: "Tower Office", text: "Recovered board notes imply recursive timeline edits.", tag: "SITE", x: 360, y: 200 },
+      { title: "KIAS Trace", text: "Behavior diverges after third reality shift.", tag: "ANOM", x: 700, y: 120 }
+    ];
+
+    const loadClues = () => {
+      try {
+        const parsed = JSON.parse(localStorage.getItem(CLUE_KEY));
+        return Array.isArray(parsed) && parsed.length ? parsed : seedClues;
+      } catch {
+        return seedClues;
+      }
+    };
+    let clues = loadClues();
+    const save = () => localStorage.setItem(CLUE_KEY, JSON.stringify(clues));
+
+    function renderClues() {
+      board.innerHTML = "";
+      clues.forEach((c, idx) => {
+        const el = document.createElement("div");
+        el.className = "clue";
+        el.innerHTML = `<div class="title">${c.title || "UNKNOWN"}</div><div class="meta">${c.tag || "FILE"}</div><div class="desc">${c.text || "No details"}</div>`;
+        el.style.left = (c.x || 120) + "px";
+        el.style.top = (c.y || 120) + "px";
+        makeDraggable(el, idx);
+        board.appendChild(el);
+      });
+    }
+
+    function makeDraggable(el, index) {
+      el.addEventListener("mousedown", (e) => {
+        const offsetX = e.clientX - el.offsetLeft;
+        const offsetY = e.clientY - el.offsetTop;
+        const move = (ev) => {
+          const x = Math.max(0, Math.min(window.innerWidth - 230, ev.clientX - offsetX));
+          const y = Math.max(50, Math.min(window.innerHeight - 170, ev.clientY - offsetY));
+          el.style.left = x + "px";
+          el.style.top = y + "px";
+          clues[index].x = x; clues[index].y = y;
+          save();
+        };
+        const stop = () => {
+          document.removeEventListener("mousemove", move);
+          document.removeEventListener("mouseup", stop);
+        };
+        document.addEventListener("mousemove", move);
+        document.addEventListener("mouseup", stop);
+      });
+    }
+
+    document.getElementById("addBtn").onclick = () => {
+      const title = prompt("Clue title:", "New Signal");
+      if (!title) return;
+      const text = prompt("Clue detail:", "Unverified evidence captured.") || "Unverified evidence captured.";
+      clues.push({ title, text, tag: "USER", x: 180 + Math.random() * 260, y: 120 + Math.random() * 200 });
+      save();
+      renderClues();
+    };
+
+    let state = 0;
+    document.getElementById("crystal").onclick = () => {
+      state++;
+      const cracks = document.getElementById("cracks");
+      cracks.style.opacity = 1;
+      document.body.classList.add("glitch");
+      setTimeout(() => {
+        document.body.classList.remove("glitch");
+        document.body.classList.toggle("alt");
+        cracks.style.opacity = 0;
+        statusEl.textContent = state % 2 ? "NODE: PHASE SHIFT" : "NODE: STABLE";
+      }, 350);
+      if (state === 3) {
+        clues.push({ title: "Recovered Fragment", text: "NOTHING IS LOST FOREVER.", tag: "LOCK", x: 520, y: 280 });
+        save();
+        renderClues();
+      }
+    };
+
+    const unlock = () => {
+      const input = document.getElementById("password").value;
+      if (input !== PASSCODE) {
+        document.getElementById("error").textContent = "Invalid code. Try again.";
+        return;
+      }
+      document.getElementById("lockScreen").classList.add("hidden");
+      document.getElementById("app").classList.remove("hidden");
+      renderClues();
+    };
+
+    document.getElementById("unlockBtn").addEventListener("click", unlock);
+    document.getElementById("password").addEventListener("keydown", (e) => { if (e.key === "Enter") unlock(); });
+  </script>
+</body>
+</html>

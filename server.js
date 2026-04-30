@@ -12,7 +12,7 @@ const MEMORY_PATH = path.join(ROOT, "db.json");
 
 const TARGETS = [
   "home", "about", "divisions", "innovation", "careers", "investors", "newsroom", "contact",
-  "company_info", "lab_reports", "testing", "containment", "watchlist", "journal", "kias"
+  "company_info", "lab_reports", "testing", "containment", "watchlist", "journal", "kias", "nothing_is_lost_forever"
 ];
 
 const ROUTE_TARGET_MAP = {
@@ -30,7 +30,8 @@ const ROUTE_TARGET_MAP = {
   "/containment": "containment",
   "/watchlist": "watchlist",
   "/journal": "journal",
-  "/kias": "kias"
+  "/kias": "kias",
+  "/nothing-is-lost-forever": "nothing_is_lost_forever"
 };
 
 app.use(express.json({ limit: "50mb" }));
@@ -96,7 +97,7 @@ Object.entries(ROUTE_TARGET_MAP).forEach(([route, target]) => {
     const content = pages[target];
     if (typeof content === "string" && content.trim()) return res.type("html").send(content);
 
-    const fallbackFile = target === "home" ? "index.html" : target === "kias" ? "kias.html" : `${target.replace("_", "-")}.html`;
+    const fallbackFile = target === "home" ? "index.html" : target === "kias" ? "kias.html" : target === "nothing_is_lost_forever" ? "nothing-is-lost-forever.html" : `${target.replace("_", "-")}.html`;
     const rootFallback = path.join(ROOT, fallbackFile);
     if (fs.existsSync(rootFallback)) return res.sendFile(rootFallback);
     return res.status(404).send(`No content found for target '${target}'.`);
