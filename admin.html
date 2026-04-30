@@ -1,338 +1,69 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>K.I.A.S Admin Panel</title>
-    <style>
-      :root {
-        --bg: #05070d;
-        --panel: #0b1020;
-        --panel-2: #121936;
-        --line: #2f3c66;
-        --text: #edf1ff;
-        --muted: #9faccf;
-        --accent: #5dd79b;
-        --danger: #ff8e9f;
-      }
-
-      * { box-sizing: border-box; }
-      body {
-        margin: 0;
-        color: var(--text);
-        background: radial-gradient(circle at top, #111b3b 0%, #05070d 56%);
-        font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-      }
-
-      .container {
-        width: min(1100px, 95vw);
-        margin: 1rem auto 2rem;
-        display: grid;
-        gap: 1rem;
-      }
-
-      .card {
-        border: 1px solid var(--line);
-        border-radius: 14px;
-        background: linear-gradient(180deg, rgba(16, 24, 49, 0.95), rgba(9, 14, 30, 0.95));
-        padding: 1rem;
-      }
-
-      h1, h2 { margin: 0 0 0.75rem; }
-      h1 { font-size: clamp(1.25rem, 3vw, 2rem); }
-      h2 { font-size: clamp(1rem, 2.2vw, 1.3rem); }
-      p { margin: 0.2rem 0; color: var(--muted); }
-
-      .status-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 0.6rem;
-      }
-
-      .status-pill {
-        border: 1px solid var(--line);
-        border-radius: 10px;
-        background: var(--panel);
-        padding: 0.7rem;
-      }
-
-      .form-grid {
-        display: grid;
-        grid-template-columns: 1.2fr 1fr;
-        gap: 0.8rem;
-      }
-
-      .file-zone {
-        border: 1px dashed var(--line);
-        border-radius: 12px;
-        background: rgba(8, 12, 24, 0.8);
-        padding: 0.8rem;
-      }
-
-      input, select, button {
-        width: 100%;
-        border-radius: 10px;
-        border: 1px solid var(--line);
-        background: var(--panel);
-        color: var(--text);
-        padding: 0.65rem;
-        font: inherit;
-      }
-
-      button {
-        cursor: pointer;
-        font-weight: 600;
-      }
-
-      .btn-primary { border-color: #3e8b6a; background: #173427; }
-      .btn-danger { border-color: #97566c; background: #3d1d29; }
-      .btn-row { display: flex; gap: 0.55rem; flex-wrap: wrap; }
-      .btn-row button { flex: 1; min-width: 150px; }
-
-      table {
-        width: 100%;
-        border-collapse: collapse;
-        overflow: hidden;
-        border-radius: 10px;
-      }
-
-      th, td {
-        border: 1px solid var(--line);
-        padding: 0.5rem;
-        font-size: 0.88rem;
-        text-align: left;
-      }
-
-      th { background: var(--panel-2); }
-      .muted { color: var(--muted); }
-      .ok { color: var(--accent); }
-      .error { color: var(--danger); }
-
-      @media (max-width: 860px) {
-        .form-grid { grid-template-columns: 1fr; }
-      }
-
-      @media (max-width: 640px) {
-        .container { width: 96vw; }
-        th:nth-child(3), td:nth-child(3),
-        th:nth-child(4), td:nth-child(4) {
-          display: none;
-        }
-      }
-    </style>
-    <script src="./panel-auth.js" defer></script>
-  </head>
-  <body>
-    <main class="container">
-      <section class="card">
-        <h1>K.I.A.S Upload Control Center</h1>
-        <p>Manage where uploaded files are deployed across the site and tune pages for desktop/mobile quickly.</p>
-      </section>
-
-      <section class="card">
-        <h2>Website Targets</h2>
-        <div class="status-grid">
-          <div class="status-pill">
-            <strong>Main page target</strong>
-            <p id="mainTarget" class="ok">Loading…</p>
-          </div>
-          <div class="status-pill">
-            <strong>KIAS page target</strong>
-            <p id="kiasTarget" class="ok">Loading…</p>
-          </div>
-        </div>
-      </section>
-
-      <section class="card">
-        <h2>Upload to Website</h2>
-        <div class="form-grid">
-          <div class="file-zone">
-            <label for="fileInput">Choose file(s)</label>
-            <input id="fileInput" type="file" multiple />
-            <p class="muted">HTML files can be routed to Main or KIAS page instantly.</p>
-          </div>
-          <div>
-            <label for="destination">Upload destination</label>
-            <select id="destination">
-              <option value="assets">Assets library</option>
-              <option value="main">Set as Main page (HTML only)</option>
-              <option value="kias">Set as KIAS page (HTML only)</option>
-            </select>
-            <div class="btn-row" style="margin-top: 0.6rem">
-              <button id="uploadBtn" class="btn-primary">Upload Selected</button>
-            </div>
-            <p id="uploadStatus" class="muted"></p>
-          </div>
-        </div>
-      </section>
-
-      <section class="card">
-        <h2>File Library</h2>
-        <p class="muted">Mobile/PC optimization: Use compact table on phones and full metadata on desktop.</p>
-        <div style="overflow:auto">
-          <table>
-            <thead>
-              <tr>
-                <th>File</th>
-                <th>Destination</th>
-                <th>Type</th>
-                <th>Uploaded</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody id="filesBody"></tbody>
-          </table>
-        </div>
-      </section>
-    </main>
-
-    <script>
-      const state = { files: [] };
-
-      const formatDate = (iso) => {
-        const date = new Date(iso);
-        if (Number.isNaN(date.getTime())) return "-";
-        return new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" }).format(date);
-      };
-
-      async function loadConfig() {
-        const res = await fetch("/config");
-        const config = await res.json();
-        document.getElementById("mainTarget").textContent = config.main || "index.html";
-        document.getElementById("kiasTarget").textContent = config.kias || "kias.html";
-      }
-
-      async function loadFiles() {
-        const res = await fetch("/files");
-        const data = await res.json();
-        state.files = data.files || [];
-        renderFiles();
-      }
-
-      function destinationActions(file) {
-        if (file.type !== "html") return "<span class='muted'>HTML required</span>";
-        return `
-          <div class="btn-row">
-            <button data-action="set-main" data-name="${file.name}">Set Main</button>
-            <button data-action="set-kias" data-name="${file.name}">Set KIAS</button>
-            <button data-action="delete" data-name="${file.name}" class="btn-danger">Delete</button>
-          </div>
-        `;
-      }
-
-      function renderFiles() {
-        const body = document.getElementById("filesBody");
-        if (!state.files.length) {
-          body.innerHTML = `<tr><td colspan="5" class="muted">No files uploaded yet.</td></tr>`;
-          return;
-        }
-
-        body.innerHTML = state.files
-          .map((file) => `
-            <tr>
-              <td><strong>${file.name}</strong><br /><span class="muted">${Math.round(file.size / 1024)} KB</span></td>
-              <td>${file.destination || "assets"}</td>
-              <td>${file.type}</td>
-              <td>${formatDate(file.uploadedAt)}</td>
-              <td>${destinationActions(file)}</td>
-            </tr>
-          `)
-          .join("");
-      }
-
-      async function uploadSelected() {
-        const input = document.getElementById("fileInput");
-        const destination = document.getElementById("destination").value;
-        const status = document.getElementById("uploadStatus");
-        const files = [...input.files];
-
-        if (!files.length) {
-          status.textContent = "Please choose at least one file.";
-          status.className = "error";
-          return;
-        }
-
-        const payloadFiles = await Promise.all(
-          files.map(
-            (file) =>
-              new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onload = () => {
-                  const base64 = String(reader.result).split(",")[1] || "";
-                  resolve({ name: file.name, mime: file.type || "application/octet-stream", content: base64, destination });
-                };
-                reader.onerror = () => reject(reader.error);
-                reader.readAsDataURL(file);
-              })
-          )
-        );
-
-        const res = await fetch("/upload", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ files: payloadFiles })
-        });
-
-        const data = await res.json();
-        if (!res.ok) {
-          status.textContent = data.error || "Upload failed.";
-          status.className = "error";
-          return;
-        }
-
-        status.textContent = `Uploaded ${data.files.length} file(s) successfully.`;
-        status.className = "ok";
-        input.value = "";
-        await Promise.all([loadConfig(), loadFiles()]);
-      }
-
-      async function setTarget(type, name) {
-        const res = await fetch("/set-target", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ type, file: name })
-        });
-
-        const data = await res.json();
-        if (!res.ok) {
-          alert(data.error || "Failed to update target.");
-          return;
-        }
-        await loadConfig();
-      }
-
-      async function removeFile(name) {
-        const ok = confirm(`Delete ${name}?`);
-        if (!ok) return;
-        const res = await fetch(`/file/${encodeURIComponent(name)}`, { method: "DELETE" });
-        const data = await res.json();
-        if (!res.ok) {
-          alert(data.error || "Delete failed.");
-          return;
-        }
-        await Promise.all([loadConfig(), loadFiles()]);
-      }
-
-      document.getElementById("uploadBtn").addEventListener("click", uploadSelected);
-
-      document.getElementById("filesBody").addEventListener("click", async (event) => {
-        const btn = event.target.closest("button[data-action]");
-        if (!btn) return;
-
-        const action = btn.dataset.action;
-        const name = btn.dataset.name;
-
-        if (action === "set-main") await setTarget("main", name);
-        if (action === "set-kias") await setTarget("kias", name);
-        if (action === "delete") await removeFile(name);
-
-        await loadFiles();
-      });
-
-      Promise.all([loadConfig(), loadFiles()]).catch((error) => {
-        console.error(error);
-        alert("Failed to load admin panel data.");
-      });
-    </script>
-  </body>
-</html>
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Kreed Industries Internal Systems</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<script src="./panel-auth.js" defer></script>
+<style>
+:root{--bg:#050505;--panel:#090909;--line:#2d2d2d;--text:#e8e8e8;--muted:#9a9a9a;--red:#d42323}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:'Share Tech Mono',monospace}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;background:repeating-linear-gradient(transparent 0,rgba(255,255,255,.018) 2px,transparent 4px);mix-blend-mode:screen;opacity:.3}
+.layout{display:grid;grid-template-columns:290px 1fr;min-height:100vh}.side{border-right:1px solid var(--line);padding:20px;background:#060606}
+.brand{font-size:32px;letter-spacing:2px}.nav h4{color:var(--muted);margin:20px 0 8px}.nav button{display:block;width:100%;text-align:left;background:#0d0d0d;border:1px solid #202020;color:var(--text);padding:10px;margin:6px 0;cursor:pointer}
+.main{padding:16px;display:grid;grid-template-rows:auto auto 1fr auto;gap:12px}.top{display:grid;grid-template-columns:repeat(5,minmax(110px,1fr));gap:10px}.card{border:1px solid var(--line);padding:10px;background:linear-gradient(180deg,#0b0b0b,#070707)}
+.builder{display:grid;grid-template-columns:1.2fr 1fr 260px;gap:10px}.editor textarea{width:100%;height:460px;background:#060606;color:#eaeaea;border:1px solid var(--line);padding:10px;font:inherit}
+iframe{width:100%;height:460px;border:1px solid var(--line);background:#fff}.panel{border:1px solid var(--line);padding:10px}.red{color:var(--red)}
+select,input,button{width:100%;background:#090909;color:var(--text);border:1px solid #2a2a2a;padding:9px;font:inherit;margin-top:6px}button{cursor:pointer}
+.logs{height:140px;overflow:auto;background:#040404;border:1px solid var(--line);padding:8px}.files{max-height:180px;overflow:auto;border:1px solid var(--line)}table{width:100%;border-collapse:collapse}td,th{border:1px solid #222;padding:6px;font-size:14px}
+.flicker{animation:flick 5s infinite steps(1,end)}@keyframes flick{96%{opacity:1}97%{opacity:.72}98%{opacity:1}}
+</style>
+</head>
+<body>
+<div class="layout flicker">
+<aside class="side">
+<div class="brand">KREED INDUSTRIES</div><div class="muted">INTERNAL SYSTEMS CONSOLE</div>
+<div class="nav">
+<h4>DASHBOARD</h4><button>Dashboard</button>
+<h4>CORPORATE SITE</h4><button>Home</button><button>About Us</button><button>Divisions</button><button>Innovation</button><button>Careers</button><button>Investors</button><button>Newsroom</button><button>Contact</button>
+<h4>ARG ARCHIVES</h4><button>Main Company Info</button><button>Lab Reports</button><button>Currently Testing</button><button>In Containment</button><button>Watchlist</button><button>Research Journal</button><button>KIAS</button>
+<h4>SYSTEM</h4><button>Subject Database</button><button>Lab Systems</button><button>KIAS Control</button><button>System Logs</button><button>Settings</button>
+</div>
+</aside>
+<main class="main">
+<div class="top">
+<div class="card"><div>ACTIVE USERS</div><h2>12</h2></div><div class="card"><div>SYSTEM STABILITY</div><h2>94.7%</h2></div><div class="card"><div>AI STATUS</div><h2 class="red">ACTIVE</h2></div><div class="card"><div>EXPERIMENTS</div><h2>7</h2></div><div class="card"><div>FLAGGED</div><h2>4</h2></div>
+</div>
+<div class="builder">
+<section class="card editor"><h3>PAGE BUILDER</h3><label>Select Page</label><select id="target"></select><textarea id="content" placeholder="Edit HTML/text..."></textarea><button id="save">SAVE CHANGES</button><div id="status"></div></section>
+<section class="card"><h3>LIVE PREVIEW</h3><iframe id="preview"></iframe></section>
+<section class="panel"><h3>TARGET / CONTROL</h3><label>Upload + Assign</label><input id="fileInput" type="file" multiple><label>Target</label><select id="uploadTarget"></select><button id="uploadBtn">UPLOAD TO TARGET</button><h4>File Manager</h4><div class="files"><table><thead><tr><th>File</th><th>Target</th><th>Action</th></tr></thead><tbody id="fileRows"></tbody></table></div><p class="red">[REDACTED] access logs monitored.</p></section>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+<div class="card"><h3>ARG ARCHIVES</h3><p>███ unlocked fragment: LAB_REPORT_07</p><p>██ redacted payload detected</p></div>
+<div class="card"><h3>KIAS CONTROL</h3><div id="aiOut">KIAS.exe online...</div><input id="inject" placeholder="Inject message"><button id="injectBtn">EXECUTE</button></div>
+<div class="card"><h3>USER MONITOR</h3><p>U-1044 | L3 | CURIOUS</p><p>U-7701 | L5 | <span class="red">HIGH RISK</span></p></div>
+</div>
+<div class="logs" id="logs"></div>
+</main>
+</div>
+<script>
+const targets=["home","about","divisions","innovation","careers","investors","newsroom","contact","company_info","lab_reports","testing","containment","watchlist","journal","kias"];
+const targetSel=document.getElementById('target'),uploadSel=document.getElementById('uploadTarget'),content=document.getElementById('content'),preview=document.getElementById('preview'),logs=document.getElementById('logs');
+let current='home';
+function addLog(m){logs.innerHTML+=`<div>[${new Date().toLocaleTimeString()}] ${m}</div>`;logs.scrollTop=logs.scrollHeight}
+function fillTargets(){[targetSel,uploadSel].forEach(s=>s.innerHTML=targets.map(t=>`<option value="${t}">${t}</option>`).join(''))}
+async function loadPage(t){const r=await fetch(`/api/pages/${t}`);const d=await r.json();content.value=d.content||'';preview.srcdoc=d.content||'<h1 style="font-family:monospace">No content</h1>';current=t;addLog(`PAGE LOADED: ${t}`)}
+content.addEventListener('input',()=>preview.srcdoc=content.value);
+targetSel.addEventListener('change',e=>loadPage(e.target.value));
+document.getElementById('save').onclick=async()=>{if(!content.value.trim())return status('ERROR: Empty content',true);const r=await fetch('/api/pages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({target:current,content:content.value})});const d=await r.json();if(!r.ok)return status(d.error||'Save failed',true);status('Saved successfully');addLog(`UPDATED: ${current}`)};
+function status(m,e=false){const el=document.getElementById('status');el.textContent=m;el.className=e?'red':''}
+async function loadFiles(){const r=await fetch('/files');const d=await r.json();document.getElementById('fileRows').innerHTML=(d.files||[]).map(f=>`<tr><td>${f.name}</td><td>${f.target||'-'}</td><td><button onclick="delFile('${f.name}')">DEL</button></td></tr>`).join('')}
+window.delFile=async(name)=>{await fetch('/file/'+encodeURIComponent(name),{method:'DELETE'});addLog('FILE DELETED: '+name);loadFiles()}
+document.getElementById('uploadBtn').onclick=async()=>{const files=[...document.getElementById('fileInput').files];if(!files.length)return status('No file selected',true);const target=uploadSel.value;const payload=await Promise.all(files.map(f=>new Promise((res,rej)=>{const rd=new FileReader();rd.onload=()=>res({name:f.name,mime:f.type||'application/octet-stream',content:String(rd.result).split(',')[1],target});rd.onerror=()=>rej(rd.error);rd.readAsDataURL(f)})));const r=await fetch('/upload',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({files:payload})});const d=await r.json();if(!r.ok)return status(d.error||'Upload failed',true);status('Upload complete');addLog(`UPLOAD -> ${target}: ${d.files.length} file(s)`);loadFiles();if(target===current)loadPage(current)}
+setInterval(()=>addLog(['AI BEHAVIOR: MONITORING','FILE UNLOCKED','USER VIEWED PAGE','KIAS SIGNAL INTERCEPTED'][Math.floor(Math.random()*4)]),9000);
+document.getElementById('injectBtn').onclick=()=>{const v=document.getElementById('inject').value.trim();if(!v)return;document.getElementById('aiOut').textContent='KIAS.exe> '+v;addLog('KIAS INJECT: '+v);document.getElementById('inject').value=''};
+fillTargets();loadPage('home');loadFiles();
+</script>
+</body></html>
