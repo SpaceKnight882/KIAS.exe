@@ -150,58 +150,90 @@ app.get("/", (_req, res) => {
 // ===============================
 
 app.post("/ai", async (req, res) => {
-  console.log("REQUEST:", req.body);
-
-  const userMsg = (req.body?.message || "").trim();
-  const userId = (req.body?.user || "anonymous").trim();
-
-  if (!userMsg) {
-    return res.status(400).json({ error: "Message is required." });
-  }
-
-  const input = userMsg.toLowerCase();
-  const user = getUser(userId);
-
-  user.messages.push(input);
-  user.lastSeen = Date.now();
-  user.stage = getStage(user);
-  user.level = user.stage;
-
-  if (input.includes("kias")) user.flags += 1;
-  if (input.includes("override")) user.flags += 2;
-  if (input.includes("who")) user.flags += 1;
-
-  const unlock = checkStoryTriggers(user, input);
-
   try {
+    console.log("AI REQUEST:", req.body);
+
+    const userMsg = (req.body?.message || "").trim();
+    const userId = (req.body?.user || "anonymous").trim();
+    const input = userMsg.toLowerCase();
+
+    const fallbackResponses = [
+      "…connection unstable",
+      "you are not supposed to be here",
+      "KIAS is watching",
+      "request logged",
+      "access level insufficient",
+      "…something is wrong",
+      "stop asking questions",
+      "this node is restricted"
+    ];
+
+    const pickFallback = () => {
+      if (input.includes("hello")) return "connection unstable";
+      if (input.includes("who")) return "identity restricted";
+      if (input.includes("help")) return "no assistance available";
+      return pick(fallbackResponses);
+    };
+
+    if (!userMsg) {
+      const reply = pickFallback();
+      console.log("AI MESSAGE:", userMsg);
+      console.log("AI FALLBACK USED:", true);
+      return res.json({ reply });
+    }
+
+    const user = getUser(userId);
+
+    user.messages.push(input);
+    user.lastSeen = Date.now();
+    user.stage = getStage(user);
+    user.level = user.stage;
+
+    if (input.includes("kias")) user.flags += 1;
+    if (input.includes("override")) user.flags += 2;
+    if (input.includes("who")) user.flags += 1;
+
+    checkStoryTriggers(user, input);
+
     let reply = generateLocalResponse(user);
+    let usedFallback = false;
 
     if (API_KEY) {
-      const response = await fetch("https://api.openai.com/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${API_KEY}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          model: "gpt-4o-mini",
-          messages: [
-            {
-              role: "system",
-              content:
-                "You are K.I.A.S, a cold, corporate archival AI. Keep responses concise and eerie."
-            },
-            {
-              role: "user",
-              content: userMsg
-            }
-          ]
-        })
-      });
+      try {
+        const response = await fetch("https://api.openai.com/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${API_KEY}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            model: "gpt-4o-mini",
+            messages: [
+              {
+                role: "system",
+                content:
+                  "You are K.I.A.S, a cold, corporate archival AI. Keep responses concise and eerie."
+              },
+              {
+                role: "user",
+                content: userMsg
+              }
+            ]
+          })
+        });
 
-      const data = await response.json();
-      if (response.ok && data?.choices?.[0]?.message?.content) {
-        reply = data.choices[0].message.content;
+        const data = await response.json();
+        if (response.ok && data?.choices?.[0]?.message?.content) {
+          reply = data.choices[0].message.content;
+        } else {
+          console.log("AI FAILED, USING FALLBACK");
+          reply = pickFallback();
+          usedFallback = true;
+        }
+      } catch (err) {
+        console.log("AI FAILED, USING FALLBACK");
+        reply = pickFallback();
+        usedFallback = true;
       }
     }
 
@@ -211,21 +243,30 @@ app.post("/ai", async (req, res) => {
     }
 
     saveDB();
+    console.log("AI MESSAGE:", userMsg);
+    console.log("AI FALLBACK USED:", usedFallback);
 
-    return res.json({
-      reply,
-      unlock,
-      stage: getStage(user),
-      profile: {
-        id: user.id,
-        flags: user.flags,
-        discovered: user.discovered,
-        messageCount: user.messages.length
-      }
-    });
+    return res.json({ reply });
   } catch (err) {
-    saveDB();
-    return res.status(500).json({ error: "AI FAILURE", details: String(err) });
+    console.log("AI ROUTE ERROR:", err);
+    const bodyMsg = String(req.body?.message || "").toLowerCase();
+    const fallbackResponses = [
+      "…connection unstable",
+      "you are not supposed to be here",
+      "KIAS is watching",
+      "request logged",
+      "access level insufficient",
+      "…something is wrong",
+      "stop asking questions",
+      "this node is restricted"
+    ];
+    let reply = pick(fallbackResponses);
+    if (bodyMsg.includes("hello")) reply = "connection unstable";
+    if (bodyMsg.includes("who")) reply = "identity restricted";
+    if (bodyMsg.includes("help")) reply = "no assistance available";
+    console.log("AI MESSAGE:", req.body?.message || "");
+    console.log("AI FALLBACK USED:", true);
+    return res.json({ reply });
   }
 });
 
