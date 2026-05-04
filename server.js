@@ -70,6 +70,9 @@ function normalizeFile(file = {}) {
     size: Number(file.size || 0),
     uploadedAt: file.uploadedAt || new Date().toISOString(),
     path: file.path || `storage/${sanitizeFileName(file.name || "file")}`,
+    description: typeof file.description === "string" ? file.description : "",
+    tags: Array.isArray(file.tags) ? file.tags.map((tag) => String(tag).trim()).filter(Boolean) : [],
+    encoding: file.encoding || "base64",
     updatedAt: file.updatedAt || null
   };
 }
@@ -151,7 +154,10 @@ app.post("/upload", (req, res) => {
     const meta = normalizeFile({
       name: finalName, originalName: file.name, target,
       type: getFileType(finalName), mime: file.mime || "application/octet-stream",
-      size: bytes.length, uploadedAt: new Date().toISOString(), path: `storage/${finalName}`
+      size: bytes.length, uploadedAt: new Date().toISOString(), path: `storage/${finalName}`,
+      description: file.description || "",
+      tags: Array.isArray(file.tags) ? file.tags : [],
+      encoding: file.encoding || "base64"
     });
 
     data.files = data.files.filter((entry) => entry.name !== finalName);
@@ -167,6 +173,36 @@ app.post("/upload", (req, res) => {
   savePages(pages);
   if (!saved.length) return res.status(400).json({ error: "No valid files were uploaded." });
   return res.json({ message: "Upload successful.", files: saved });
+});
+
+app.put("/file/:name", (req, res) => {
+  const name = sanitizeFileName(req.params.name);
+  const data = indexData();
+  const file = data.files.find((entry) => entry.name === name);
+  if (!file) return res.status(404).json({ error: "File not found." });
+
+  const description = typeof req.body?.description === "string" ? req.body.description : file.description || "";
+  const tags = Array.isArray(req.body?.tags) ? req.body.tags.map((tag) => String(tag).trim()).filter(Boolean) : (file.tags || []);
+  file.description = description;
+  file.tags = tags;
+
+  if (typeof req.body?.target === "string") {
+    if (!validateTarget(req.body.target)) return res.status(400).json({ error: "Invalid target." });
+    file.target = req.body.target;
+  }
+
+  if (typeof req.body?.content === "string" && req.body.content.trim()) {
+    const absolutePath = resolveStoragePath(file.name);
+    const bytes = Buffer.from(req.body.content, "base64");
+    fs.writeFileSync(absolutePath, bytes);
+    file.size = bytes.length;
+    file.mime = req.body?.mime || file.mime;
+    file.encoding = req.body?.encoding || "base64";
+  }
+
+  file.updatedAt = new Date().toISOString();
+  saveIndex(data);
+  return res.json({ message: "File updated.", file: normalizeFile(file) });
 });
 
 app.delete("/file/:name", (req, res) => {
