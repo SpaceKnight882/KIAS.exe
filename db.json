@@ -4,5 +4,43 @@
     "responses": [],
     "interactions": []
   },
-  "logs": []
+  "logs": [],
+  "sessions": {},
+  "passwordResets": {},
+  "posts": [],
+  "blogTemplates": [],
+  "rolePermissions": {
+    "viewer": [
+      "posts:read",
+      "dashboard:read"
+    ],
+    "author": [
+      "posts:read",
+      "posts:create",
+      "posts:update:own",
+      "dashboard:read",
+      "profile:update:own",
+      "settings:update:own"
+    ],
+    "editor": [
+      "posts:read",
+      "posts:create",
+      "posts:update:any",
+      "posts:publish",
+      "dashboard:read",
+      "templates:edit"
+    ],
+    "moderator": [
+      "posts:read",
+      "posts:moderate",
+      "dashboard:read",
+      "templates:edit"
+    ],
+    "admin": [
+      "*"
+    ],
+    "super_admin": [
+      "*"
+    ]
+  }
 }
